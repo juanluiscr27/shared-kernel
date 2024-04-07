@@ -1,0 +1,5 @@
+pydantic==2.6.4
+result==0.16.1
+pytest==8.1.1
+wheel==0.43.0
+setuptools==69.2.0
