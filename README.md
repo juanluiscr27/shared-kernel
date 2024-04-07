@@ -1,5 +1,9 @@
 # Shared Kernel
 
+[![Build Status](https://github.com/juanluiscr27/shared-kernel/actions/workflows/tests.yaml/badge.svg)](https://github.com/juanluiscr27/shared-kernel/actions) 
+[![Python](https://img.shields.io/badge/python-3.12-blue)](https://docs.python.org/3.12/index.html) 
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/) 
+
 A Python library that implements a Shared Kernel pattern for projects built using Domain-Driven Design principles.
 
 ## Features
@@ -63,7 +67,7 @@ assert result == expected
 
 ### Domain Entities
 
-Define two entities with same ids and the both should be equal.
+Define two entities with same ids and they both should be equal.
 
 ```python
 from dataclasses import dataclass
@@ -78,9 +82,9 @@ class CountryID(EntityID):
 
 class Country(Entity[CountryID]):
 
-    def __init__(self, country_id: CountryID, name):
+    def __init__(self, country_id: CountryID, name: str):
         super().__init__(country_id)
-        self.name: str = name
+        self.name = name
 
 # defining a strongly typed id for our entities 
 do = CountryID("DO")
