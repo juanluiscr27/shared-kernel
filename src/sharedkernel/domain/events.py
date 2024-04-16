@@ -14,7 +14,7 @@ TEvent = TypeVar("TEvent", bound=DomainEvent)
 class DomainEventHandler(ABC, Generic[TEvent]):
     """Event Consumer generic class to handle Domain Events
 
-    TEvent defines a subclass of `DomainEvent` that can be handled
+    `TEvent` defines a subclass of `DomainEvent` that can be handled
     """
 
     @abstractmethod
