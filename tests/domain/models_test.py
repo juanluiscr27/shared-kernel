@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sharedkernel.domain.models import ValueObject, EntityID, Entity, Aggregate
+from sharedkernel.domain import ValueObject, EntityID, Entity, Aggregate
 
 
 @dataclass(frozen=True)

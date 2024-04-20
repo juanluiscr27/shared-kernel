@@ -49,13 +49,14 @@ Define two value object with same value. They both should be equal.
 ```python
 from dataclasses import dataclass
 
-from sharedkernel.domain.models import ValueObject
+from sharedkernel.domain import ValueObject
 
 
 @dataclass(frozen=True)
 class Money(ValueObject):
     amount: float = 0
     currency: str = "USD"
+
 
 # creating two money objects with same amount and currency value
 expected = Money(10, "CAD")
@@ -72,7 +73,7 @@ Define two entities with same ids and they both should be equal.
 ```python
 from dataclasses import dataclass
 
-from sharedkernel.domain.models import Entity, EntityID
+from sharedkernel.domain import Entity, EntityID
 
 
 @dataclass(frozen=True)
@@ -85,6 +86,7 @@ class Country(Entity[CountryID]):
     def __init__(self, country_id: CountryID, name: str):
         super().__init__(country_id)
         self.name = name
+
 
 # defining a strongly typed id for our entities 
 do = CountryID("DO")
@@ -104,7 +106,7 @@ Here we are checking if an email is null or empty and throw a `ValueError` if an
 ```python
 from dataclasses import dataclass
 
-from sharedkernel.domain.models import ValueObject
+from sharedkernel.domain import ValueObject
 from sharedkernel.domain.services import Guard
 
 
@@ -117,11 +119,12 @@ class Email(ValueObject):
         Guard.is_not_null_or_empty(value)
         return cls(value)
 
+
 # defining an empty email
 empty_email = ""
 
 try:
     _ = Email.create(empty_email)
 except ValueError as error:
-    print(error) # Email cannot be null nor empty
+    print(error)  # Email cannot be null nor empty
 ```
