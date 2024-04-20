@@ -49,7 +49,7 @@ Define two value object with same value. They both should be equal.
 ```python
 from dataclasses import dataclass
 
-from sharedkernel.domain import ValueObject
+from sharedkernel.domain.models import ValueObject
 
 
 @dataclass(frozen=True)
@@ -73,7 +73,7 @@ Define two entities with same ids and they both should be equal.
 ```python
 from dataclasses import dataclass
 
-from sharedkernel.domain import Entity, EntityID
+from sharedkernel.domain.models import Entity, EntityID
 
 
 @dataclass(frozen=True)
@@ -106,7 +106,7 @@ Here we are checking if an email is null or empty and throw a `ValueError` if an
 ```python
 from dataclasses import dataclass
 
-from sharedkernel.domain import ValueObject
+from sharedkernel.domain.models import ValueObject
 from sharedkernel.domain.services import Guard
 
 
