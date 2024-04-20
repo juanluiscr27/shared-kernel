@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from sharedkernel.domain import ValueObject
+from sharedkernel.domain.models import ValueObject
 from sharedkernel.domain.services import Guard
 
 
