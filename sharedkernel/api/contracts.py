@@ -48,3 +48,21 @@ class ErrorResponse(ProblemDetail):
         message = error.message
         error_type = error.code
         super().__init__(loc=location, msg=message, type=error_type)
+
+
+class DomainErrorResponse(ProblemDetail):
+    """DomainErrorResponse
+
+        HTTP ProblemDetail response for `DomainError`.
+
+        Args:
+            error: Domain error.
+        """
+
+    def __init__(self, error: DomainError):
+        location = [error.domain]
+        message = error.message
+        module = error.__module__
+        class_name = error.__class__.__name__
+        error_type = f"{module}.{class_name}"
+        super().__init__(loc=location, msg=message, type=error_type)

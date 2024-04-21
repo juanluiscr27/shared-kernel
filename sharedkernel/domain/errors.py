@@ -14,7 +14,7 @@ class DomainError(Exception):
         message: Human readable string describing the exception.
     """
 
-    def __init__(self, domain: object, message: str):
+    def __init__(self, domain: str, message: str):
         super().__init__(message)
         self.domain = domain
         self.message = message
@@ -31,8 +31,10 @@ class UnknownEvent(DomainError):
     """
 
     def __init__(self, aggregate: object, event: DomainEvent):
-        message = f"Event({event.__class__}) cannot be applied to '{aggregate.__class__}'"
-        super().__init__(domain=aggregate, message=message)
+        event_name = event.__class__.__name__
+        aggregate_name = f"{aggregate.__module__}.{aggregate.__class__.__name__}"
+        message = f"Event({event_name}) cannot be applied to '{aggregate_name}'"
+        super().__init__(domain=aggregate_name, message=message)
         self.event = event
 
 
