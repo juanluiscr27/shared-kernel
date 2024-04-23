@@ -79,4 +79,4 @@ def test_problem_detail_is_constructed_with_domain_error():
     result = DomainErrorResponse(error=unknown_event)
 
     # Assert
-    assert result.json() == expected.json()
+    assert result.model_dump_json() == expected.model_dump_json()
