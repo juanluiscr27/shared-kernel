@@ -32,9 +32,11 @@ class UnknownEvent(DomainError):
 
     def __init__(self, aggregate: object, event: DomainEvent):
         event_name = event.__class__.__name__
-        aggregate_name = f"{aggregate.__module__}.{aggregate.__class__.__name__}"
+        aggregate_module = aggregate.__module__
+        aggregate_name = aggregate.__class__.__name__
+        domain = f"{aggregate_module}.{aggregate_name}"
         message = f"Event({event_name}) cannot be applied to '{aggregate_name}'"
-        super().__init__(domain=aggregate_name, message=message)
+        super().__init__(domain=domain, message=message)
         self.event = event
 
 

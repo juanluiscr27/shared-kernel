@@ -70,7 +70,7 @@ def test_problem_detail_is_constructed_with_domain_error():
     user = User(user_id=user_id, name="John Doe")
 
     expected = ProblemDetail(loc=["tests.api.contracts_test.User"],
-                             msg="Event(AccountOpened) cannot be applied to 'tests.api.contracts_test.User'",
+                             msg="Event(AccountOpened) cannot be applied to 'User'",
                              type="sharedkernel.domain.errors.UnknownEvent", )
 
     unknown_event = UnknownEvent(aggregate=user, event=account_opened)
