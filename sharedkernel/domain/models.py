@@ -1,6 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
-from typing import Deque, Generic, List, Tuple, TypeVar
+from typing import Deque, Generic, Tuple, TypeVar
 
 from uuid import UUID
 
@@ -41,10 +41,10 @@ class Entity(Generic[TId]):
     """
 
     def __init__(self, entity_id: TId) -> None:
-        self._id: TId = entity_id
+        self._id = entity_id
 
     @property
-    def id(self) -> TId:
+    def id(self):
         return self._id
 
     def __repr__(self):
@@ -101,28 +101,3 @@ class Aggregate(Entity[TId]):
     def clear_events(self) -> None:
         self._events.clear()
 
-
-@dataclass(frozen=True)
-class ReadModel:
-    """ReadModel base class
-
-    Is a Data Transfer Object used to provide cohesive information about an entity to queries.
-    """
-
-
-@dataclass(frozen=True)
-class ReadModelList:
-    """ReadModelList class
-
-    Is an object that represents a group of `ReadModel` entities structured as a limit-offset based pagination.
-
-    Args:
-        offset: number of skipped items.
-        limit: number of items per page.
-        total: total number of items.
-        items: list of `ReadModel` paginated items.
-    """
-    offset: int
-    limit: int
-    total: int
-    items: List[ReadModel]

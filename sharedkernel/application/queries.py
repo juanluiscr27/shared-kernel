@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TypeVar
 
-from sharedkernel.domain.models import ReadModel, ReadModelList
+from sharedkernel.domain.data import ReadModel, ReadModelList
 
 
 @dataclass(frozen=True)
