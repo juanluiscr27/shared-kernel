@@ -1,8 +1,8 @@
 # Shared Kernel
 
-[![Build Status](https://github.com/juanluiscr27/shared-kernel/actions/workflows/tests.yaml/badge.svg)](https://github.com/juanluiscr27/shared-kernel/actions) 
-[![Python](https://img.shields.io/badge/python-3.12-blue)](https://docs.python.org/3.12/index.html) 
-[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/) 
+[![Build Status](https://github.com/juanluiscr27/shared-kernel/actions/workflows/tests.yaml/badge.svg)](https://github.com/juanluiscr27/shared-kernel/actions)
+[![Python](https://img.shields.io/badge/python-3.12-blue)](https://docs.python.org/3.12/index.html)
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 A Python library that implements a Shared Kernel pattern for projects built using Domain-Driven Design principles.
 
@@ -19,13 +19,16 @@ The catalog of elements included in this library is as follows:
 * Command Validator
 * Domain Errors
 * Event Broker (in memory)
+* Event Dispatcher
 * Repository Pattern
+* Projections
 * API Contracts
 * Clean Architecture
 
 ### Dependencies
 
 Shared Kernel is built using Python 3.12 and depends on the follow libraries:
+
 * [Pydantic](https://github.com/pydantic/pydantic)
 * [Result](https://github.com/rustedpy/result)
 
@@ -38,6 +41,7 @@ To install Share Kernel using pip, run:
 ```shell
 pip install git+https://github.com/juanluiscr27/shared-kernel.git@v0.1.0-beta#egg=sharedkernel
 ```
+
 ## Usage
 
 Shared Kernel is ease to use, here we have some examples.
