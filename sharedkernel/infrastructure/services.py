@@ -1,6 +1,12 @@
+import json
+from abc import ABC, abstractmethod
 from inspect import signature
+from typing import List, Any, Dict, Optional
 
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
+from sharedkernel.infrastructure.data import Event
+from sharedkernel.infrastructure.errors import MapperNotFound
+from sharedkernel.infrastructure.projections import Projector
 
 
 class EventBroker:
@@ -65,3 +71,73 @@ class EventBroker:
 
         for consumer in consumer_group:
             consumer.process(event)
+
+
+class MappingPipeline(ABC):
+
+    @abstractmethod
+    def map(self, data: Dict[str, Any], data_type: str) -> Optional[DomainEvent]:
+        ...
+
+
+class EventDispatcher:
+    """
+    A Dispatcher is a service object that is given an Event object by an Emitter.
+
+    The Dispatcher is responsible for ensuring that the Event is passed to all relevant Listeners.
+    """
+
+    def __init__(self, mapper: MappingPipeline):
+        self._mapper = mapper
+        self._listeners: dict[str, List[Projector]] = dict()
+
+    def subscribe(self, listener: Projector) -> bool:
+        """Subscribe an Event Handler as listener to an Event Group.
+
+        Args:
+            listener: Is callable that expects to be passed an Event and a sequential position.
+
+        Returns:
+            True if the Event Handler was successfully subscribed, otherwise False.
+        """
+        handled_types = listener.handles
+        if not handled_types:
+            raise AttributeError("EventDispatcher.ListenerSubscriptionError")
+
+        for event_type in handled_types:
+            if event_type in self._listeners:
+                self._listeners[event_type].append(listener)
+            else:
+                self._listeners[event_type] = [listener]
+
+        return True
+
+    def dispatch(self, event: Event) -> None:
+        """Publish a Domain Event to its respective Event Group.
+
+        Look for the Handlers subscribed in the Event Group and notify them to process the Event.
+
+        Args:
+           event: Event to dispatch.
+
+        Returns:
+           None
+
+        Raises:
+            MapperNotFound
+        """
+        event_type = event.event_type
+
+        if event_type not in self._listeners:
+            return
+
+        event_data = json.loads(event.data)
+
+        domain_event = self._mapper.map(event_data, event_type)
+        if not domain_event:
+            raise MapperNotFound(event_type)
+
+        listener_group = self._listeners[event_type]
+
+        for listener in listener_group:
+            listener.process(domain_event, event.position)
