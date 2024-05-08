@@ -1,13 +1,23 @@
 from dataclasses import dataclass
-from typing import List
 
 
 @dataclass(frozen=True)
 class DataModel:
     """DataModel base class
 
-    Is a Data Transfer Object represent cohesive information in the infrastructure optimized for queries.
+    Is a Data Transfer Object representing cohesive information in the infrastructure optimized for queries.
     """
+
+
+@dataclass(frozen=True)
+class Event(DataModel):
+    event_id: str
+    event_type: str
+    position: int
+    data: str
+    stream_id: str
+    stream_type: str
+    expected_version: int
 
 
 @dataclass(frozen=True)
