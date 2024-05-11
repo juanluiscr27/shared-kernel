@@ -6,6 +6,14 @@ from typing import TypeVar, Generic
 @dataclass(frozen=True)
 class DomainEvent:
     """Domain Event base class"""
+    
+    @property
+    def qualname(self):
+        return self.__class__.__qualname__
+
+    @property
+    def full_qualname(self):
+        return f"{self.__module__}.{self.qualname}"
 
 
 TEvent = TypeVar("TEvent", bound=DomainEvent)
