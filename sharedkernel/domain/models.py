@@ -23,7 +23,7 @@ class EntityID(ValueObject):
     Represents the concept of a stringly typed ID to prevent primitive obsession.
 
     Args:
-        value: The identification primitive value that is wrapped up.
+        value: The identification of primitive value that is wrapped up.
     """
     value: UUID
 
@@ -37,7 +37,7 @@ class Entity(Generic[TId]):
     Object with an identity relevant to the domain and a set of attributes that define its state.
 
     Args:
-        entity_id: A strongly typed Entity ID.
+        entity_id: A strongly typed Entity identifier.
     """
 
     def __init__(self, entity_id: TId) -> None:
@@ -46,6 +46,14 @@ class Entity(Generic[TId]):
     @property
     def id(self):
         return self._id
+
+    @property
+    def qualname(self):
+        return self.__class__.__qualname__
+
+    @property
+    def full_qualname(self):
+        return f"{self.__module__}.{self.qualname}"
 
     def __repr__(self):
         return f"{self.__class__.__name__}(id={self._id})"
@@ -75,7 +83,7 @@ class Aggregate(Entity[TId]):
     aggregate, which ensure the business rules and protect the data integrity.
 
     Args:
-        entity_id: A strongly typed Entity ID.
+        entity_id: A strongly typed Entity identifier.
         version: Aggregate version number
     """
 
@@ -100,4 +108,3 @@ class Aggregate(Entity[TId]):
 
     def clear_events(self) -> None:
         self._events.clear()
-

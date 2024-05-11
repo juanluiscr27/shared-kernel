@@ -82,6 +82,30 @@ def test_entities_with_different_id_are_not_equal():
     assert country1 != country2
 
 
+def test_entity_qualname():
+    # Arrange
+    country_id = CountryID("DO")
+    expected = "Country"
+
+    # Act
+    dr = Country(country_id=country_id, name="Dominican Republic")
+
+    # Assert
+    assert dr.qualname == expected
+
+
+def test_entity_full_qualname():
+    # Arrange
+    country_id = CountryID("DO")
+    expected = "tests.domain.models_test.Country"
+
+    # Act
+    dr = Country(country_id=country_id, name="Dominican Republic")
+
+    # Assert
+    assert dr.full_qualname == expected
+
+
 def test_aggregates_with_same_id_are_equal():
     # Arrange
     user_id = UserID(101)
