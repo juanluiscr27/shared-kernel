@@ -2,6 +2,16 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 1.0.1 (2024-05-10)
+
+### Add
+
+- qualname and full_qualname property to Entity and DomainEvent base classes.
+
+### Fix
+
+- setup config version number.
+
 ## 1.0.0 (2024-05-08)
 
 ### Changed
