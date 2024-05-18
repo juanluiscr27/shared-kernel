@@ -22,7 +22,8 @@ class Repository(ABC, Generic[TEntity]):
     def aggregate_type(self) -> str:
         """Returns the fully qualified name of the entity this repository is based on"""
         bases = get_original_bases(self.__class__)
-        args = typing.get_args(bases[0])
+        supers = get_original_bases(bases[0])
+        args = typing.get_args(supers[0])
         module = args[0].__module__
         class_name = args[0].__name__
         return f"{module}.{class_name}"
