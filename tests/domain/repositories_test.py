@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -17,13 +18,31 @@ class User(Aggregate[UserID]):
         self.name: str = name
 
 
+class Users(Repository[User]):
+    @abstractmethod
+    def save(self, user: User) -> int:
+        ...
+
+    @abstractmethod
+    def find_by_id(self, user_id: UserID) -> Optional[UserID]:
+        ...
+
+    @abstractmethod
+    def find_by_slug(self, slug: str) -> Optional[UserID]:
+        ...
+
+    @abstractmethod
+    def find_all(self) -> List[User]:
+        ...
+
+
 def test_repository_with_aggregates():
     # Arrange
     expected = "tests.domain.repositories_test.User"
 
-    class Users(Repository[User]):
+    class TestUsers(Users):
 
-        def save(self, user: User):
+        def save(self, user: User) -> int:
             pass
 
         def find_by_id(self, user_id: UserID) -> Optional[UserID]:
@@ -36,7 +55,7 @@ def test_repository_with_aggregates():
             pass
 
     # Act
-    users = Users()
+    users = TestUsers()
 
     # Assert
     assert users.aggregate_type == expected
