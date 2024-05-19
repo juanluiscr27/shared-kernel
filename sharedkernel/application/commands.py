@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import TypeVar, Generic
 from uuid import UUID
 
 from result import Result
@@ -32,7 +33,10 @@ class Acknowledgement:
     position: int
 
 
-class CommandHandler(ABC):
+TCommand = TypeVar("TCommand", bound=Command)
+
+
+class CommandHandler(ABC, Generic[TCommand]):
     """Command Handler
 
     Is an object that orchestrates a business process and executes the activities that can be performed with the
@@ -40,7 +44,7 @@ class CommandHandler(ABC):
     """
 
     @abstractmethod
-    def execute(self, command: Command) -> Result[Acknowledgement, Error]:
+    def execute(self, command: TCommand) -> Result[Acknowledgement, Error]:
         """Execute a Command.
 
         Args:
