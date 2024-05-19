@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, TypeVar, Generic
 
 from sharedkernel.application.commands import Command
+from sharedkernel.application.queries import Query
 from sharedkernel.domain.errors import Error
 
 
@@ -35,18 +36,21 @@ class ValidationResult:
         return cls(errors=errors)
 
 
-class Validator(ABC):
-    """Command Validator
+TRequest = TypeVar("TRequest", bound=Command | Query)
+
+
+class Validator(ABC, Generic[TRequest]):
+    """Validator for Command or Query
 
     Perform input validation on the request
     """
 
     @abstractmethod
-    def validate(self, command: Command) -> ValidationResult:
-        """Validate that the command is processable.
+    def validate(self, request: TRequest) -> ValidationResult:
+        """Validate that the request is processable.
 
         Args:
-            command (Command): Command to validate.
+            request: Command or Query to validate.
 
         Returns:
             ValidationResult
