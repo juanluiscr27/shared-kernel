@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from enum import StrEnum
+from uuid import UUID
 
 from result import Result
 
@@ -16,6 +17,21 @@ class Command:
     """
 
 
+class CommandStatus(StrEnum):
+    RECEIVED = 'received'
+    PROCESSING = 'processing'
+    EXECUTED = 'executed'
+    FAILED = 'failed'
+
+
+@dataclass
+class Acknowledgement:
+    status: CommandStatus
+    action: str
+    entity_id: UUID
+    position: int
+
+
 class CommandHandler(ABC):
     """Command Handler
 
@@ -24,13 +40,13 @@ class CommandHandler(ABC):
     """
 
     @abstractmethod
-    def execute(self, command: Command) -> Result[Any, Error]:
+    def execute(self, command: Command) -> Result[Acknowledgement, Error]:
         """Execute a Command.
 
         Args:
             command: Command to execute.
 
         Returns:
-            The execution result of the command. It could be success of type
-            `Any` or an `Error`.
+            The execution result of the command.
+            It could be an acknowledgement of success or an `Error`.
         """

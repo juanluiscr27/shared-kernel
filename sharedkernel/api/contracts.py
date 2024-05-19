@@ -1,6 +1,6 @@
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from sharedkernel.domain.errors import Error, DomainError
 
@@ -19,12 +19,41 @@ class Response(BaseModel):
     """
 
 
+class AckData(BaseModel):
+    """Command Acknowledgement data
+
+    Details Command and Resource specific data.
+
+    Attributes:
+        action: Name of the command executed.
+        entity_id: Unique Identifier of the resource
+        position: Number that represents the position of this change in the resource sequence of events
+    """
+    action: str
+    entity_id: str = Field(alias="entityId")
+    position: int
+
+
+class AckResponse(Response):
+    """Acknowledgement Response
+
+    A response that communicates the status of command that has been executed.
+    It indicates the position of state change in a particular resource after executing the action.
+
+    Attributes:
+        status: Status of the command executed on the request.
+        data: Command and Resource specific data
+    """
+    status: str
+    data: AckData
+
+
 class ProblemDetail(Response):
     """ProblemDetail
 
     A standard machine-readable details of errors in an HTTP response.
 
-    Args:
+    Attributes:
         loc: A reference that identifies the specific instance where the problem occurred.
         msg: A short summary to describe the type of problem in general.
         type: Identifies the problem type.
