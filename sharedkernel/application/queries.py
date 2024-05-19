@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TypeVar
+from typing import TypeVar, Generic
+
+from result import Result
 
 from sharedkernel.domain.data import ReadModel, ReadModelList
+from sharedkernel.domain.errors import Error
 
 
 @dataclass(frozen=True)
@@ -14,23 +17,26 @@ class Query:
     """
 
 
+TQuery = TypeVar("TQuery", bound=Query)
 TResult = TypeVar("TResult", bound=ReadModel | ReadModelList)
 
 
-class QueryHandler(ABC):
+class QueryHandler(ABC, Generic[TQuery]):
     """Query Handler
 
-    Is an object that define methods executes data retrieval. Query Handlers take a `Query` as input, search on the data
-    store based on the query parameters and return a `ReadModel` or `ReadModelList`.
+    Is an object that defines a method to execute data retrieval.
+    Query Handlers take a `Query` as input,
+    search on the data store based on the query parameters and return a `ReadModel` or `ReadModelList`.
     """
 
     @abstractmethod
-    def execute(self, query: Query) -> TResult:
-        """Execute a Command.
+    def execute(self, query: TQuery) -> Result[TResult, Error]:
+        """Execute a Query.
 
         Args:
-            query (Query): Query to execute.
+            query: Query to execute.
 
         Returns:
-            TResult
+            The execution result of the query.
+            It could be a `ReadModel`, a `ReadModelList` or an `Error`.
         """
