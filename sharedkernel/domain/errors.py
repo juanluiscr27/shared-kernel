@@ -4,26 +4,41 @@ from typing import Any
 from sharedkernel.domain.events import DomainEvent
 
 
-class DomainError(Exception):
+class ServiceError(Exception):
+    """Service Error
+
+    The base class for all other exceptions in the entire system.
+
+    Args:
+        message: Human readable string describing the exception.
+    """
+
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+
+class DomainError(ServiceError):
     """Domain Error
 
     Represents a violation to the business rule or domain logic constraints.
 
     Args:
-        domain: Entity on which the error was raised.
+        entity: Entity on which the error was raised.
         message: Human readable string describing the exception.
     """
 
-    def __init__(self, domain: str, message: str):
+    def __init__(self, entity: object, message: str):
         super().__init__(message)
-        self.domain = domain
-        self.message = message
+        entity_module = entity.__module__
+        entity_name = entity.__class__.__name__
+        self.domain = f"{entity_module}.{entity_name}"
 
 
 class UnknownEvent(DomainError):
     """Unknown Event Error
 
-    Thrown when an event is applied to an aggregate that not correspond.
+    Thrown when an event is applied to an aggregate that does not correspond.
 
     Args:
         aggregate: Entity on which the event invalid was applied.
@@ -31,12 +46,10 @@ class UnknownEvent(DomainError):
     """
 
     def __init__(self, aggregate: object, event: DomainEvent):
-        event_name = event.__class__.__name__
-        aggregate_module = aggregate.__module__
-        aggregate_name = aggregate.__class__.__name__
-        domain = f"{aggregate_module}.{aggregate_name}"
-        message = f"Event({event_name}) cannot be applied to '{aggregate_name}'"
-        super().__init__(domain=domain, message=message)
+        event_name = type(event).__name__
+        aggregate_name = type(aggregate).__name__
+        message = f"Event '{event_name}' cannot be applied to '{aggregate_name}'"
+        super().__init__(entity=aggregate, message=message)
         self.event = event
 
 
