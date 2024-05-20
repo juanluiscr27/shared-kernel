@@ -22,7 +22,7 @@ def test_entity_qualname():
 
 def test_entity_full_qualname():
     # Arrange
-    expected = "tests.domain.event_test.AccountOpened"
+    expected = "tests.domain.events_test.AccountOpened"
 
     # Act
     account = AccountOpened('7010054', 'account-opened')

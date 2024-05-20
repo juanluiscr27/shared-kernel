@@ -1,12 +1,12 @@
 import json
 import typing
-from abc import ABC, abstractmethod
 from types import get_original_bases
-from typing import List, Any, Dict, Optional
+from typing import List
 
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 from sharedkernel.infrastructure.data import Event
-from sharedkernel.infrastructure.errors import MapperNotFound, UnsupportedEventHandler
+from sharedkernel.infrastructure.errors import MapperNotFound, UnsupportedEventHandler, UnprocessableListener
+from sharedkernel.infrastructure.mappers import MappingPipeline
 from sharedkernel.infrastructure.projections import Projector
 
 TEventHandler = typing.TypeVar("TEventHandler", bound=DomainEventHandler)
@@ -70,13 +70,6 @@ class EventBroker:
             consumer.process(event)
 
 
-class MappingPipeline(ABC):
-
-    @abstractmethod
-    def map(self, data: Dict[str, Any], data_type: str) -> Optional[DomainEvent]:
-        ...
-
-
 class EventDispatcher:
     """
     A Dispatcher is a service object that is given an Event object by an Emitter.
@@ -99,7 +92,8 @@ class EventDispatcher:
         """
         handled_types = listener.handles
         if not handled_types:
-            raise AttributeError("EventDispatcher.ListenerSubscriptionError")
+            listener_name = type(listener).__name__
+            raise UnprocessableListener(self, listener_name)
 
         for event_type in handled_types:
             if event_type in self._listeners:

@@ -5,6 +5,7 @@ import pytest
 
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel, Event
+from sharedkernel.infrastructure.errors import UnprocessableListener
 from sharedkernel.infrastructure.projections import Projector, Projection
 from sharedkernel.infrastructure.services import EventDispatcher, MappingPipeline
 
@@ -89,11 +90,11 @@ def test_projector_with_no_handled_event_raise_error():
     event_dispatcher = EventDispatcher(mapper=fake_mapper)
 
     # Act
-    with pytest.raises(AttributeError) as error:
+    with pytest.raises(UnprocessableListener) as error:
         event_dispatcher.subscribe(projector)
 
     # Assert
-    assert str(error.value) == "EventDispatcher.ListenerSubscriptionError"
+    assert str(error.value) == "Cannot subscribe `UserListProjector` because it does not handle any event"
 
 
 def test_event_is_processed_by_subscribed_handler(capture_stdout):

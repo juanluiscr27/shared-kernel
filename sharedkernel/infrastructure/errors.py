@@ -38,3 +38,10 @@ class UnsupportedEventHandler(InfrastructureError):
         service_name = type(service).__name__
         message = f"`{handler}` cannot be registered to {service_name}"
         super().__init__(service, message)
+
+
+class UnprocessableListener(InfrastructureError):
+
+    def __init__(self, service: object, listener: str):
+        message = f"Cannot subscribe `{listener}` because it does not handle any event"
+        super().__init__(service, message)
