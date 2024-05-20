@@ -19,7 +19,7 @@ class ApplicationError(ServiceError):
     def __init__(self, service: object, message: str):
         super().__init__(message)
         service_module = service.__module__
-        service_name = service.__class__.__name__
+        service_name = service.__name__
         self.service = f"{service_module}.{service_name}"
 
 
@@ -27,7 +27,7 @@ class HandlerAlreadyRegistered(ApplicationError):
 
     def __init__(self, service: object, request_type: str):
         message = f"A Handler has been already registered for `{request_type}`"
-        super().__init__(service, message)
+        super().__init__(type(service), message)
 
 
 class UnsupportedHandler(ApplicationError):
@@ -35,7 +35,7 @@ class UnsupportedHandler(ApplicationError):
     def __init__(self, service: object, handler: str):
         service_name = type(service).__name__
         message = f"`{handler}` cannot be registered to {service_name}"
-        super().__init__(service, message)
+        super().__init__(type(service), message)
 
 
 class ServiceBusErrors:
