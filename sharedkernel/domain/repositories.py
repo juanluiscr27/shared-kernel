@@ -1,7 +1,7 @@
-import typing
 from abc import ABC
-from types import get_original_bases
 from typing import Generic, TypeVar
+
+from typeinspection.handlers import get_super_type
 
 from sharedkernel.domain.models import Entity
 
@@ -21,12 +21,7 @@ class Repository(ABC, Generic[TEntity]):
     @property
     def aggregate_type(self) -> str:
         """Returns the fully qualified name of the entity this repository is based on"""
-        bases = get_original_bases(self.__class__)
-        supers = get_original_bases(bases[0])
-        args = typing.get_args(supers[0])
-        module = args[0].__module__
-        class_name = args[0].__name__
-        return f"{module}.{class_name}"
+        return get_super_type(self)
 
     # save (self, entity: TEntity):
 
