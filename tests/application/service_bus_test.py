@@ -154,7 +154,7 @@ def test_validator_is_registered_to_service_bus():
 
 def test_registering_event_handler_service_bus_raise_error():
     # Arrange
-    expected = "`RegistrationEventHandler` cannot be registered in the Service Bus"
+    expected = "`RegistrationEventHandler` cannot be registered to ServiceBus"
 
     bus = ServiceBus()
     handler = RegistrationEventHandler()
