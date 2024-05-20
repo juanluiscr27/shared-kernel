@@ -2,11 +2,35 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 2.0.0 (2024-05-20)
+
+### Add
+
+- an acknowledgement response data model together with a command status enum.
+- a service bus implementation to send commands and queries.
+- event mapper base class, mapping behavior and mapping pipeline.
+
+### Fix
+
+- aggregate_type property access to the generic super type of base repository.
+
+### Changed
+
+- exception class hierarchy and internal properties.
+- command handler to be generic handler of commands.
+- query handler to a generic handler of queries.
+- validators to be generic validator of requests.
+- event broker subscribe method to get handler type from generics.
+- event data model, adding created field.
+- version of type inspection dependency.
+- Test implementations.
+
 ## 1.0.1 (2024-05-10)
 
 ### Add
 
 - qualname and full_qualname property to Entity and DomainEvent base classes.
+- application error and infrastructure error.
 
 ### Fix
 

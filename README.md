@@ -20,6 +20,8 @@ The catalog of elements included in this library is as follows:
 * Domain Errors
 * Event Broker (in memory)
 * Event Dispatcher
+* Service Bus
+* Event Mapping Pipeline
 * Repository Pattern
 * Projections
 * API Contracts
