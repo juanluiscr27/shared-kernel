@@ -1,12 +1,15 @@
 import json
+import typing
 from abc import ABC, abstractmethod
-from inspect import signature
+from types import get_original_bases
 from typing import List, Any, Dict, Optional
 
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 from sharedkernel.infrastructure.data import Event
-from sharedkernel.infrastructure.errors import MapperNotFound
+from sharedkernel.infrastructure.errors import MapperNotFound, UnsupportedEventHandler
 from sharedkernel.infrastructure.projections import Projector
+
+TEventHandler = typing.TypeVar("TEventHandler", bound=DomainEventHandler)
 
 
 class EventBroker:
@@ -17,9 +20,9 @@ class EventBroker:
     """
 
     def __init__(self):
-        self._consumers: dict[str, list[DomainEventHandler]] = dict()
+        self._consumers: dict[str, list[TEventHandler]] = dict()
 
-    def subscribe(self, event_handler: DomainEventHandler) -> bool:
+    def subscribe(self, event_handler: TEventHandler) -> bool:
         """Subscribe a Domain Event Handler as consumers to an Event Group.
 
         Args:
@@ -29,19 +32,13 @@ class EventBroker:
         Returns:
             True if the Event Handler was successfully subscribed, otherwise False.
         """
+        handler_type = type(event_handler).__name__
+        if not isinstance(event_handler, DomainEventHandler):
+            raise UnsupportedEventHandler(self, handler_type)
 
-        try:
-            method_signature = signature(event_handler.process)
-            parameters = method_signature.parameters
-        except AttributeError as err:
-            print(f"EventBroker.ConsumerSubscriptionError: {err}")
-            return False
-
-        if not parameters:
-            return False
-
-        parameter = next(iter(parameters.values()))
-        event_type = str(parameter.annotation)
+        bases = get_original_bases(event_handler.__class__)
+        args = typing.get_args(bases[0])
+        event_type = args[0].__name__
 
         if event_type in self._consumers:
             self._consumers[event_type].append(event_handler)
@@ -62,7 +59,7 @@ class EventBroker:
         Returns:
            None
         """
-        event_type = str(type(event))
+        event_type = type(event).__name__
 
         if event_type not in self._consumers:
             return
@@ -135,7 +132,7 @@ class EventDispatcher:
 
         domain_event = self._mapper.map(event_data, event_type)
         if not domain_event:
-            raise MapperNotFound(event_type)
+            raise MapperNotFound(self, event_type)
 
         listener_group = self._listeners[event_type]
 
