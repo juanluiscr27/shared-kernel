@@ -33,7 +33,8 @@ class HandlerAlreadyRegistered(ApplicationError):
 class UnsupportedHandler(ApplicationError):
 
     def __init__(self, service: object, handler: str):
-        message = f"`{handler}` cannot be registered in the Service Bus"
+        service_name = type(service).__name__
+        message = f"`{handler}` cannot be registered to {service_name}"
         super().__init__(service, message)
 
 
