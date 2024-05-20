@@ -1,7 +1,8 @@
 import json
 import typing
 from types import get_original_bases
-from typing import List
+from typing import List, TypeVar
+from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 from sharedkernel.infrastructure.data import Event
@@ -9,7 +10,14 @@ from sharedkernel.infrastructure.errors import MapperNotFound, UnsupportedEventH
 from sharedkernel.infrastructure.mappers import MappingPipeline
 from sharedkernel.infrastructure.projections import Projector
 
-TEventHandler = typing.TypeVar("TEventHandler", bound=DomainEventHandler)
+TEventHandler = TypeVar("TEventHandler", bound=DomainEventHandler)
+
+
+class UUIDEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, UUID):
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)
 
 
 class EventBroker:
