@@ -7,19 +7,19 @@ class DomainService:
     """Domain Service marker class.
 
     Encapsulates business logic that doesn't naturally fit within a domain object. A `DomainService` is specially
-    useful when the logic needed to implement require more than one aggregate. Additionally, when implementing a core
+    useful when the logic needed to implement requires more than one aggregate. Additionally, when implementing a core
     domain logic that depends on some external services like repositories or external API.
     """
 
 
 class Guard:
-    """Guard is a class that implements strongly-typed validation rules using
+    """Guard is a class that implements strongly typed validation rules using
     guard clause technique. A guard clause is just a technique that promotes
     the "Failing Fast Principle" in a method, especially in a constructor.
 
-    In order to its validation methods work properly this Guard class requires
+    To work properly, the validation methods of this Guard class requires
     the caller to be a ``@classmethod`` that defines a `cls` variable which
-    contain a reference to the caller class.
+     contains a reference to the caller class.
     """
 
     @staticmethod
@@ -32,7 +32,7 @@ class Guard:
 
         Raises:
             KeyError: If the caller is not a class method with a `cls` variable
-                that reference its own class.
+                that references its own class.
         """
         frame = inspect.currentframe()
         guard = frame.f_back
@@ -51,8 +51,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is ``None``.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -69,8 +69,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is an empty string.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -87,8 +87,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is ``None`` or an empty string.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -106,8 +106,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is not ``None``.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -125,8 +125,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is not an empty string.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -143,8 +143,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is not equal to the `reference value`.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -161,8 +161,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is equal to the `reference value`.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -180,10 +180,10 @@ class Guard:
                 characters.
 
         Raises:
-            ValueError: If the number of characters on `value` is grater than
+            ValueError: If the number of characters on `value` is greater than
                 `max_length`.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -203,8 +203,8 @@ class Guard:
         Raises:
             ValueError: If the number of characters on `value` is less than
                 `max_length`.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -217,8 +217,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is not less than `reference_value`.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -236,8 +236,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is greater than `reference_value`.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -254,8 +254,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is not greater than `reference_value`.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 
@@ -273,8 +273,8 @@ class Guard:
 
         Raises:
             ValueError: If `value` is less than `reference_value`.
-            KeyError: If the caller is not a ``@classmethod`` with a `cls`
-                variable that reference its own class.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
         """
         value_name = Guard._get_caller_name()
 

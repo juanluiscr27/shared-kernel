@@ -6,7 +6,7 @@ from typing import List
 class ReadModel:
     """ReadModel base class
 
-    Is a Data Transfer Object used to provide cohesive information about an entity to queries.
+    A Data Transfer Object used to provide cohesive information about an entity to queries.
     """
 
 
