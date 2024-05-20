@@ -2,6 +2,12 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 2.1.0 (2024-05-21)
+
+### Add
+
+- json encoder class for UUID values.
+
 ## 2.0.0 (2024-05-20)
 
 ### Add
