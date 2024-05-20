@@ -45,3 +45,10 @@ class UnprocessableListener(InfrastructureError):
     def __init__(self, service: object, listener: str):
         message = f"Cannot subscribe `{listener}` because it does not handle any event"
         super().__init__(type(service), message)
+
+
+class IntegrityError(InfrastructureError):
+
+    def __init__(self, service: object, entity_id: str, position: int):
+        message = f"Transaction concurrency control was invalid for Entity '{entity_id}' at position {position}."
+        super().__init__(type(service), message)
