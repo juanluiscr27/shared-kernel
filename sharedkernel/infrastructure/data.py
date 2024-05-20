@@ -17,7 +17,8 @@ class Event(DataModel):
     data: str
     stream_id: str
     stream_type: str
-    expected_version: int
+    version: int
+    created: str
 
 
 @dataclass(frozen=True)
