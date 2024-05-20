@@ -30,3 +30,11 @@ class MapperNotFound(InfrastructureError):
     def __init__(self, service: object, event_type: str):
         message = f"No Event Mapper was found for event {event_type}."
         super().__init__(service, message)
+
+
+class UnsupportedEventHandler(InfrastructureError):
+
+    def __init__(self, service: object, handler: str):
+        service_name = type(service).__name__
+        message = f"`{handler}` cannot be registered to {service_name}"
+        super().__init__(service, message)
