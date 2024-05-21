@@ -77,7 +77,7 @@ class ErrorDetail(SimpleNamespace):
     type: str
 
     def asdict(self) -> dict[str, Any]:
-        return self._asdict()
+        return self.__dict__
 
 
 @dataclass(frozen=True)
