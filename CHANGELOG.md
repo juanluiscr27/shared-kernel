@@ -2,6 +2,12 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 2.1.1 (2024-05-21)
+
+### Fix
+
+- ErrorDetail asdict method to return a dictionary.
+
 ## 2.1.0 (2024-05-21)
 
 ### Add
