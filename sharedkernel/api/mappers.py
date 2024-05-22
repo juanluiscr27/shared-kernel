@@ -49,6 +49,9 @@ class RequestMappersChain(RequestMappingBehavior):
         self._mappers: Deque[RequestMapper] = deque()
         self._first: Optional[RequestMapper] = None
 
+    def __call__(self, request: TRequest, **query_params) -> TMessage:
+        return self.map(request, **query_params)
+
     def add(self, mapper: RequestMapper) -> None:
         if self._first:
             mapper.set_next(self._first)
