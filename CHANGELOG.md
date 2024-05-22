@@ -2,27 +2,37 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 2.2.0 (2024-05-22)
+
+### Added
+
+- Request Mapper and Mapping Behavior.
+
+### Changed
+
+- Rejection status property name to status_code.
+
 ## 2.1.1 (2024-05-21)
 
-### Fix
+### Fixed
 
 - ErrorDetail asdict method to return a dictionary.
 
 ## 2.1.0 (2024-05-21)
 
-### Add
+### Added
 
 - json encoder class for UUID values.
 
 ## 2.0.0 (2024-05-20)
 
-### Add
+### Added
 
 - an acknowledgement response data model together with a command status enum.
 - a service bus implementation to send commands and queries.
 - event mapper base class, mapping behavior and mapping pipeline.
 
-### Fix
+### Fixed
 
 - aggregate_type property access to the generic super type of base repository.
 
@@ -39,12 +49,12 @@ All notable changes to Shared Kernel will be documented in this file.
 
 ## 1.0.1 (2024-05-10)
 
-### Add
+### Added
 
 - qualname and full_qualname property to Entity and DomainEvent base classes.
 - application error and infrastructure error.
 
-### Fix
+### Fixed
 
 - setup config version number.
 
