@@ -237,7 +237,7 @@ def test_process_command_with_handler_return_rejection():
     result = bus.process_command(command)
 
     # Assert
-    assert result.status == expected
+    assert result.status_code == expected
 
 
 def test_process_valid_command_return_command_acknowledgment():
@@ -276,7 +276,7 @@ def test_process_invalid_command_return_rejection():
     result = bus.process_command(command)
 
     # Assert
-    assert result.status == expected
+    assert result.status_code == expected
 
 
 def test_process_query_with_handler_return_rejection():
@@ -292,7 +292,7 @@ def test_process_query_with_handler_return_rejection():
     result = bus.process_query(query)
 
     # Assert
-    assert result.status == expected
+    assert result.status_code == expected
 
 
 def test_process_valid_query_return_read_model():
@@ -327,7 +327,7 @@ def test_process_invalid_query_return_rejection():
     result = bus.process_query(query)
 
     # Assert
-    assert result.status == expected
+    assert result.status_code == expected
 
 
 def test_send_valid_command_return_command_acknowledgment():

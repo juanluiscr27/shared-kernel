@@ -88,11 +88,11 @@ class Rejection:
     a business rule is broken.
 
     Attributes:
-        status: Numeric value that indicates the status of the response.
+        status_code: Numeric value that indicates the status of the response.
         errors: A list of error details.
     """
 
-    status: int
+    status_code: int
     errors: List[ErrorDetail] = field(default_factory=list)
 
     @classmethod
@@ -108,10 +108,10 @@ class Rejection:
 
             errors.append(error)
 
-        return cls(status=400, errors=errors)
+        return cls(status_code=400, errors=errors)
 
     @classmethod
-    def from_error(cls, status: int, error: Error):
+    def from_error(cls, status_code: int, error: Error):
         error_detail = ErrorDetail(
             loc=[error.domain, ],
             msg=error.message,
@@ -120,10 +120,10 @@ class Rejection:
 
         error_detail.reason = error.reason
 
-        return cls(status=status, errors=[error_detail])
+        return cls(status_code=status_code, errors=[error_detail])
 
     @classmethod
-    def from_exception(cls, status: int, error: DomainError):
+    def from_exception(cls, status_code: int, error: DomainError):
         module = type(error).__module__
         error_name = type(error).__name__
         error_type = f"{module}.{error_name}"
@@ -134,4 +134,4 @@ class Rejection:
             type=error_type,
         )
 
-        return cls(status=status, errors=[error_detail])
+        return cls(status_code=status_code, errors=[error_detail])
