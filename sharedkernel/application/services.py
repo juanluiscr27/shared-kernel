@@ -43,6 +43,9 @@ class Sender(ABC):
         ...
 
 
+NOT_FOUND = 'NotFound'
+
+
 class ServiceBus:
     """Service Bus
 
@@ -78,7 +81,7 @@ class ServiceBus:
         try:
             return self.process(request)
         except DomainError as error:
-            return Rejection.from_exception(status=422, error=error)
+            return Rejection.from_exception(status_code=422, error=error)
 
     def process(self, request: TRequest) -> TResponse:
         validation_result = self.pre_process(request)
@@ -95,7 +98,7 @@ class ServiceBus:
         request_type = type(request).__name__
         error = ServiceBusErrors.request_not_supported(request_type)
 
-        return Rejection.from_error(status=501, error=error)
+        return Rejection.from_error(status_code=501, error=error)
 
     def pre_process(self, request: TRequest) -> ValidationResult:
         request_type = type(request).__name__
@@ -112,7 +115,7 @@ class ServiceBus:
 
         if command_type not in self._handlers:
             error = ServiceBusErrors.no_handler_registered_for_request(command_type)
-            return Rejection.from_error(status=501, error=error)
+            return Rejection.from_error(status_code=501, error=error)
 
         handler = self._handlers[command_type]
 
@@ -122,14 +125,15 @@ class ServiceBus:
             case Ok(ack):
                 return ack
             case Err(error):
-                return Rejection.from_error(status=422, error=error)
+                status_code = 404 if NOT_FOUND in error.code else 422
+                return Rejection.from_error(status_code=status_code, error=error)
 
     def process_query(self, query: Query) -> Union[TResult, Rejection]:
         query_type = type(query).__name__
 
         if query_type not in self._handlers:
             error = ServiceBusErrors.no_handler_registered_for_request(query_type)
-            return Rejection.from_error(status=501, error=error)
+            return Rejection.from_error(status_code=501, error=error)
 
         handler = self._handlers[query_type]
 
@@ -139,4 +143,5 @@ class ServiceBus:
             case Ok(read_model):
                 return read_model
             case Err(error):
-                return Rejection.from_error(status=404, error=error)
+                status_code = 404 if NOT_FOUND in error.code else 422
+                return Rejection.from_error(status_code=status_code, error=error)
