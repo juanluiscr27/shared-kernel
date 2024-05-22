@@ -98,12 +98,13 @@ def test_mapper_chain_return_command_with_valid_data():
 
     mapper = RegisterUserRequestMapper()
 
-    chain = RequestMappersChain()
+    # noinspection PyPep8Naming
+    MapToCommand = RequestMappersChain()
 
     # Act
-    chain.add(mapper)
+    MapToCommand.add(mapper)
 
-    result = chain.map(request)
+    result = MapToCommand(request)
 
     # Assert
     assert result == expected
