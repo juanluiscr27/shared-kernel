@@ -107,7 +107,8 @@ def test_event_is_processed_by_subscribed_handler(capture_stdout):
         stream_id="101",
         stream_type="tests.infrastructure.event_dispatcher_test.User",
         version=1,
-        created='2024-04-28T12:30−04:00'
+        created='2024-04-28T12:30−04:00',
+        correlation_id='018fa862-800b-7b6a-8690-ba0e06908c26'
     )
 
     event_handler = UserDetailsProjector()
