@@ -38,7 +38,7 @@ class Users(Repository[User]):
 
 def test_repository_with_aggregates():
     # Arrange
-    expected = "tests.domain.repositories_test.User"
+    expected = "User"
 
     class TestUsers(Users):
 

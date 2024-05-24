@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Generic, TypeVar
 
-from typeinspection.handlers import get_super_type
+from typeinspection.handlers import get_super_name
 
 from sharedkernel.domain.models import Entity
 
@@ -20,8 +20,8 @@ class Repository(ABC, Generic[TEntity]):
 
     @property
     def aggregate_type(self) -> str:
-        """Returns the fully qualified name of the entity this repository is based on"""
-        return get_super_type(self)
+        """Returns the qualified name of the entity this repository is based on"""
+        return get_super_name(self)
 
     # save (self, entity: TEntity):
 
