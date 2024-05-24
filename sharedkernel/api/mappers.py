@@ -61,10 +61,10 @@ class RequestMappersChain(RequestMappingBehavior):
 
     def map(self, request: TRequest, **query_params) -> TMessage:
         if not self._first:
-            raise RequestMapperNotFound(self, request)
+            raise RequestMapperNotFound(self, type(request).__name__)
 
         message = self._first.map(request, **query_params)
         if not message:
-            raise RequestMapperNotFound(self, request)
+            raise RequestMapperNotFound(self, type(request).__name__)
 
         return message
