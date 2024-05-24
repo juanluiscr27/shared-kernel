@@ -2,6 +2,17 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 2.3.0 (2024-05-23)
+
+### Added
+
+- correlation id to event data model.
+- API Error class.
+
+### Changed
+
+- repository aggregate type to return only the name of the super type.
+
 ## 2.2.0 (2024-05-22)
 
 ### Added
