@@ -19,6 +19,7 @@ class Event(DataModel):
     stream_type: str
     version: int
     created: str
+    correlation_id: str
 
 
 @dataclass(frozen=True)
