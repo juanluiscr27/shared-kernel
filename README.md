@@ -1,5 +1,6 @@
 # Shared Kernel
 
+[![Latest tag](https://img.shields.io/github/v/tag/juanluiscr27/shared-kernel.svg?color=brightgreen)](https://github.com/juanluiscr27/shared-kernel/releases)
 [![Build Status](https://github.com/juanluiscr27/shared-kernel/actions/workflows/tests.yaml/badge.svg)](https://github.com/juanluiscr27/shared-kernel/actions)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://docs.python.org/3.12/index.html)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
