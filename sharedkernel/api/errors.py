@@ -1,5 +1,4 @@
 from sharedkernel.domain.errors import ServiceError
-from sharedkernel.infrastructure.errors import InfrastructureError
 
 
 class ApiError(ServiceError):
@@ -29,5 +28,19 @@ class RequestMapperNotFound(ApiError):
     """
 
     def __init__(self, service: object, request: str):
-        message = f"No Request Mapper was found for '{type(request).__name__}'."
+        message = f"No Request Mapper was found for '{request}'."
+        super().__init__(type(service), message)
+
+
+class UnknownResponseModel(ApiError):
+    """Unknown Response Model Error
+
+    Raised when the result of the execution from a Query or a Command cannot be mapped to `ResponseModel`.
+
+    Args:
+        response: Query or Command response.
+    """
+
+    def __init__(self, service: object, response: str):
+        message = f"Unknown response model for '{response}'."
         super().__init__(type(service), message)
