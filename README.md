@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://docs.python.org/3.12/index.html)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
-A Python library that implements a Shared Kernel pattern for projects built using Domain-Driven Design principles.
+A Python library that implements the Shared Kernel pattern to build projects using Domain-Driven Design principles.
 
 ## Features
 
