@@ -116,9 +116,9 @@ class RegistrationEventHandler(DomainEventHandler[UserRegistered]):
         pass
 
 
-def test_command_handler_is_registered_to_service_bus():
+def test_command_handler_is_registered_to_service_bus(fake_logger):
     # Arrange
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     handler = RegisterUserCommandHandler()
 
     # Act
@@ -128,9 +128,9 @@ def test_command_handler_is_registered_to_service_bus():
     assert result is True
 
 
-def test_query_handler_is_registered_to_service_bus():
+def test_query_handler_is_registered_to_service_bus(fake_logger):
     # Arrange
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     validator = RegisterOfficialValidator()
 
     # Act
@@ -140,9 +140,9 @@ def test_query_handler_is_registered_to_service_bus():
     assert result is True
 
 
-def test_validator_is_registered_to_service_bus():
+def test_validator_is_registered_to_service_bus(fake_logger):
     # Arrange
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     handler = GetUserByIDQueryHandler()
 
     # Act
@@ -152,11 +152,11 @@ def test_validator_is_registered_to_service_bus():
     assert result is True
 
 
-def test_registering_event_handler_service_bus_raise_error():
+def test_registering_event_handler_service_bus_raise_error(fake_logger):
     # Arrange
     expected = "`RegistrationEventHandler` cannot be registered to ServiceBus"
 
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     handler = RegistrationEventHandler()
 
     # Act
@@ -168,9 +168,9 @@ def test_registering_event_handler_service_bus_raise_error():
     assert str(error.value) == expected
 
 
-def test_pre_process_request_with_no_validator_return_valid_result():
+def test_pre_process_request_with_no_validator_return_valid_result(fake_logger):
     # Arrange
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     command = RegisterUser(
         user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
         name="John Doe Smith",
@@ -184,9 +184,9 @@ def test_pre_process_request_with_no_validator_return_valid_result():
     assert result.is_valid is True
 
 
-def test_pre_process_valid_request_return_valid_result():
+def test_pre_process_valid_request_return_valid_result(fake_logger):
     # Arrange
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     validator = RegisterOfficialValidator()
     bus.register(validator)
 
@@ -203,9 +203,9 @@ def test_pre_process_valid_request_return_valid_result():
     assert result.is_valid is True
 
 
-def test_pre_process_invalid_request_return_validation_errors():
+def test_pre_process_invalid_request_return_validation_errors(fake_logger):
     # Arrange
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     validator = RegisterOfficialValidator()
     bus.register(validator)
 
@@ -222,10 +222,10 @@ def test_pre_process_invalid_request_return_validation_errors():
     assert result.is_valid is False
 
 
-def test_process_command_with_handler_return_rejection():
+def test_process_command_with_handler_return_rejection(fake_logger):
     # Arrange
     expected = 501
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
 
     command = RegisterUser(
         user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
@@ -240,9 +240,9 @@ def test_process_command_with_handler_return_rejection():
     assert result.status_code == expected
 
 
-def test_process_valid_command_return_command_acknowledgment():
+def test_process_valid_command_return_command_acknowledgment(fake_logger):
     # Arrange
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     handler = RegisterUserCommandHandler()
     bus.register(handler)
 
@@ -259,10 +259,10 @@ def test_process_valid_command_return_command_acknowledgment():
     assert result.status is CommandStatus.RECEIVED
 
 
-def test_process_invalid_command_return_rejection():
+def test_process_invalid_command_return_rejection(fake_logger):
     # Arrange
     expected = 422
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     handler = RegisterUserCommandHandler()
     bus.register(handler)
 
@@ -279,12 +279,12 @@ def test_process_invalid_command_return_rejection():
     assert result.status_code == expected
 
 
-def test_process_query_with_handler_return_rejection():
+def test_process_query_with_handler_return_rejection(fake_logger):
     # Arrange
     expected = 501
     user_id = UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c')
 
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
 
     query = GetUserByID(user_id=user_id)
 
@@ -295,11 +295,11 @@ def test_process_query_with_handler_return_rejection():
     assert result.status_code == expected
 
 
-def test_process_valid_query_return_read_model():
+def test_process_valid_query_return_read_model(fake_logger):
     # Arrange
     user_id = UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c')
 
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     handler = GetUserByIDQueryHandler()
     bus.register(handler)
 
@@ -312,12 +312,12 @@ def test_process_valid_query_return_read_model():
     assert result.user_id == user_id
 
 
-def test_process_invalid_query_return_rejection():
+def test_process_invalid_query_return_rejection(fake_logger):
     # Arrange
     user_id = UUID('018f928b-5546-77e6-badf-3155de144924')
 
     expected = 404
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     handler = GetUserByIDQueryHandler()
     bus.register(handler)
 
@@ -330,9 +330,9 @@ def test_process_invalid_query_return_rejection():
     assert result.status_code == expected
 
 
-def test_send_valid_command_return_command_acknowledgment():
+def test_send_valid_command_return_command_acknowledgment(fake_logger):
     # Arrange
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     handler = RegisterUserCommandHandler()
     bus.register(handler)
 
@@ -349,11 +349,11 @@ def test_send_valid_command_return_command_acknowledgment():
     assert result.status is CommandStatus.RECEIVED
 
 
-def test_send_valid_query_return_read_model():
+def test_send_valid_query_return_read_model(fake_logger):
     # Arrange
     user_id = UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c')
 
-    bus = ServiceBus()
+    bus = ServiceBus(fake_logger)
     handler = GetUserByIDQueryHandler()
     bus.register(handler)
 

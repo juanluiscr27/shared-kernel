@@ -1,5 +1,6 @@
 import typing
 from abc import ABC, abstractmethod
+from logging import Logger
 from types import get_original_bases
 from typing import Dict, TypeVar, Union
 
@@ -54,9 +55,10 @@ class ServiceBus:
     Service Bus sends Request and returns Response.
     """
 
-    def __init__(self) -> None:
-        self._handlers: Dict[str, THandler] = {}
-        self._validators: Dict[str, Validator] = {}
+    def __init__(self, logger: Logger) -> None:
+        self._logger = logger
+        self._handlers: Dict[str, THandler] = dict()
+        self._validators: Dict[str, Validator] = dict()
 
     def register(self, handler: Union[THandler, Validator]) -> bool:
         bases = get_original_bases(handler.__class__)
@@ -64,29 +66,37 @@ class ServiceBus:
         request_type = args[0].__name__
 
         if request_type in self._handlers:
+            self._logger.error(f"A handler for {request_type} was already registered")
             raise HandlerAlreadyRegistered(self, request_type)
 
         if isinstance(handler, CommandHandler | QueryHandler):
+            self._logger.info(f"{type(handler).__name__} was successfully registered")
             self._handlers[request_type] = handler
             return True
 
         if isinstance(handler, Validator):
+            self._logger.info(f"{type(handler).__name__} was successfully registered")
             self._validators[request_type] = handler
             return True
 
+        self._logger.error(f"{type(self).__name__} cannot register {type(handler).__name__}")
         handler_type = type(handler).__name__
         raise UnsupportedHandler(self, handler_type)
 
     def send(self, request: TRequest) -> Union[TResponse, Rejection]:
         try:
-            return self.process(request)
+            self._logger.info(f"{type(request).__name__} request received")
+            response = self.process(request)
+            return self.post_process(response)
         except DomainError as error:
+            self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
             return Rejection.from_exception(status_code=422, error=error)
 
     def process(self, request: TRequest) -> TResponse:
         validation_result = self.pre_process(request)
 
         if not validation_result.is_valid:
+            self._logger.warning(f"Validation errors found in {type(request).__name__}")
             return Rejection.from_validation(validation_result)
 
         if isinstance(request, Command):
@@ -97,23 +107,25 @@ class ServiceBus:
 
         request_type = type(request).__name__
         error = ServiceBusErrors.request_not_supported(request_type)
-
+        self._logger.warning(f"{type(self).__name__} cannot process {type(request).__name__} requests")
         return Rejection.from_error(status_code=501, error=error)
 
     def pre_process(self, request: TRequest) -> ValidationResult:
         request_type = type(request).__name__
 
         if request_type not in self._validators:
+            self._logger.debug(f"No validator registered for request {type(request).__name__}")
             return ValidationResult.success()
 
-        validators = self._validators[request_type]
+        validator = self._validators[request_type]
 
-        return validators.validate(request)
+        return validator.validate(request)
 
     def process_command(self, command: Command) -> Union[Acknowledgement, Rejection]:
         command_type = type(command).__name__
 
         if command_type not in self._handlers:
+            self._logger.warning(f"No handler registered for request {type(command).__name__}")
             error = ServiceBusErrors.no_handler_registered_for_request(command_type)
             return Rejection.from_error(status_code=501, error=error)
 
@@ -125,6 +137,7 @@ class ServiceBus:
             case Ok(ack):
                 return ack
             case Err(error):
+                self._logger.error(error.message)
                 status_code = 404 if NOT_FOUND in error.code else 422
                 return Rejection.from_error(status_code=status_code, error=error)
 
@@ -132,6 +145,7 @@ class ServiceBus:
         query_type = type(query).__name__
 
         if query_type not in self._handlers:
+            self._logger.warning(f"No handler registered for request {type(query).__name__}")
             error = ServiceBusErrors.no_handler_registered_for_request(query_type)
             return Rejection.from_error(status_code=501, error=error)
 
@@ -143,5 +157,19 @@ class ServiceBus:
             case Ok(read_model):
                 return read_model
             case Err(error):
+                self._logger.error(error.message)
                 status_code = 404 if NOT_FOUND in error.code else 422
                 return Rejection.from_error(status_code=status_code, error=error)
+
+    def post_process(self, response: TResponse) -> TResponse:
+        if isinstance(response, Acknowledgement):
+            self._logger.info(f"Request {response.action} {response.status}")
+
+        if isinstance(response, ReadModel):
+            self._logger.info(f"Request completed successfully returning a {type(response).__name__}")
+
+        if isinstance(response, ReadModelList):
+            items_type = type(response.items).__name__
+            self._logger.info(f"Request completed successfully returning a {items_type} with {response.total} items")
+
+        return response
