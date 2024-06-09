@@ -1,5 +1,6 @@
 import json
 import typing
+from logging import Logger
 from types import get_original_bases
 from typing import List, TypeVar
 from uuid import UUID
@@ -85,7 +86,8 @@ class EventDispatcher:
     The Dispatcher is responsible for ensuring that the Event is passed to all relevant Listeners.
     """
 
-    def __init__(self, mapper: MappingPipeline):
+    def __init__(self, logger: Logger, mapper: MappingPipeline):
+        self._logger = logger
         self._mapper = mapper
         self._listeners: dict[str, List[Projector]] = dict()
 
@@ -101,6 +103,7 @@ class EventDispatcher:
         handled_types = listener.handles
         if not handled_types:
             listener_name = type(listener).__name__
+            self._logger.error(f"Listener {listener_name} does not handle any type")
             raise UnprocessableListener(self, listener_name)
 
         for event_type in handled_types:
@@ -109,6 +112,7 @@ class EventDispatcher:
             else:
                 self._listeners[event_type] = [listener]
 
+        self._logger.info(f"{type(listener).__name__} was successfully subscribed")
         return True
 
     def dispatch(self, event: Event) -> None:
@@ -128,15 +132,18 @@ class EventDispatcher:
         event_type = event.event_type
 
         if event_type not in self._listeners:
+            self._logger.debug(f"No listener subscribed for {event_type} event")
             return
 
         event_data = json.loads(event.data)
 
         domain_event = self._mapper.map(event_data, event_type)
         if not domain_event:
+            self._logger.error(f"MappingPipeline does not have any event mapper for {event_type}")
             raise MapperNotFound(self, event_type)
 
         listener_group = self._listeners[event_type]
-
+        
+        self._logger.info(f"{event_type} event dispatched to all listeners")
         for listener in listener_group:
             listener.process(domain_event, event.position)

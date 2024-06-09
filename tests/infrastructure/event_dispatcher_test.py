@@ -70,11 +70,11 @@ class FakeDomainEventMapper(MappingPipeline):
         return UserRegistered(user_id=101, name="John Doe Smith", slug="john-doe-smith")
 
 
-def test_projector_is_subscribed_to_event_dispatcher():
+def test_projector_is_subscribed_to_event_dispatcher(fake_logger):
     # Arrange
     projector = UserDetailsProjector()
     fake_mapper = FakeDomainEventMapper()
-    event_dispatcher = EventDispatcher(mapper=fake_mapper)
+    event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
 
     # Act
     result = event_dispatcher.subscribe(projector)
@@ -83,11 +83,11 @@ def test_projector_is_subscribed_to_event_dispatcher():
     assert result is True
 
 
-def test_projector_with_no_handled_event_raise_error():
+def test_projector_with_no_handled_event_raise_error(fake_logger):
     # Arrange
     projector = UserListProjector()
     fake_mapper = FakeDomainEventMapper()
-    event_dispatcher = EventDispatcher(mapper=fake_mapper)
+    event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
 
     # Act
     with pytest.raises(UnprocessableListener) as error:
@@ -97,7 +97,7 @@ def test_projector_with_no_handled_event_raise_error():
     assert str(error.value) == "Cannot subscribe `UserListProjector` because it does not handle any event"
 
 
-def test_event_is_processed_by_subscribed_handler(capture_stdout):
+def test_event_is_processed_by_subscribed_handler(fake_logger, capture_stdout):
     # Arrange
     event = Event(
         event_id="018f55de-8321-7efd-a4e3-fcc2c5ec5eea",
@@ -113,7 +113,7 @@ def test_event_is_processed_by_subscribed_handler(capture_stdout):
 
     event_handler = UserDetailsProjector()
     fake_mapper = FakeDomainEventMapper()
-    event_dispatcher = EventDispatcher(mapper=fake_mapper)
+    event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
     subscription_result = event_dispatcher.subscribe(event_handler)
     console = "UserRegistered event processed by 'UserDetailsProjector'\n"
 
