@@ -6,7 +6,7 @@ from typing import TypeVar, Generic
 @dataclass(frozen=True)
 class DomainEvent:
     """Domain Event base class"""
-    
+
     @property
     def qualname(self):
         return self.__class__.__qualname__
@@ -26,11 +26,12 @@ class DomainEventHandler(ABC, Generic[TEvent]):
     """
 
     @abstractmethod
-    def process(self, event: TEvent) -> None:
+    def process(self, event: TEvent, position: int) -> None:
         """Process a Domain Event.
 
         Args:
             event: Domain Event to process.
+            position: Event position in the Stream
 
         Returns:
             None

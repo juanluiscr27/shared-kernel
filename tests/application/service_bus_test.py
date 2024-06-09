@@ -112,7 +112,7 @@ class UserRegistered(DomainEvent):
 
 class RegistrationEventHandler(DomainEventHandler[UserRegistered]):
 
-    def process(self, event: UserRegistered):
+    def process(self, event: UserRegistered, position: int):
         pass
 
 

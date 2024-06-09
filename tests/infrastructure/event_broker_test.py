@@ -30,7 +30,7 @@ class UserLoggedIn(DomainEvent):
 
 class RegistrationEventHandler(DomainEventHandler[UserRegistered]):
 
-    def process(self, event: UserRegistered):
+    def process(self, event: UserRegistered, position: int):
         print(f"{event.event_id} event processed by {type(self).__name__}")
 
 
@@ -77,7 +77,7 @@ def test_domain_event_is_processed_by_subscribed_handler(fake_logger, capture_st
 
     # Act
     event = UserRegistered(event_id="UserRegistered", message="User(name='John Doe')")
-    event_broker.publish(event)
+    event_broker.publish(event, 1)
 
     # Assert
     assert subscription_result is True
