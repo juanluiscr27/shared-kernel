@@ -68,7 +68,7 @@ class RegisterUserCommandHandler(CommandHandler[RegisterUser]):
                 status=CommandStatus.RECEIVED,
                 action="RegisterUser",
                 entity_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
-                position=1, )
+                version=1, )
             return Ok(ack)
         else:
             error = slug_not_unique_error(command.slug)

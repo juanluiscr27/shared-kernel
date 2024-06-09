@@ -30,7 +30,7 @@ class Acknowledgement:
     status: CommandStatus
     action: str
     entity_id: UUID
-    position: int
+    version: int
 
 
 TCommand = TypeVar("TCommand", bound=Command)
