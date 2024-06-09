@@ -59,7 +59,7 @@ class EventBroker:
         self._logger.info(f"{handler_type} was successfully subscribed")
         return True
 
-    def publish(self, event: DomainEvent) -> None:
+    def publish(self, event: DomainEvent, position: int) -> None:
         """Publish a Domain Event to its respective Event Group.
 
         Look for the Handlers subscribed in the Domain Event Group and notify
@@ -67,6 +67,7 @@ class EventBroker:
 
         Args:
            event: Domain Event to publish.
+           position: Event position at the Stream
 
         Returns:
            None
@@ -81,7 +82,7 @@ class EventBroker:
 
         self._logger.info(f"{event_type} event was published")
         for consumer in consumer_group:
-            consumer.process(event)
+            consumer.process(event, position)
 
 
 class EventDispatcher:
