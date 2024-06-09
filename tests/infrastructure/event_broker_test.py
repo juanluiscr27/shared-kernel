@@ -40,10 +40,10 @@ class RegisterUserCommandHandler(CommandHandler[RegisterUser]):
         pass
 
 
-def test_event_handler_is_subscribed_to_event_broker():
+def test_event_handler_is_subscribed_to_event_broker(fake_logger):
     # Arrange
     event_handler = RegistrationEventHandler()
-    event_broker = EventBroker()
+    event_broker = EventBroker(fake_logger)
 
     # Act
     result = event_broker.subscribe(event_handler)
@@ -52,12 +52,12 @@ def test_event_handler_is_subscribed_to_event_broker():
     assert result is True
 
 
-def test_subscribe_not_event_handler_to_event_broker_raise_error():
+def test_subscribe_not_event_handler_to_event_broker_raise_error(fake_logger):
     # Arrange
     expected = "`RegisterUserCommandHandler` cannot be registered to EventBroker"
 
     command_handler = RegisterUserCommandHandler()
-    event_broker = EventBroker()
+    event_broker = EventBroker(fake_logger)
 
     # Act
     with pytest.raises(UnsupportedEventHandler) as error:
@@ -68,10 +68,10 @@ def test_subscribe_not_event_handler_to_event_broker_raise_error():
     assert str(error.value) == expected
 
 
-def test_domain_event_is_processed_by_subscribed_handler(capture_stdout):
+def test_domain_event_is_processed_by_subscribed_handler(fake_logger, capture_stdout):
     # Arrange
     event_handler = RegistrationEventHandler()
-    event_broker = EventBroker()
+    event_broker = EventBroker(fake_logger)
     subscription_result = event_broker.subscribe(event_handler)
     console = "UserRegistered event processed by RegistrationEventHandler\n"
 

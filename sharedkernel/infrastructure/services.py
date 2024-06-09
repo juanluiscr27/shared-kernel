@@ -28,7 +28,8 @@ class EventBroker:
     Notify consumers when a new message is received.
     """
 
-    def __init__(self):
+    def __init__(self, logger: Logger):
+        self._logger = logger
         self._consumers: dict[str, list[TEventHandler]] = dict()
 
     def subscribe(self, event_handler: TEventHandler) -> bool:
@@ -43,6 +44,7 @@ class EventBroker:
         """
         handler_type = type(event_handler).__name__
         if not isinstance(event_handler, DomainEventHandler):
+            self._logger.error(f"{handler_type} is not a valid Domain Event Handler")
             raise UnsupportedEventHandler(self, handler_type)
 
         bases = get_original_bases(event_handler.__class__)
@@ -54,6 +56,7 @@ class EventBroker:
         else:
             self._consumers[event_type] = [event_handler]
 
+        self._logger.info(f"{handler_type} was successfully subscribed")
         return True
 
     def publish(self, event: DomainEvent) -> None:
@@ -71,10 +74,12 @@ class EventBroker:
         event_type = type(event).__name__
 
         if event_type not in self._consumers:
+            self._logger.debug(f"No handler subscribed for {event_type} event")
             return
 
         consumer_group = self._consumers[event_type]
 
+        self._logger.info(f"{event_type} event was published")
         for consumer in consumer_group:
             consumer.process(event)
 
@@ -101,8 +106,8 @@ class EventDispatcher:
             True if the Event Handler was successfully subscribed, otherwise False.
         """
         handled_types = listener.handles
+        listener_name = type(listener).__name__
         if not handled_types:
-            listener_name = type(listener).__name__
             self._logger.error(f"Listener {listener_name} does not handle any type")
             raise UnprocessableListener(self, listener_name)
 
@@ -112,7 +117,7 @@ class EventDispatcher:
             else:
                 self._listeners[event_type] = [listener]
 
-        self._logger.info(f"{type(listener).__name__} was successfully subscribed")
+        self._logger.info(f"{listener_name} was successfully subscribed")
         return True
 
     def dispatch(self, event: Event) -> None:
@@ -143,7 +148,7 @@ class EventDispatcher:
             raise MapperNotFound(self, event_type)
 
         listener_group = self._listeners[event_type]
-        
+
         self._logger.info(f"{event_type} event dispatched to all listeners")
         for listener in listener_group:
             listener.process(domain_event, event.position)
