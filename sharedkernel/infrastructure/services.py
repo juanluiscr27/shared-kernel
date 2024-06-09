@@ -151,4 +151,4 @@ class EventDispatcher:
 
         self._logger.info(f"{event_type} event dispatched to all listeners")
         for listener in listener_group:
-            listener.process(domain_event, event.position)
+            listener.process(domain_event, event.position, event.version)

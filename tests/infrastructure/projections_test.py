@@ -44,7 +44,7 @@ class UserDetailsProjection(Projection[UserModel]):
 
 class UserDetailsProjector(Projector[UserDetailsProjection]):
 
-    def process(self, event: DomainEvent, position: int) -> None:
+    def process(self, event: DomainEvent, position: int, version: int) -> None:
         pass
 
 
