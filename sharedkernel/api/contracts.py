@@ -27,11 +27,11 @@ class AckData(BaseModel):
     Attributes:
         action: Name of the command executed.
         entity_id: Unique Identifier of the resource
-        position: Number that represents the position of this change in the resource sequence of events
+        version : Version number of the change in the resource sequence of events
     """
     action: str
     entity_id: str = Field(alias="entityId")
-    position: int
+    version: int
 
 
 class AckResponse(Response):
