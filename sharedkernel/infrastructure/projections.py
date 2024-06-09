@@ -29,5 +29,5 @@ class Projector(ABC, Generic[TProjection]):
         return gethandledtypes(args[0])
 
     @abstractmethod
-    def process(self, event: TEvent, position: int) -> None:
+    def process(self, event: TEvent, position: int, version: int) -> None:
         ...

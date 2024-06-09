@@ -54,13 +54,13 @@ class UserListProjection(Projection[UserModel]):
 
 class UserDetailsProjector(Projector[UserDetailsProjection]):
 
-    def process(self, event: DomainEvent, position: int) -> None:
+    def process(self, event: DomainEvent, position: int, version: int) -> None:
         print(f"{event.__class__.__name__} event processed by '{self.__class__.__name__}'")
 
 
 class UserListProjector(Projector[UserListProjection]):
 
-    def process(self, event: DomainEvent, position: int) -> None:
+    def process(self, event: DomainEvent, position: int, version: int) -> None:
         pass
 
 

@@ -1,5 +1,3 @@
-import json
-
 from sharedkernel.application.errors import ErrorDetail
 
 
