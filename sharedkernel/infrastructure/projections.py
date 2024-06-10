@@ -9,6 +9,7 @@ from typeinspection import gethandledtypes
 
 from sharedkernel.domain.errors import UnknownEvent
 from sharedkernel.domain.events import DomainEvent, TEvent
+from sharedkernel.infrastructure.errors import OutOfOrderEvent
 
 TModel = TypeVar("TModel")
 
@@ -51,7 +52,7 @@ class Projector(Generic[TProjection]):
 
         if position > current_position + 1:
             self._logger.error(f"{event_type} position {position} is out of order in Projection {entity_id}")
-            raise Exception(self, f"Event Out Order {event.qualname}")
+            raise OutOfOrderEvent(self.projection, str(entity_id), position)
 
         self.projection.apply(event)
         self._logger.info(f"{event_type} position {position} has been projected to record {entity_id}")
