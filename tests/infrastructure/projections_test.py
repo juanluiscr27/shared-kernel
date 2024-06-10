@@ -55,11 +55,13 @@ class UserDetailsProjector(Projector[UserDetailsProjection]):
         pass
 
 
-def test_projector_handles_projection_events():
+def test_projector_handles_projection_events(fake_logger):
     # Arrange
     expected = ["UserRegistered", "UserNameUpdated"]
 
-    projector = UserDetailsProjector()
+    projection = UserDetailsProjection()
+
+    projector = UserDetailsProjector(fake_logger, projection)
 
     # Act
     result = projector.handles
