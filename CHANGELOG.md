@@ -2,6 +2,24 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 3.0.0 (2024-06-09)
+
+### Added
+
+- logging to application and infrastructure services.
+- function to map from object to event.
+
+### Changed
+
+- event handlers parameter list to include event position to support idempotency.
+- projector process event method implementation.
+- mapping pipeline and mapping behavior class structure.
+- command ack position property to version.
+
+### Fixed
+
+- projection handled types properties to return only type name.
+
 ## 2.3.0 (2024-05-23)
 
 ### Added
