@@ -35,6 +35,8 @@ class Mapper(ABC, Generic[TEvent]):
 
 
 class MappingBehavior(ABC):
+
+    @abstractmethod
     def map(self, data: Dict[str, Any], event_type: str) -> Optional[DomainEvent]:
         ...
 
@@ -62,12 +64,11 @@ class MappersChain(MappingBehavior):
 class MappingPipeline:
 
     def __init__(self):
-        self._chain: List[MappingBehavior] = []
+        self._chain: List[MappingBehavior] = list()
 
     def register(self, behavior: MappingBehavior):
         self._chain.append(behavior)
 
-    @abstractmethod
     def map(self, data: Dict[str, Any], event_type: str) -> Optional[DomainEvent]:
         for behavior in self._chain:
             event = behavior.map(data, event_type)
