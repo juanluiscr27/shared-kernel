@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from functools import singledispatchmethod
+from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel
@@ -28,6 +29,12 @@ class UserModel(DataModel):
 
 
 class UserDetailsProjection(Projection[UserModel]):
+
+    def get_position(self, entity_id: UUID, event_type: str) -> int:
+        return 1
+
+    def update_position(self, entity_id: UUID, event_type: str, position: int) -> None:
+        pass
 
     @singledispatchmethod
     def apply(self, event: DomainEvent) -> None:
