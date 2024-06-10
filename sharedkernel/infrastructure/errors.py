@@ -52,3 +52,10 @@ class IntegrityError(InfrastructureError):
     def __init__(self, service: object, entity_id: str, position: int):
         message = f"Transaction concurrency control was invalid for Entity '{entity_id}' at position {position}."
         super().__init__(type(service), message)
+
+
+class OutOfOrderEvent(InfrastructureError):
+
+    def __init__(self, service: object, entity_id: str, position: int):
+        message = f"Event out of order received at position {position} for Projection '{entity_id}'."
+        super().__init__(type(service), message)
