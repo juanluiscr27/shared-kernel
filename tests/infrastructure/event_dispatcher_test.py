@@ -13,20 +13,20 @@ from sharedkernel.infrastructure.services import EventDispatcher, MappingPipelin
 
 @dataclass(frozen=True)
 class UserRegistered(DomainEvent):
-    user_id: int
+    user_id: UUID
     name: str
     slug: str
 
 
 @dataclass(frozen=True)
 class UserNameUpdated(DomainEvent):
-    user_id: int
+    user_id: UUID
     new_name: str
     previous_name: str
 
 
 class UserModel(DataModel):
-    user_id: int
+    user_id: UUID
     name: str
     slug: str
 
@@ -67,25 +67,30 @@ class UserListProjection(Projection[UserModel]):
 
 class UserDetailsProjector(Projector[UserDetailsProjection]):
 
-    def process(self, event: DomainEvent, position: int, version: int) -> None:
+    def process(self, event: DomainEvent, position: int, entity_id: UUID) -> None:
         print(f"{event.__class__.__name__} event processed by '{self.__class__.__name__}'")
 
 
 class UserListProjector(Projector[UserListProjection]):
 
-    def process(self, event: DomainEvent, position: int, version: int) -> None:
+    def process(self, event: DomainEvent, position: int, entity_id: UUID) -> None:
         pass
 
 
 class FakeDomainEventMapper(MappingPipeline):
 
     def map(self, data: dict, data_type: str):
-        return UserRegistered(user_id=101, name="John Doe Smith", slug="john-doe-smith")
+        return UserRegistered(
+            user_id=UUID("018f9284-769b-726d-b3bf-3885bf2ddd3c"),
+            name="John Doe Smith",
+            slug="john-doe-smith"
+        )
 
 
 def test_projector_is_subscribed_to_event_dispatcher(fake_logger):
     # Arrange
-    projector = UserDetailsProjector()
+    projection = UserDetailsProjection()
+    projector = UserDetailsProjector(fake_logger, projection)
     fake_mapper = FakeDomainEventMapper()
     event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
 
@@ -98,7 +103,8 @@ def test_projector_is_subscribed_to_event_dispatcher(fake_logger):
 
 def test_projector_with_no_handled_event_raise_error(fake_logger):
     # Arrange
-    projector = UserListProjector()
+    projection = UserListProjection()
+    projector = UserListProjector(fake_logger, projection)
     fake_mapper = FakeDomainEventMapper()
     event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
 
@@ -116,15 +122,15 @@ def test_event_is_processed_by_subscribed_handler(fake_logger, capture_stdout):
         event_id="018f55de-8321-7efd-a4e3-fcc2c5ec5eea",
         event_type="UserRegistered",
         position=1,
-        data='{"user_id":101,   "name":"John Doe Smith",   "slug":"john-doe-smith"}',
-        stream_id="101",
+        data='{"user_id":"018f9284-769b-726d-b3bf-3885bf2ddd3c",   "name":"John Doe Smith",   "slug":"john-doe-smith"}',
+        stream_id="018f9284-769b-726d-b3bf-3885bf2ddd3c",
         stream_type="User",
         version=1,
         created='2024-04-28T12:30−04:00',
         correlation_id='018fa862-800b-7b6a-8690-ba0e06908c26'
     )
-
-    event_handler = UserDetailsProjector()
+    projection = UserDetailsProjection()
+    event_handler = UserDetailsProjector(fake_logger, projection)
     fake_mapper = FakeDomainEventMapper()
     event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
     subscription_result = event_dispatcher.subscribe(event_handler)
