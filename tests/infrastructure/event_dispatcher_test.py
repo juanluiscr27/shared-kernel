@@ -101,11 +101,11 @@ def test_event_is_processed_by_subscribed_handler(fake_logger, capture_stdout):
     # Arrange
     event = Event(
         event_id="018f55de-8321-7efd-a4e3-fcc2c5ec5eea",
-        event_type="tests.infrastructure.event_dispatcher_test.UserRegistered",
+        event_type="UserRegistered",
         position=1,
         data='{"user_id":101,   "name":"John Doe Smith",   "slug":"john-doe-smith"}',
         stream_id="101",
-        stream_type="tests.infrastructure.event_dispatcher_test.User",
+        stream_type="User",
         version=1,
         created='2024-04-28T12:30−04:00',
         correlation_id='018fa862-800b-7b6a-8690-ba0e06908c26'

@@ -50,8 +50,7 @@ class UserDetailsProjector(Projector[UserDetailsProjection]):
 
 def test_projector_handles_projection_events():
     # Arrange
-    expected = ["tests.infrastructure.projections_test.UserRegistered",
-                "tests.infrastructure.projections_test.UserNameUpdated"]
+    expected = ["UserRegistered", "UserNameUpdated"]
 
     projector = UserDetailsProjector()
 
