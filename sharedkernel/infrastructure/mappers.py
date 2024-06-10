@@ -5,8 +5,23 @@ from types import get_original_bases
 from typing import Dict, Any, Optional, Self
 
 from sharedkernel.domain.events import DomainEvent
+from sharedkernel.infrastructure.data import Event
 
 TEvent = TypeVar("TEvent", bound=DomainEvent)
+
+
+def to_event(message: Dict[str, Any], context: Any):
+    return Event(
+        event_id=message['id'],
+        event_type=message['type'],
+        position=message['position'],
+        data=message['data'],
+        stream_id=message['stream_id'],
+        stream_type=message['stream_type'],
+        version=message['version'],
+        created=message['created'],
+        correlation_id=message['correlation_id'],
+    )
 
 
 class Mapper(ABC, Generic[TEvent]):
