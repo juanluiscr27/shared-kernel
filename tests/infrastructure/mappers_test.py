@@ -3,7 +3,8 @@ from typing import Dict, Any, Optional
 from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
-from sharedkernel.infrastructure.mappers import Mapper, MappersChain, MappingPipeline
+from sharedkernel.infrastructure.data import Event
+from sharedkernel.infrastructure.mappers import Mapper, MappersChain, MappingPipeline, extract, to_event
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,66 @@ class UserLoggedInMapper(Mapper[UserLoggedIn]):
             )
 
         return self.map_next(data, event_type)
+
+
+def test_extract_json_string_from_quoted_json_string():
+    # Arrange
+    expected = '{\"user_id\": \"018f9284-769b-726d-b3bf-3885bf2ddd3c\", \"email\": \"john-doe@example.com\"}'
+
+    quoted_json_str = ('"{\\"user_id\\": \\"018f9284-769b-726d-b3bf-3885bf2ddd3c\\", \\"email\\": '
+                       '\\"john-doe@example.com\\"}"')
+
+    # Act
+    result = extract(quoted_json_str)
+
+    # Assert
+    assert result == expected
+
+
+def test_extract_return_same_json_string():
+    # Arrange
+    expected = '{\"user_id\": \"018f9284-769b-726d-b3bf-3885bf2ddd3c\", \"email\": \"john-doe@example.com\"}'
+
+    # Act
+    result = extract(expected)
+
+    # Assert
+    assert result == expected
+
+
+def test_deserialize_json_string_to_event():
+    # Arrange
+    expected = Event(
+        event_id="018ff859-d78c-4dc8-e0d2-4094d208a18c",
+        event_type="OfficialNameUpdated",
+        position=4,
+        data="{\"official_id\": \"018fdb92-75b9-2616-9a6c-720aae66a022\", \"new_name\": \"John Doe IV\", "
+             "\"previous_name\": \"John Doe III\"}",
+        stream_id="018fdb92-75b9-2616-9a6c-720aae66a022",
+        stream_type="Official",
+        version=7,
+        created="2024-06-08 14:56:28.542193+00",
+        correlation_id="018ff859-d78b-c284-3284-b7cbd0a31642",
+    )
+
+    obj_dict = {
+        "id": "018ff859-d78c-4dc8-e0d2-4094d208a18c",
+        "type": "OfficialNameUpdated",
+        "position": 4,
+        "data": '"{\\"official_id\\": \\"018fdb92-75b9-2616-9a6c-720aae66a022\\", \\"new_name\\": \\"John Doe IV\\", '
+                '\\"previous_name\\": \\"John Doe III\\"}"',
+        "stream_id": "018fdb92-75b9-2616-9a6c-720aae66a022",
+        "stream_type": "Official",
+        "version": 7,
+        "created": "2024-06-08 14:56:28.542193+00",
+        "correlation_id": "018ff859-d78b-c284-3284-b7cbd0a31642"
+    }
+
+    # Act
+    result = to_event(obj_dict, None)
+
+    # Assert
+    assert result == expected
 
 
 def test_mapper_return_domain_event_with_valid_data():

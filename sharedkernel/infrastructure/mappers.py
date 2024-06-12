@@ -1,3 +1,4 @@
+import json
 from collections import deque
 from typing import get_args, Generic, TypeVar, Deque, List
 from abc import abstractmethod, ABC
@@ -9,13 +10,24 @@ from sharedkernel.infrastructure.data import Event
 
 TEvent = TypeVar("TEvent", bound=DomainEvent)
 
+QUOTES = "\""
+
+
+def extract(data: str) -> str:
+    length = len(data)
+
+    if length > 0 and data[0] == QUOTES and data[length - 1] == QUOTES:
+        return json.loads(data)
+
+    return data
+
 
 def to_event(message: Dict[str, Any], context: Any):
     return Event(
         event_id=message['id'],
         event_type=message['type'],
         position=message['position'],
-        data=message['data'],
+        data=extract(message['data']),
         stream_id=message['stream_id'],
         stream_type=message['stream_type'],
         version=message['version'],
