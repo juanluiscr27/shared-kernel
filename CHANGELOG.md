@@ -2,6 +2,12 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 3.0.1 (2024-06-12)
+
+### Fix
+
+- to event deserializer function extracting quoted json string to valid json string.
+
 ## 3.0.0 (2024-06-09)
 
 ### Added
