@@ -38,9 +38,7 @@ class Projector(Generic[TProjection]):
 
     @property
     def handles(self) -> List[str]:
-        bases = get_original_bases(self.__class__)
-        args = get_args(bases[0])
-        return gethandledtypes(args[0])
+        return gethandledtypes(type(self.projection))
 
     def process(self, event: TEvent, position: int, entity_id: UUID) -> None:
         current_position = self.projection.get_position(entity_id, event.qualname)
@@ -58,4 +56,4 @@ class Projector(Generic[TProjection]):
         self._logger.info(f"{event_type} position {position} has been projected to record {entity_id}")
 
         self.projection.update_position(entity_id, event.qualname, position)
-        self._logger.debug(f"{event_type} position at Projection {entity_id} has been updated to {position}")
+        self._logger.debug(f"{event_type} at Projection {entity_id} has been updated to position {position}")
