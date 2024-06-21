@@ -34,10 +34,10 @@ class UserModel(DataModel):
 class UserDetailsProjection(Projection[UserModel]):
 
     def get_position(self, entity_id: UUID, event_type: str) -> int:
-        return 1
+        return 0
 
     def update_position(self, entity_id: UUID, event_type: str, position: int) -> None:
-        pass
+        print(f"{event_type} event processed by '{self.__class__.__name__}'")
 
     @singledispatchmethod
     def apply(self, event: DomainEvent) -> None:
@@ -55,26 +55,14 @@ class UserDetailsProjection(Projection[UserModel]):
 class UserListProjection(Projection[UserModel]):
 
     def get_position(self, entity_id: UUID, event_type: str) -> int:
-        return 1
+        return 0
 
     def update_position(self, entity_id: UUID, event_type: str, position: int) -> None:
-        pass
+        print(f"{event_type} event processed by '{self.__class__.__name__}'")
 
     @singledispatchmethod
     def apply(self, event: DomainEvent) -> None:
         super().apply(event)
-
-
-class UserDetailsProjector(Projector[UserDetailsProjection]):
-
-    def process(self, event: DomainEvent, position: int, entity_id: UUID) -> None:
-        print(f"{event.__class__.__name__} event processed by '{self.__class__.__name__}'")
-
-
-class UserListProjector(Projector[UserListProjection]):
-
-    def process(self, event: DomainEvent, position: int, entity_id: UUID) -> None:
-        pass
 
 
 class FakeDomainEventMapper(MappingPipeline):
@@ -90,7 +78,7 @@ class FakeDomainEventMapper(MappingPipeline):
 def test_projector_is_subscribed_to_event_dispatcher(fake_logger):
     # Arrange
     projection = UserDetailsProjection()
-    projector = UserDetailsProjector(fake_logger, projection)
+    projector = Projector(fake_logger, projection)
     fake_mapper = FakeDomainEventMapper()
     event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
 
@@ -104,7 +92,7 @@ def test_projector_is_subscribed_to_event_dispatcher(fake_logger):
 def test_projector_with_no_handled_event_raise_error(fake_logger):
     # Arrange
     projection = UserListProjection()
-    projector = UserListProjector(fake_logger, projection)
+    projector = Projector(fake_logger, projection)
     fake_mapper = FakeDomainEventMapper()
     event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
 
@@ -113,7 +101,7 @@ def test_projector_with_no_handled_event_raise_error(fake_logger):
         event_dispatcher.subscribe(projector)
 
     # Assert
-    assert str(error.value) == "Cannot subscribe `UserListProjector` because it does not handle any event"
+    assert str(error.value) == "Cannot subscribe `Projector of UserListProjection` because it does not handle any event"
 
 
 def test_event_is_processed_by_subscribed_handler(fake_logger, capture_stdout):
@@ -130,11 +118,11 @@ def test_event_is_processed_by_subscribed_handler(fake_logger, capture_stdout):
         correlation_id='018fa862-800b-7b6a-8690-ba0e06908c26'
     )
     projection = UserDetailsProjection()
-    event_handler = UserDetailsProjector(fake_logger, projection)
+    event_handler = Projector(fake_logger, projection)
     fake_mapper = FakeDomainEventMapper()
     event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
     subscription_result = event_dispatcher.subscribe(event_handler)
-    console = "UserRegistered event processed by 'UserDetailsProjector'\n"
+    console = "UserRegistered event processed by 'UserDetailsProjection'\n"
 
     # Act
     event_dispatcher.dispatch(event)
