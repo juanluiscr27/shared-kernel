@@ -56,7 +56,7 @@ class EventBroker:
         else:
             self._consumers[event_type] = [event_handler]
 
-        self._logger.info(f"{handler_type} was successfully subscribed")
+        self._logger.debug(f"{handler_type} was successfully subscribed")
         return True
 
     def publish(self, event: DomainEvent, position: int) -> None:
@@ -107,7 +107,7 @@ class EventDispatcher:
             True if the Event Handler was successfully subscribed, otherwise False.
         """
         handled_types = listener.handles
-        listener_name = type(listener).__name__
+        listener_name = f"{type(listener).__name__} of {type(listener.projection).__name__}"
         if not handled_types:
             self._logger.error(f"Listener {listener_name} does not handle any type")
             raise UnprocessableListener(self, listener_name)
@@ -118,7 +118,7 @@ class EventDispatcher:
             else:
                 self._listeners[event_type] = [listener]
 
-        self._logger.info(f"{listener_name} was successfully subscribed")
+        self._logger.debug(f"{listener_name} was successfully subscribed")
         return True
 
     def dispatch(self, event: Event) -> None:
