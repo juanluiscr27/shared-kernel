@@ -2,9 +2,17 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 3.1.0 (2024-06-21)
+
+### Changed
+
+- log level inside register and subscribe method.
+- call to get handled types using the projection type.
+- type inspection dependency version to 0.5.0.
+
 ## 3.0.1 (2024-06-12)
 
-### Fix
+### Fixed
 
 - to event deserializer function extracting quoted json string to valid json string.
 
