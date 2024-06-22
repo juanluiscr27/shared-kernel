@@ -1,7 +1,5 @@
 from logging import Logger
-from typing import get_args
 from abc import abstractmethod, ABC
-from types import get_original_bases
 from typing import TypeVar, Generic, List
 from uuid import UUID
 
@@ -9,9 +7,10 @@ from typeinspection import gethandledtypes
 
 from sharedkernel.domain.errors import UnknownEvent
 from sharedkernel.domain.events import DomainEvent, TEvent
+from sharedkernel.infrastructure.data import DataModel
 from sharedkernel.infrastructure.errors import OutOfOrderEvent
 
-TModel = TypeVar("TModel")
+TModel = TypeVar("TModel", bound=DataModel)
 
 
 class Projection(ABC, Generic[TModel]):

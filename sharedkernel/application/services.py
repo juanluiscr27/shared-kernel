@@ -70,12 +70,12 @@ class ServiceBus:
             raise HandlerAlreadyRegistered(self, request_type)
 
         if isinstance(handler, CommandHandler | QueryHandler):
-            self._logger.info(f"{type(handler).__name__} was successfully registered")
+            self._logger.debug(f"{type(handler).__name__} was successfully registered")
             self._handlers[request_type] = handler
             return True
 
         if isinstance(handler, Validator):
-            self._logger.info(f"{type(handler).__name__} was successfully registered")
+            self._logger.debug(f"{type(handler).__name__} was successfully registered")
             self._validators[request_type] = handler
             return True
 
