@@ -1,6 +1,5 @@
 import inspect
-from numbers import Rational
-from typing import Optional, Any
+from typing import Optional, Any, TypeAlias
 
 
 class DomainService:
@@ -10,6 +9,9 @@ class DomainService:
     useful when the logic needed to implement requires more than one aggregate. Additionally, when implementing a core
     domain logic that depends on some external services like repositories or external API.
     """
+
+
+Number: TypeAlias = int | float
 
 
 class Guard:
@@ -212,7 +214,7 @@ class Guard:
             raise ValueError(f"{value_name} must be {min_length} characters or more")
 
     @staticmethod
-    def is_less_than(value: Rational, reference_value: Rational) -> None:
+    def is_less_than(value: Number, reference_value: Number) -> None:
         """Ensures that a numeric value is less than a reference value.
 
         Raises:
@@ -226,7 +228,7 @@ class Guard:
             raise ValueError(f"{value_name} must be less than {reference_value}")
 
     @staticmethod
-    def is_less_than_or_equal(value: Rational, reference_value: Rational) -> None:
+    def is_less_than_or_equal(value: Number, reference_value: Number) -> None:
         """Ensures that a numeric value is less than or equal a reference
         value.
 
@@ -245,7 +247,7 @@ class Guard:
             raise ValueError(f"{value_name} must be less than or equal to {reference_value}")
 
     @staticmethod
-    def is_greater_than(value: Rational, reference_value: Rational) -> None:
+    def is_greater_than(value: Number, reference_value: Number) -> None:
         """Ensures that a numeric value is greater than a reference value.
 
         Args:
@@ -263,7 +265,7 @@ class Guard:
             raise ValueError(f"{value_name} must be greater than {reference_value}")
 
     @staticmethod
-    def is_greater_than_or_equal(value: Rational, reference_value: Rational) -> None:
+    def is_greater_than_or_equal(value: Number, reference_value: Number) -> None:
         """Ensures that a numeric value is greater than or equal a reference
         value.
 
