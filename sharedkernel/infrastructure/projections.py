@@ -1,6 +1,7 @@
 from logging import Logger
 from abc import abstractmethod, ABC
-from typing import TypeVar, Generic, List
+from types import get_original_bases
+from typing import TypeVar, Generic, List, get_args
 from uuid import UUID
 
 from typeinspection import gethandledtypes
@@ -14,6 +15,13 @@ TModel = TypeVar("TModel", bound=DataModel)
 
 
 class Projection(ABC, Generic[TModel]):
+
+    @property
+    def model_type(self) -> str:
+        bases = get_original_bases(self.__class__)
+        args = get_args(bases[0])
+        return args[0].__name__
+
     @abstractmethod
     def get_position(self, entity_id: UUID, event_type: str) -> int:
         ...

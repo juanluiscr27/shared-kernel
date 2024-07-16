@@ -55,6 +55,19 @@ class UserDetailsProjector(Projector[UserDetailsProjection]):
         pass
 
 
+def test_projection_type():
+    # Arrange
+    expected = "UserModel"
+
+    projection = UserDetailsProjection()
+
+    # Act
+    result = projection.model_type
+
+    # Assert
+    assert result == expected
+
+
 def test_projector_handles_projection_events(fake_logger):
     # Arrange
     expected = ["UserRegistered", "UserNameUpdated"]
