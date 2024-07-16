@@ -37,6 +37,18 @@ class LastName(ValueObject):
         return cls(value)
 
 
+@dataclass(frozen=True)
+class Age(ValueObject):
+    MAXIMUM_AGE: int = field(default=120, init=False)
+    years: float
+
+    @classmethod
+    def create(cls, value: float):
+        Guard.is_greater_than_or_equal(value, 0)
+        Guard.is_less_than(value, cls.MAXIMUM_AGE)
+        return cls(value)
+
+
 def test_object_with_empty_value_is_created():
     # Arrange
     middle_name_value = ""
@@ -67,8 +79,9 @@ def test_object_with_empty_value_raise_an_error():
     with pytest.raises(ValueError) as error:
         _ = Email.create(empty_email)
 
-    # Assert
     error_message = str(error.value)
+
+    # Assert
     assert error_message == "Email cannot be null nor empty"
 
 
@@ -81,8 +94,9 @@ def test_object_with_null_value_raise_an_error():
         # noinspection PyTypeChecker
         _ = Email.create(null_email)
 
-    # Assert
     error_message = str(error.value)
+
+    # Assert
     assert error_message == "Email cannot be null nor empty"
 
 
@@ -105,6 +119,46 @@ def test_object_with_incorrect_value_length_raise_error():
     with pytest.raises(ValueError) as error:
         _ = LastName.create(last_name_value)
 
-    # Assert
     error_message = str(error.value)
+
+    # Assert
     assert error_message == "LastName must be 25 characters or less"
+
+
+def test_object_with_value_within_range_is_created():
+    # Arrange
+    twenty_five = 25
+
+    # Act
+    result = Age.create(twenty_five)
+
+    # Assert
+    assert result.years == twenty_five
+
+
+def test_object_with_value_under_range_raise_error():
+    # Arrange
+    negative_age = -3
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Age.create(negative_age)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Age must be greater than or equal to 0"
+
+
+def test_object_with_value_over_range_raise_error():
+    # Arrange
+    two_hundreds = 200
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Age.create(two_hundreds)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Age must be less than 120"
