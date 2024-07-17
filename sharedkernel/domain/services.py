@@ -282,3 +282,144 @@ class Guard:
 
         if value < reference_value:
             raise ValueError(f"{value_name} must be greater than or equal to {reference_value}")
+
+
+class Detect:
+    """Detect is a class that provides methods to check text input to prevent
+    SQL injection attacks.
+
+    Detect can identify special characters and reserved words of the SQL syntax.
+
+    To work properly, the validation methods of this InputFilter class requires
+    the caller to be a ``@classmethod`` that defines a `cls` variable which
+     contains a reference to the caller class.
+    """
+
+    @staticmethod
+    def _get_caller_name() -> str:
+        """Implements object introspection to determine the caller qualified
+        name.
+
+        Returns:
+            The caller class definition qualified name.
+
+        Raises:
+            KeyError: If the caller is not a class method with a `cls` variable
+                that references its own class.
+        """
+        frame = inspect.currentframe()
+        guard = frame.f_back
+        caller = guard.f_back
+        # If the caller method is not a class method with cls that reference
+        # its own class will throw a 'KeyError'
+        class_definition: type = caller.f_locals["cls"]
+        return class_definition.__qualname__
+
+    @staticmethod
+    def special_character(text: str) -> None:
+        """Checks that a given text has SQL special characters.
+
+        Args:
+            text: Text input being validated.
+
+        Raises:
+            ValueError: If `text` contains a SQL special character.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
+        """
+        value_name = Detect._get_caller_name()
+
+        if '"' in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "<" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if ">" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if ";" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "#" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "$" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "%" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "^" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "&" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "*" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "(" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if ")" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "=" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "@@" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "||" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+        if "--" in text:
+            raise ValueError(f"{value_name} contains an invalid character")
+
+    @staticmethod
+    def reserved_word(text: str) -> None:
+        """Checks that a given text has SQL reserved words.
+
+        Args:
+            text: Text input being validated.
+
+        Raises:
+            ValueError: If `text` contains SQL reserved word.
+            KeyError: If the caller is not ``@classmethod`` with a `cls`
+                variable that references its own class.
+        """
+        value_name = Detect._get_caller_name()
+
+        if "ALTER " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
+
+        if "CREATE " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
+
+        if "DELETE " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
+
+        if "DROP " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
+
+        if "EXECUTE " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
+
+        if "INSERT " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
+
+        if "MERGE " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
+
+        if "SELECT " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
+
+        if "UPDATE " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
+
+        if " OR " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
+
+        if " TABLE " in text.upper():
+            raise ValueError(f"{value_name} contains an invalid word")
