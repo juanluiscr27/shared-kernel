@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import pytest
 
 from sharedkernel.domain.models import ValueObject
-from sharedkernel.domain.services import Guard
+from sharedkernel.domain.services import Guard, Detect
 
 
 @dataclass(frozen=True)
@@ -46,6 +46,18 @@ class Age(ValueObject):
     def create(cls, value: float):
         Guard.is_greater_than_or_equal(value, 0)
         Guard.is_less_than(value, cls.MAXIMUM_AGE)
+        return cls(value)
+
+
+@dataclass(frozen=True)
+class Username(ValueObject):
+    value: str
+
+    @classmethod
+    def create(cls, value: str):
+        Guard.is_not_null(value)
+        Detect.special_character(value)
+        Detect.reserved_word(value)
         return cls(value)
 
 
@@ -162,3 +174,42 @@ def test_object_with_value_over_range_raise_error():
 
     # Assert
     assert error_message == "Age must be less than 120"
+
+
+def test_object_with_sanitized_text_is_created():
+    # Arrange
+    username_value = "johndoe"
+
+    # Act
+    result = Username.create(username_value)
+
+    # Assert
+    assert result.value == username_value
+
+
+def test_object_with_special_character_raise_an_error():
+    # Arrange
+    special_text = "1 = 1"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Username contains an invalid character"
+
+
+def test_object_with_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "DROP TABLE users"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Username contains an invalid word"
