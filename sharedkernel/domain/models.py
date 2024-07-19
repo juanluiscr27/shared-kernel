@@ -104,6 +104,7 @@ class Aggregate(Entity[TId]):
         raise UnknownEvent(self, event)
 
     def _raise_event(self, event: DomainEvent) -> None:
+        self._apply(event)
         self._events.append(event)
 
     def clear_events(self) -> None:
