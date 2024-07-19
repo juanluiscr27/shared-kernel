@@ -70,7 +70,6 @@ class User(Aggregate[UserID]):
 
         user_registered = UserRegistered(user_id=user_id.value, name=name)
 
-        user._apply(user_registered)
         user._raise_event(user_registered)
 
         return user
@@ -78,7 +77,6 @@ class User(Aggregate[UserID]):
     def update_name(self, name: str) -> None:
         name_updated = UserNameUpdated(user_id=self.id.value, new_name=name)
 
-        self._apply(name_updated)
         self._raise_event(name_updated)
 
     @singledispatchmethod
