@@ -2,9 +2,18 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
-## 3.1.0 (2024-06-21)
+## 3.2.0 (2024-07-19)
+
+### Added
+
+- model type property to projection generic base class.
+- detect class to validate text input against sql injection.
 
 ### Changed
+
+- aggregate apply method move it inside raise event method.
+
+## 3.1.0 (2024-06-21)
 
 - log level inside register and subscribe method.
 - call to get handled types using the projection type.
@@ -14,7 +23,7 @@ All notable changes to Shared Kernel will be documented in this file.
 
 ### Fixed
 
-- to event deserializer function extracting quoted json string to valid json string.
+- to event deserializer function extracting quoted JSON string to valid JSON string.
 
 ## 3.0.0 (2024-06-09)
 
