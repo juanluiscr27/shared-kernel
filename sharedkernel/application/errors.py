@@ -5,6 +5,8 @@ from typing import List, Any
 from sharedkernel.application.validators import ValidationResult
 from sharedkernel.domain.errors import Error, DomainError, ServiceError
 
+ERROR_CONTEXT = 'error'
+
 
 class ApplicationError(ServiceError):
     """Application Error
@@ -104,7 +106,7 @@ class Rejection:
                 msg=result_error.message,
                 type=result_error.code,
             )
-            error.reason = result_error.reason
+            error.ctx = {ERROR_CONTEXT: result_error.reason}
 
             errors.append(error)
 
@@ -118,7 +120,7 @@ class Rejection:
             type=error.code,
         )
 
-        error_detail.reason = error.reason
+        error_detail.ctx = {ERROR_CONTEXT: error.reason}
 
         return cls(status_code=status_code, errors=[error_detail])
 
