@@ -2,6 +2,13 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 3.3.0 (2024-08-24)
+
+### Changed
+
+- acknowledgement data entity id data type to UUID.
+- error detail reason for context error.
+
 ## 3.2.0 (2024-07-19)
 
 ### Added
