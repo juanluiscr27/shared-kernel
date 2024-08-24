@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -30,7 +31,7 @@ class AckData(BaseModel):
         version : Version number of the change in the resource sequence of events
     """
     action: str
-    entity_id: str = Field(alias="entityId")
+    entity_id: UUID = Field(alias="entityId")
     version: int
 
 
