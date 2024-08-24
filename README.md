@@ -42,7 +42,7 @@ Shared Kernel is built using Python 3.12 and depends on the follow libraries:
 To install Share Kernel using pip, run:
 
 ```shell
-pip install git+https://github.com/juanluiscr27/shared-kernel.git@v0.1.0-beta#egg=sharedkernel
+pip install git+https://github.com/juanluiscr27/shared-kernel.git@v3.3.0-beta#egg=sharedkernel
 ```
 
 ## Usage
