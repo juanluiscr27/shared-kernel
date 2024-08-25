@@ -2,6 +2,12 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 3.4.0 (2024-08-25)
+
+### Added
+
+- ack response model service to parse response from acknowledgement.
+
 ## 3.3.0 (2024-08-24)
 
 ### Changed
