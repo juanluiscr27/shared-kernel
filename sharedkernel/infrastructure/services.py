@@ -1,5 +1,6 @@
 import json
 import typing
+from datetime import datetime
 from logging import Logger
 from types import get_original_bases
 from typing import List, TypeVar
@@ -18,6 +19,24 @@ class UUIDEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, UUID):
             return str(obj)
+        return json.JSONEncoder.default(self, obj)
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return json.JSONEncoder.default(self, obj)
+
+
+class ExtraEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, UUID):
+            return str(obj)
+
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+
         return json.JSONEncoder.default(self, obj)
 
 
