@@ -2,6 +2,12 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 3.5.0 (2024-09-02)
+
+### Added
+
+- datetime and extra JSON encoders.
+
 ## 3.4.0 (2024-08-25)
 
 ### Added
