@@ -402,3 +402,22 @@ def test_send_event_as_request_return_rejection(fake_logger):
 
     # Assert
     assert len(result.errors) == 1
+
+
+def test_send_invalid_request_return_rejection(fake_logger):
+    # Arrange
+    bus = ServiceBus(fake_logger)
+    validator = RegisterOfficialValidator()
+    bus.register(validator)
+
+    command = RegisterUser(
+        user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+        name="",
+        slug="john-doe-smith",
+    )
+
+    # Act
+    result = bus.send(command)
+
+    # Assert
+    assert len(result.errors) == 1
