@@ -23,6 +23,12 @@ class LogInUserRequest(Request):
 
 
 @dataclass(frozen=True)
+class LogInUser(Command):
+    name: str
+    email: str
+
+
+@dataclass(frozen=True)
 class RegisterUser(Command):
     user_id: UUID
     name: str
@@ -42,7 +48,19 @@ class RegisterUserRequestMapper(RequestMapper[RegisterUserRequest]):
         )
 
 
-def test_mapper_return_command_event_with_valid_request():
+class LogInUserRequestMapper(RequestMapper[LogInUserRequest]):
+
+    def map(self, request: LogInUserRequest, **query_params) -> Optional[LogInUser]:
+        if type(request).__name__ != self.request_type:
+            return self.map_next(request, **query_params)
+
+        return LogInUser(
+            name=request.name,
+            email=request.email,
+        )
+
+
+def test_mapper_return_command_with_valid_request():
     # Arrange
     expected = RegisterUser(
         user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
@@ -103,6 +121,36 @@ def test_mapper_chain_return_command_with_valid_data():
 
     # Act
     MapToCommand.add(mapper)
+
+    result = MapToCommand(request)
+
+    # Assert
+    assert result == expected
+
+
+def test_mapper_chain_return_command_when_several_mapper_added():
+    # Arrange
+    expected = RegisterUser(
+        user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+        name="John Doe Smith",
+        slug="john-doe-smith",
+    )
+
+    request = RegisterUserRequest(
+        user_id='018f9284-769b-726d-b3bf-3885bf2ddd3c',
+        name="John Doe Smith",
+        slug="john-doe-smith",
+    )
+
+    register_user_mapper = RegisterUserRequestMapper()
+    login_user_mapper = LogInUserRequestMapper()
+
+    # noinspection PyPep8Naming
+    MapToCommand = RequestMappersChain()
+
+    # Act
+    MapToCommand.add(register_user_mapper)
+    MapToCommand.add(login_user_mapper)
 
     result = MapToCommand(request)
 
