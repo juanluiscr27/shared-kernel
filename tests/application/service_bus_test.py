@@ -385,3 +385,20 @@ def test_send_valid_query_return_read_model(fake_logger):
 
     # Assert
     assert result.user_id == user_id
+
+
+def test_send_event_as_request_return_rejection(fake_logger):
+    # Arrange
+    user_registered = UserRegistered(
+        event_id='01921c1b-18b9-7d74-ac5e-4a4c7570dca7',
+        message='UserRegistered',
+    )
+
+    bus = ServiceBus(fake_logger)
+
+    # Act
+    # noinspection PyTypeChecker
+    result = bus.send(user_registered)
+
+    # Assert
+    assert len(result.errors) == 1
