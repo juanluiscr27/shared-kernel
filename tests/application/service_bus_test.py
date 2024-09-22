@@ -5,7 +5,7 @@ import pytest
 from result import Result, Ok, Err
 
 from sharedkernel.application.commands import Command, CommandHandler, Acknowledgement, CommandStatus
-from sharedkernel.application.errors import UnsupportedHandler
+from sharedkernel.application.errors import UnsupportedHandler, HandlerAlreadyRegistered
 from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.services import ServiceBus
 from sharedkernel.application.validators import Validator, ValidationResult
@@ -128,6 +128,24 @@ def test_command_handler_is_registered_to_service_bus(fake_logger):
     assert result is True
 
 
+def test_register_command_handler_twice_raise_error(fake_logger):
+    # Arrange
+    bus = ServiceBus(fake_logger)
+    handler = RegisterUserCommandHandler()
+
+    expected = "A Handler has been already registered for `RegisterUser`"
+
+    # Act
+    bus.register(handler)
+
+    with pytest.raises(HandlerAlreadyRegistered) as error:
+        # noinspection PyTypeChecker
+        _ = bus.register(handler)
+
+    # Assert
+    assert str(error.value) == expected
+
+
 def test_query_handler_is_registered_to_service_bus(fake_logger):
     # Arrange
     bus = ServiceBus(fake_logger)
@@ -154,10 +172,10 @@ def test_validator_is_registered_to_service_bus(fake_logger):
 
 def test_registering_event_handler_service_bus_raise_error(fake_logger):
     # Arrange
-    expected = "`RegistrationEventHandler` cannot be registered to ServiceBus"
-
     bus = ServiceBus(fake_logger)
     handler = RegistrationEventHandler()
+
+    expected = "`RegistrationEventHandler` cannot be registered to ServiceBus"
 
     # Act
     with pytest.raises(UnsupportedHandler) as error:
@@ -224,7 +242,6 @@ def test_pre_process_invalid_request_return_validation_errors(fake_logger):
 
 def test_process_command_with_handler_return_rejection(fake_logger):
     # Arrange
-    expected = 501
     bus = ServiceBus(fake_logger)
 
     command = RegisterUser(
@@ -232,6 +249,8 @@ def test_process_command_with_handler_return_rejection(fake_logger):
         name="John Doe Smith",
         slug="john-doe-smith",
     )
+
+    expected = 501
 
     # Act
     result = bus.process_command(command)
@@ -281,12 +300,13 @@ def test_process_invalid_command_return_rejection(fake_logger):
 
 def test_process_query_with_handler_return_rejection(fake_logger):
     # Arrange
-    expected = 501
     user_id = UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c')
 
     bus = ServiceBus(fake_logger)
 
     query = GetUserByID(user_id=user_id)
+
+    expected = 501
 
     # Act
     result = bus.process_query(query)
@@ -316,12 +336,13 @@ def test_process_invalid_query_return_rejection(fake_logger):
     # Arrange
     user_id = UUID('018f928b-5546-77e6-badf-3155de144924')
 
-    expected = 404
     bus = ServiceBus(fake_logger)
     handler = GetUserByIDQueryHandler()
     bus.register(handler)
 
     query = GetUserByID(user_id=user_id)
+
+    expected = 404
 
     # Act
     result = bus.process_query(query)
