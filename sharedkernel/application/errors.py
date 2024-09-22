@@ -50,7 +50,7 @@ class ServiceBusErrors:
         return Error(
             message=f"Request '{request_type} cannot be handled by the Service Bus'.",
             code="ServiceBus.Request.NotSupported",
-            reason=f"Service Bus only supports requests of type Command or Query.",
+            reason="Service Bus only supports requests of type Command or Query.",
             domain="SharedKernel.Application.ServiceBus",
         )
 
@@ -59,7 +59,7 @@ class ServiceBusErrors:
         return Error(
             message=f"Request '{request_type} has not handler registered the Service Bus'.",
             code="ServiceBus.Request.NoHandlerRegistered",
-            reason=f"No handler was found in the Service Bus for this request.",
+            reason="No handler was found in the Service Bus for this request.",
             domain="SharedKernel.Application.ServiceBus",
         )
 
