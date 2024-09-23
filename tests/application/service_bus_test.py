@@ -10,8 +10,14 @@ from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.services import ServiceBus
 from sharedkernel.application.validators import Validator, ValidationResult
 from sharedkernel.domain.data import ReadModel
-from sharedkernel.domain.errors import Error
+from sharedkernel.domain.errors import Error, DomainError
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
+
+
+class DuplicateName(DomainError):
+    def __init__(self, aggregate: object, name: str):
+        message = f"User '{name}' has already been selected."
+        super().__init__(entity=aggregate, message=message)
 
 
 @dataclass(frozen=True)
@@ -63,6 +69,9 @@ def id_not_found(user_id: str) -> Error:
 class RegisterUserCommandHandler(CommandHandler[RegisterUser]):
 
     def execute(self, command: RegisterUser) -> Result[Acknowledgement, Error]:
+        if command.name == "John Doe":
+            raise DuplicateName(self, command.name)
+
         if command.user_id == UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'):
             ack = Acknowledgement(
                 status=CommandStatus.RECEIVED,
@@ -240,7 +249,7 @@ def test_pre_process_invalid_request_return_validation_errors(fake_logger):
     assert result.is_valid is False
 
 
-def test_process_command_with_handler_return_rejection(fake_logger):
+def test_process_command_with_no_handler_return_rejection(fake_logger):
     # Arrange
     bus = ServiceBus(fake_logger)
 
@@ -413,6 +422,25 @@ def test_send_invalid_request_return_rejection(fake_logger):
     command = RegisterUser(
         user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
         name="",
+        slug="john-doe-smith",
+    )
+
+    # Act
+    result = bus.send(command)
+
+    # Assert
+    assert len(result.errors) == 1
+
+
+def test_send_conflicting_command_return_rejection(fake_logger):
+    # Arrange
+    bus = ServiceBus(fake_logger)
+    handler = RegisterUserCommandHandler()
+    bus.register(handler)
+
+    command = RegisterUser(
+        user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+        name="John Doe",
         slug="john-doe-smith",
     )
 
