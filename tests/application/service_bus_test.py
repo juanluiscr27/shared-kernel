@@ -9,7 +9,7 @@ from sharedkernel.application.errors import UnsupportedHandler, HandlerAlreadyRe
 from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.services import ServiceBus
 from sharedkernel.application.validators import Validator, ValidationResult
-from sharedkernel.domain.data import ReadModel
+from sharedkernel.domain.data import ReadModel, ReadModelList
 from sharedkernel.domain.errors import Error, DomainError
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 
@@ -37,6 +37,11 @@ class RegisterUser(Command):
 @dataclass(frozen=True)
 class GetUserByID(Query):
     user_id: UUID
+
+
+@dataclass(frozen=True)
+class GetAllUsers(Query):
+    pass
 
 
 def name_null_or_empty_error() -> Error:
@@ -97,6 +102,25 @@ class GetUserByIDQueryHandler(QueryHandler[GetUserByID]):
         else:
             error = id_not_found(str(command.user_id))
             return Err(error)
+
+
+class GetAllUsersQueryHandler(QueryHandler[GetAllUsers]):
+
+    def execute(self, command: GetAllUsers) -> Result[ReadModelList, Error]:
+        all_user = [UserModel(
+            user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+            name="John Doe Smith",
+            slug="john-doe-smith",
+        )]
+
+        user_list = ReadModelList(
+            offset=0,
+            limit=1,
+            total=1,
+            items=all_user,
+        )
+
+        return Ok(user_list)
 
 
 class RegisterOfficialValidator(Validator[RegisterUser]):
@@ -394,6 +418,21 @@ def test_send_valid_query_return_read_model(fake_logger):
 
     # Assert
     assert result.user_id == user_id
+
+
+def test_send_valid_query_return_read_model_list(fake_logger):
+    # Arrange
+    bus = ServiceBus(fake_logger)
+    handler = GetAllUsersQueryHandler()
+    bus.register(handler)
+
+    query = GetAllUsers()
+
+    # Act
+    result = bus.send(query)
+
+    # Assert
+    assert result.total == 1
 
 
 def test_send_event_as_request_return_rejection(fake_logger):
