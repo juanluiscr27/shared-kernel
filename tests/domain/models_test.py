@@ -269,6 +269,21 @@ def test_aggregates_events_are_raised():
     assert result == expected
 
 
+def test_aggregates_events_are_cleared():
+    # Arrange
+    user_id = UserID(101)
+
+    user = User.register(user_id=user_id, name="John Doe")
+
+    # Act
+    user.clear_events()
+
+    result = user.changes
+
+    # Assert
+    assert len(result) == 0
+
+
 def test_aggregates_events_are_applied():
     # Arrange
     user_id = UserID(101)
