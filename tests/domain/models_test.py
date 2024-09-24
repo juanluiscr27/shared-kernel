@@ -244,6 +244,17 @@ def test_aggregates_with_different_id_are_not_equal():
     assert user1 != user2
 
 
+def test_aggregates_version_number():
+    # Arrange
+    user_id = UserID(101)
+
+    # Act
+    user1 = User(user_id=user_id, version=1, name="John Doe")
+
+    # Assert
+    assert user1.version == 1
+
+
 def test_aggregates_events_are_raised():
     # Arrange
     user_id = UserID(101)
