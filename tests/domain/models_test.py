@@ -127,6 +127,18 @@ def test_entities_with_same_id_are_equal():
     assert country1 == country2
 
 
+def test_entity_equal_to_value_object_is_false():
+    # Arrange
+    country_id1 = CountryID("DO")
+    country_id2 = CountryID("DR")
+
+    # Act
+    country1 = Country(country_id=country_id1, name="Dominican Republic")
+
+    # Assert
+    assert (country1 == country_id2) is False
+
+
 def test_entities_with_different_id_are_not_equal():
     # Arrange
     country_id1 = CountryID("DO")
@@ -139,6 +151,46 @@ def test_entities_with_different_id_are_not_equal():
 
     # Assert
     assert country1 != country2
+
+
+def test_entity_not_equal_to_value_object_is_true():
+    # Arrange
+    country_id1 = CountryID("DO")
+    country_id2 = CountryID("DR")
+
+    # Act
+    country1 = Country(country_id=country_id1, name="Dominican Republic")
+
+    # Assert
+    assert country1 != country_id2
+
+
+def test_entity_repr():
+    # Arrange
+    country_id = CountryID("DO")
+
+    dr = Country(country_id=country_id, name="Dominican Republic")
+
+    expected = "Country(id=CountryID(value='DO'))"
+
+    # Act
+    result = repr(dr)
+
+    # Assert
+    assert result == expected
+
+
+def test_entity_is_hashable():
+    # Arrange
+    country_id = CountryID("DO")
+
+    dr = Country(country_id=country_id, name="Dominican Republic")
+
+    # Act
+    result = {dr: True}
+
+    # Assert
+    assert result[dr]
 
 
 def test_entity_qualname():
