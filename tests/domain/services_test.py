@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Any
 
 import pytest
 
@@ -68,6 +69,16 @@ class Comment(ValueObject):
     @classmethod
     def create(cls, value: str):
         Guard.is_not_empty(value)
+        return cls(value)
+
+
+@dataclass(frozen=True)
+class LastUpdated(ValueObject):
+    value: Any
+
+    @classmethod
+    def create(cls, value: Any):
+        Guard.is_null(value)
         return cls(value)
 
 
@@ -160,6 +171,32 @@ def test_object_with_not_empty_value_is_created():
 
     # Assert
     assert result.value == comment
+
+
+def test_object_with_null_value_is_created():
+    # Arrange
+    null_date = None
+
+    # Act
+    result = LastUpdated.create(null_date)
+
+    # Assert
+    assert result.value is None
+
+
+def test_object_with_not_null_value_raise_an_error():
+    # Arrange
+    null_date = "2024-10-31T01:30:00.000-04:00"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        # noinspection PyTypeChecker
+        _ = LastUpdated.create(null_date)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "LastUpdated must be null"
 
 
 def test_object_with_appropriate_value_length_is_created():
