@@ -83,7 +83,7 @@ def test_object_with_not_empty_or_null_value_is_created():
     assert result.value == email_value
 
 
-def test_object_with_empty_value_raise_an_error():
+def test_object_with_not_null_but_empty_value_raise_an_error():
     # Arrange
     empty_email = ""
 
@@ -97,7 +97,7 @@ def test_object_with_empty_value_raise_an_error():
     assert error_message == "Email cannot be null nor empty"
 
 
-def test_object_with_null_value_raise_an_error():
+def test_object_with_null_value_but_not_empty_raise_an_error():
     # Arrange
     null_email = None
 
@@ -110,6 +110,21 @@ def test_object_with_null_value_raise_an_error():
 
     # Assert
     assert error_message == "Email cannot be null nor empty"
+
+
+def test_object_with_null_value_raise_an_error():
+    # Arrange
+    null_username = None
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        # noinspection PyTypeChecker
+        _ = Username.create(null_username)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Username cannot be null"
 
 
 def test_object_with_appropriate_value_length_is_created():
