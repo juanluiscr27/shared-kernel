@@ -151,6 +151,17 @@ def test_object_with_empty_value_raise_an_error():
     assert error_message == "Comment cannot be empty"
 
 
+def test_object_with_not_empty_value_is_created():
+    # Arrange
+    comment = "Great content!"
+
+    # Act
+    result = Comment.create(comment)
+
+    # Assert
+    assert result.value == comment
+
+
 def test_object_with_appropriate_value_length_is_created():
     # Arrange
     last_name_value = "Smith"
