@@ -61,6 +61,16 @@ class Username(ValueObject):
         return cls(value)
 
 
+@dataclass(frozen=True)
+class Comment(ValueObject):
+    value: str
+
+    @classmethod
+    def create(cls, value: str):
+        Guard.is_not_empty(value)
+        return cls(value)
+
+
 def test_object_with_empty_value_is_created():
     # Arrange
     middle_name_value = ""
@@ -125,6 +135,20 @@ def test_object_with_null_value_raise_an_error():
 
     # Assert
     assert error_message == "Username cannot be null"
+
+
+def test_object_with_empty_value_raise_an_error():
+    # Arrange
+    comment = ""
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Comment.create(comment)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Comment cannot be empty"
 
 
 def test_object_with_appropriate_value_length_is_created():
