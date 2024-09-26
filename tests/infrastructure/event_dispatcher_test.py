@@ -6,7 +6,7 @@ import pytest
 
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel, Event
-from sharedkernel.infrastructure.errors import UnprocessableListener
+from sharedkernel.infrastructure.errors import UnprocessableListener, MapperNotFound
 from sharedkernel.infrastructure.projections import Projector, Projection
 from sharedkernel.infrastructure.services import EventDispatcher, MappingPipeline
 
@@ -75,6 +75,12 @@ class FakeDomainEventMapper(MappingPipeline):
         )
 
 
+class NoDomainEventMapper(MappingPipeline):
+
+    def map(self, _: dict, __: str):
+        return None
+
+
 def test_projector_is_subscribed_to_event_dispatcher(fake_logger):
     # Arrange
     projection = UserDetailsProjection()
@@ -117,6 +123,7 @@ def test_event_is_processed_by_subscribed_handler(fake_logger, capture_stdout):
         created='2024-04-28T12:30−04:00',
         correlation_id='018fa862-800b-7b6a-8690-ba0e06908c26'
     )
+
     projection = UserDetailsProjection()
     event_handler = Projector(fake_logger, projection)
     fake_mapper = FakeDomainEventMapper()
@@ -130,3 +137,31 @@ def test_event_is_processed_by_subscribed_handler(fake_logger, capture_stdout):
     # Assert
     assert subscription_result is True
     assert capture_stdout["console"] == console
+
+
+def test_projector_with_no_event_mapper_raise_error(fake_logger):
+    # Arrange
+    event = Event(
+        event_id="018f55de-8321-7efd-a4e3-fcc2c5ec5eea",
+        event_type="UserRegistered",
+        position=1,
+        data='{"user_id":"018f9284-769b-726d-b3bf-3885bf2ddd3c",   "name":"John Doe Smith",   "slug":"john-doe-smith"}',
+        stream_id="018f9284-769b-726d-b3bf-3885bf2ddd3c",
+        stream_type="User",
+        version=1,
+        created='2024-04-28T12:30−04:00',
+        correlation_id='018fa862-800b-7b6a-8690-ba0e06908c26'
+    )
+
+    projection = UserDetailsProjection()
+    projector = Projector(fake_logger, projection)
+    fake_mapper = NoDomainEventMapper()
+    event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
+    event_dispatcher.subscribe(projector)
+
+    # Act
+    with pytest.raises(MapperNotFound) as error:
+        event_dispatcher.dispatch(event)
+
+    # Assert
+    assert str(error.value) == "No Event Mapper was found for event UserRegistered."
