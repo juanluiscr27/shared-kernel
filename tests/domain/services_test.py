@@ -92,6 +92,17 @@ class Directory(ValueObject):
         return cls(value)
 
 
+@dataclass(frozen=True)
+class CountryID(ValueObject):
+    SIZE: int = field(default=2, init=False)
+    value: str
+
+    @classmethod
+    def create(cls, value: str):
+        Guard.is_equal(len(value), cls.SIZE)
+        return cls(value)
+
+
 def test_object_with_not_null_value_is_created():
     # Arrange
     middle_name_value = ""
@@ -336,3 +347,29 @@ def test_object_with_reserved_word_raise_an_error():
 
     # Assert
     assert error_message == "Username contains an invalid word"
+
+
+def test_object_with_equal_value_is_created():
+    # Arrange
+    usa = "US"
+
+    # Act
+    result = CountryID.create(usa)
+
+    # Assert
+    assert result.value == "US"
+
+
+def test_object_with_not_equal_value_raise_an_error():
+    # Arrange
+    usa = "USA"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        # noinspection PyTypeChecker
+        _ = CountryID.create(usa)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "CountryID should be equal to 2"
