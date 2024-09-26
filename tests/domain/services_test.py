@@ -103,6 +103,18 @@ class CountryID(ValueObject):
         return cls(value)
 
 
+@dataclass(frozen=True)
+class Capacity(ValueObject):
+    MAXIMUM: int = field(default=1000, init=False)
+    value: int
+
+    @classmethod
+    def create(cls, value: int):
+        Guard.is_greater_than(value, 0)
+        Guard.is_less_than(value, cls.MAXIMUM)
+        return cls(value)
+
+
 def test_object_with_not_null_value_is_created():
     # Arrange
     middle_name_value = ""
@@ -211,7 +223,6 @@ def test_object_with_not_null_value_raise_an_error():
 
     # Act
     with pytest.raises(ValueError) as error:
-        # noinspection PyTypeChecker
         _ = LastUpdated.create(null_date)
 
     error_message = str(error.value)
@@ -237,7 +248,6 @@ def test_object_with_not_empty_value_raise_an_error():
 
     # Act
     with pytest.raises(ValueError) as error:
-        # noinspection PyTypeChecker
         _ = Directory.create(path)
 
     error_message = str(error.value)
@@ -366,10 +376,34 @@ def test_object_with_not_equal_value_raise_an_error():
 
     # Act
     with pytest.raises(ValueError) as error:
-        # noinspection PyTypeChecker
         _ = CountryID.create(usa)
 
     error_message = str(error.value)
 
     # Assert
     assert error_message == "CountryID should be equal to 2"
+
+
+def test_object_with_lower_value_is_created():
+    # Arrange
+    total = 500
+
+    # Act
+    result = Capacity.create(total)
+
+    # Assert
+    assert result.value == 500
+
+
+def test_object_with_not_lower_value_raise_an_error():
+    # Arrange
+    total = 1500
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Capacity.create(total)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Capacity must be less than 1000"
