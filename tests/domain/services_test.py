@@ -57,6 +57,7 @@ class Username(ValueObject):
     @classmethod
     def create(cls, value: str):
         Guard.is_not_null(value)
+        Guard.is_not_equal(value.lower(), "root")
         Detect.special_character(value)
         Detect.reserved_word(value)
         return cls(value)
@@ -343,6 +344,20 @@ def test_object_with_special_character_raise_an_error():
 
     # Assert
     assert error_message == "Username contains an invalid character"
+
+
+def test_object_with_reserved_name_raise_an_error():
+    # Arrange
+    user = "root"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(user)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Username should not be equal to root"
 
 
 def test_object_with_reserved_word_raise_an_error():
