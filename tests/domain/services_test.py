@@ -130,6 +130,18 @@ class Capacity(ValueObject):
         return cls(value)
 
 
+@dataclass(frozen=True)
+class Amount(ValueObject):
+    MAXIMUM: int = field(default=100, init=False)
+    years: float
+
+    @classmethod
+    def create(cls, value: float):
+        Guard.is_greater_than(value, 0)
+        Guard.is_less_than_or_equal(value, cls.MAXIMUM)
+        return cls(value)
+
+
 def test_object_with_not_null_value_is_created():
     # Arrange
     middle_name_value = ""
@@ -461,3 +473,42 @@ def test_object_with_not_lower_value_raise_an_error():
 
     # Assert
     assert error_message == "Capacity must be less than 1000"
+
+
+def test_object_with_value_within_limits_is_created():
+    # Arrange
+    fifty = 50
+
+    # Act
+    result = Amount.create(fifty)
+
+    # Assert
+    assert result.years == 50
+
+
+def test_object_with_value_less_raise_error():
+    # Arrange
+    negative_quantity = -3
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Amount.create(negative_quantity)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Amount must be greater than 0"
+
+
+def test_object_with_value_greater_raise_error():
+    # Arrange
+    value_over = 110
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Amount.create(value_over)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Amount must be less than or equal to 100"
