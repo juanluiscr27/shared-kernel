@@ -64,6 +64,20 @@ class Username(ValueObject):
 
 
 @dataclass(frozen=True)
+class Password(ValueObject):
+    MAXIMUM_LENGTH: int = field(default=12, init=False)
+    MINIMUM_LENGTH: int = field(default=8, init=False)
+    value: str
+
+    @classmethod
+    def create(cls, value: str):
+        Guard.is_not_null(value)
+        Guard.maximum_length(value, cls.MAXIMUM_LENGTH)
+        Guard.minimum_length(value, cls.MINIMUM_LENGTH)
+        return cls(value)
+
+
+@dataclass(frozen=True)
 class Comment(ValueObject):
     value: str
 
@@ -372,6 +386,31 @@ def test_object_with_reserved_word_raise_an_error():
 
     # Assert
     assert error_message == "Username contains an invalid word"
+
+
+def test_object_with_valid_length_is_created():
+    # Arrange
+    password = "Admin123"
+
+    # Act
+    result = Password.create(password)
+
+    # Assert
+    assert result.value == "Admin123"
+
+
+def test_object_with_short_value_raise_an_error():
+    # Arrange
+    password = "12345"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Password.create(password)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Password must be 8 characters or more"
 
 
 def test_object_with_equal_value_is_created():
