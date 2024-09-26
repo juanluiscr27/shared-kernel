@@ -82,7 +82,17 @@ class LastUpdated(ValueObject):
         return cls(value)
 
 
-def test_object_with_empty_value_is_created():
+@dataclass(frozen=True)
+class Directory(ValueObject):
+    value: str
+
+    @classmethod
+    def create(cls, value: str):
+        Guard.is_empty(value)
+        return cls(value)
+
+
+def test_object_with_not_null_value_is_created():
     # Arrange
     middle_name_value = ""
 
@@ -197,6 +207,32 @@ def test_object_with_not_null_value_raise_an_error():
 
     # Assert
     assert error_message == "LastUpdated must be null"
+
+
+def test_object_with_empty_value_is_created():
+    # Arrange
+    path = ""
+
+    # Act
+    result = Directory.create(path)
+
+    # Assert
+    assert result.value == ""
+
+
+def test_object_with_not_empty_value_raise_an_error():
+    # Arrange
+    path = "/usr/local/lib/python3"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        # noinspection PyTypeChecker
+        _ = Directory.create(path)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Directory must be empty"
 
 
 def test_object_with_appropriate_value_length_is_created():
