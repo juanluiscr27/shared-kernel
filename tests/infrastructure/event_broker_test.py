@@ -34,6 +34,12 @@ class RegistrationEventHandler(DomainEventHandler[UserRegistered]):
         print(f"{event.event_id} event processed by {type(self).__name__}")
 
 
+class EmailUserEventHandler(DomainEventHandler[UserRegistered]):
+
+    def process(self, event: UserRegistered, position: int):
+        print(f"{event.event_id} event processed by {type(self).__name__}")
+
+
 class RegisterUserCommandHandler(CommandHandler[RegisterUser]):
 
     def execute(self, command: RegisterUser):
@@ -50,6 +56,22 @@ def test_event_handler_is_subscribed_to_event_broker(fake_logger):
 
     # Assert
     assert result is True
+
+
+def test_two_event_handlers_are_subscribed_to_event_broker(fake_logger):
+    # Arrange
+    registration_handler = RegistrationEventHandler()
+    email_handler = EmailUserEventHandler()
+
+    event_broker = EventBroker(fake_logger)
+
+    # Act
+    result1 = event_broker.subscribe(registration_handler)
+    result2 = event_broker.subscribe(email_handler)
+
+    # Assert
+    assert result1 is True
+    assert result2 is True
 
 
 def test_subscribe_not_event_handler_to_event_broker_raise_error(fake_logger):
