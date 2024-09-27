@@ -7,12 +7,12 @@ from sharedkernel.infrastructure.services import UUIDEncoder, DateTimeEncoder, E
 
 def test_serialize_uuid_return_encoded_value():
     # Arrange
-    expected = '{"value": "0191b0c5-8300-7c60-9700-f14bf5475624"}'
+    expected = '{"id": "0191b0c5-8300-7c60-9700-f14bf5475624", "price": 100}'
 
-    value = {'value': UUID('0191b0c5-8300-7c60-9700-f14bf5475624')}
+    data = {'id': UUID('0191b0c5-8300-7c60-9700-f14bf5475624'), 'price': 100}
 
     # Act
-    result = json.dumps(value, cls=UUIDEncoder)
+    result = json.dumps(data, cls=UUIDEncoder)
 
     # Assert
     assert result == expected
@@ -20,10 +20,11 @@ def test_serialize_uuid_return_encoded_value():
 
 def test_serialize_datetime_return_encoded_value():
     # Arrange
-    expected = '{"value": "2006-05-31T01:30:45-04:00"}'
+    expected = '{"price": 100, "date": "2006-05-31T01:30:45-04:00"}'
 
-    value = {
-        'value': datetime(
+    data = {
+        'price': 100,
+        'date': datetime(
             year=2006,
             month=5,
             day=31,
@@ -35,7 +36,7 @@ def test_serialize_datetime_return_encoded_value():
     }
 
     # Act
-    result = json.dumps(value, cls=DateTimeEncoder)
+    result = json.dumps(data, cls=DateTimeEncoder)
 
     # Assert
     assert result == expected
@@ -43,11 +44,12 @@ def test_serialize_datetime_return_encoded_value():
 
 def test_serialize_extra_types_return_encoded_value():
     # Arrange
-    expected = '{"value1": "0191b0c5-8300-7c60-9700-f14bf5475624", "value2": "2006-05-31T01:30:45-04:00"}'
+    expected = '{"id": "0191b0c5-8300-7c60-9700-f14bf5475624", "price": 100, "date": "2006-05-31T01:30:45-04:00"}'
 
-    value = {
-        'value1': UUID('0191b0c5-8300-7c60-9700-f14bf5475624'),
-        'value2': datetime(
+    data = {
+        'id': UUID('0191b0c5-8300-7c60-9700-f14bf5475624'),
+        'price': 100,
+        'date': datetime(
             year=2006,
             month=5,
             day=31,
@@ -59,7 +61,7 @@ def test_serialize_extra_types_return_encoded_value():
     }
 
     # Act
-    result = json.dumps(value, cls=ExtraEncoder)
+    result = json.dumps(data, cls=ExtraEncoder)
 
     # Assert
     assert result == expected
