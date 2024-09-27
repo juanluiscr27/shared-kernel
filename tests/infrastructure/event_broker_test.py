@@ -104,3 +104,18 @@ def test_domain_event_is_processed_by_subscribed_handler(fake_logger, capture_st
     # Assert
     assert subscription_result is True
     assert capture_stdout["console"] == console
+
+
+def test_domain_event_is_not_processed_when_no_subscribed_handler(fake_logger, capture_stdout):
+    # Arrange
+    event_handler = RegistrationEventHandler()
+    event_broker = EventBroker(fake_logger)
+    subscription_result = event_broker.subscribe(event_handler)
+
+    # Act
+    event = UserLoggedIn(event_id="UserLoggedIn", message="User(name='John Doe')")
+    event_broker.publish(event, 1)
+
+    # Assert
+    assert subscription_result is True
+    assert not capture_stdout["console"]
