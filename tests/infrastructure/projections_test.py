@@ -2,8 +2,11 @@ from dataclasses import dataclass
 from functools import singledispatchmethod
 from uuid import UUID
 
+import pytest
+
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel
+from sharedkernel.infrastructure.errors import OutOfOrderEvent
 from sharedkernel.infrastructure.projections import Projection, Projector
 
 
@@ -49,12 +52,6 @@ class UserDetailsProjection(Projection[UserModel]):
         pass
 
 
-class UserDetailsProjector(Projector[UserDetailsProjection]):
-
-    def process(self, event: DomainEvent, position: int, version: int) -> None:
-        pass
-
-
 def test_projection_type():
     # Arrange
     expected = "UserModel"
@@ -74,10 +71,29 @@ def test_projector_handles_projection_events(fake_logger):
 
     projection = UserDetailsProjection()
 
-    projector = UserDetailsProjector(fake_logger, projection)
+    projector = Projector(fake_logger, projection)
 
     # Act
     result = projector.handles
 
     # Assert
     assert result == expected
+
+
+def test_projector_process_event_out_of_order_raise_error(fake_logger):
+    # Arrange
+    entity_id = UUID("018f55de-8321-7efd-a4e3-fcc2c5ec5eea")
+
+    event = UserRegistered(user_id=101, name="John Doe", slug="john-doe")
+
+    projection = UserDetailsProjection()
+
+    projector = Projector(fake_logger, projection)
+
+    # Act
+    with pytest.raises(OutOfOrderEvent) as error:
+        projector.process(event, position=3, entity_id=entity_id)
+
+        # Assert
+    assert str(error.value) == ("Event out of order received at position 3 for Projection "
+                                "'018f55de-8321-7efd-a4e3-fcc2c5ec5eea'.")
