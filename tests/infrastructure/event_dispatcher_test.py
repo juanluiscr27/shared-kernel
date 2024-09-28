@@ -52,6 +52,23 @@ class UserDetailsProjection(Projection[UserModel]):
         pass
 
 
+class AccountDetailsProjection(Projection[UserModel]):
+
+    def get_position(self, entity_id: UUID, event_type: str) -> int:
+        return 0
+
+    def update_position(self, entity_id: UUID, event_type: str, position: int) -> None:
+        print(f"{event_type} event processed by '{self.__class__.__name__}'")
+
+    @singledispatchmethod
+    def apply(self, event: DomainEvent) -> None:
+        super().apply(event)
+
+    @apply.register
+    def _when(self, event: UserRegistered) -> None:
+        pass
+
+
 class UserListProjection(Projection[UserModel]):
 
     def get_position(self, entity_id: UUID, event_type: str) -> int:
@@ -95,6 +112,24 @@ def test_projector_is_subscribed_to_event_dispatcher(fake_logger):
     assert result is True
 
 
+def test_projector_projector_are_subscribed_to_event_dispatcher(fake_logger):
+    # Arrange
+    user_projection = UserDetailsProjection()
+    account_projection = AccountDetailsProjection()
+    user_projector = Projector(fake_logger, user_projection)
+    account_projector = Projector(fake_logger, account_projection)
+    fake_mapper = FakeDomainEventMapper()
+    event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
+
+    # Act
+    result1 = event_dispatcher.subscribe(user_projector)
+    result2 = event_dispatcher.subscribe(account_projector)
+
+    # Assert
+    assert result1 is True
+    assert result2 is True
+
+
 def test_projector_with_no_handled_event_raise_error(fake_logger):
     # Arrange
     projection = UserListProjection()
@@ -110,7 +145,7 @@ def test_projector_with_no_handled_event_raise_error(fake_logger):
     assert str(error.value) == "Cannot subscribe `Projector of UserListProjection` because it does not handle any event"
 
 
-def test_event_is_processed_by_subscribed_handler(fake_logger, capture_stdout):
+def test_event_is_processed_by_subscribed_listener(fake_logger, capture_stdout):
     # Arrange
     event = Event(
         event_id="018f55de-8321-7efd-a4e3-fcc2c5ec5eea",
@@ -125,10 +160,10 @@ def test_event_is_processed_by_subscribed_handler(fake_logger, capture_stdout):
     )
 
     projection = UserDetailsProjection()
-    event_handler = Projector(fake_logger, projection)
+    listener = Projector(fake_logger, projection)
     fake_mapper = FakeDomainEventMapper()
     event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
-    subscription_result = event_dispatcher.subscribe(event_handler)
+    subscription_result = event_dispatcher.subscribe(listener)
     console = "UserRegistered event processed by 'UserDetailsProjection'\n"
 
     # Act
