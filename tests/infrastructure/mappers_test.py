@@ -173,7 +173,7 @@ def test_mapper_chain_return_events_with_valid_data():
     assert logged_in_result == user_logged_in
 
 
-def test_mapper_chain_return_none_when_no_mapper_added():
+def test_mapper_chain_return_none_when_different_mapper_added():
     # Arrange
     registered_data = {"user_id": "018f9284-769b-726d-b3bf-3885bf2ddd3c", "email": "john-doe@example.com"}
     registered_type = "UserRegistered"
@@ -185,6 +185,20 @@ def test_mapper_chain_return_none_when_no_mapper_added():
     # Act
     chain.add(logged_in_mapper)
 
+    result = chain.map(registered_data, registered_type)
+
+    # Assert
+    assert result is None
+
+
+def test_mapper_chain_return_none_when_no_mapper_added():
+    # Arrange
+    registered_data = {"user_id": "018f9284-769b-726d-b3bf-3885bf2ddd3c", "email": "john-doe@example.com"}
+    registered_type = "UserRegistered"
+
+    chain = MappersChain()
+
+    # Act
     result = chain.map(registered_data, registered_type)
 
     # Assert
