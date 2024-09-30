@@ -230,3 +230,17 @@ def test_mapping_pipeline_return_event_with_valid_data():
 
     # Assert
     assert result == expected
+
+
+def test_mapping_pipeline_return_event_when_no_mapping_behavior():
+    # Arrange
+    registered_data = {"user_id": "018f9284-769b-726d-b3bf-3885bf2ddd3c", "email": "john-doe@example.com"}
+    registered_type = "UserRegistered"
+
+    # Act
+    pipeline = MappingPipeline()
+
+    result = pipeline.map(registered_data, registered_type)
+
+    # Assert
+    assert result is None
