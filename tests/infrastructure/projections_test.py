@@ -4,6 +4,7 @@ from uuid import UUID
 
 import pytest
 
+from sharedkernel.domain.errors import UnknownEvent
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel
 from sharedkernel.infrastructure.errors import OutOfOrderEvent
@@ -22,6 +23,12 @@ class UserNameUpdated(DomainEvent):
     user_id: int
     new_name: str
     previous_name: str
+
+
+@dataclass(frozen=True)
+class UserLoggedIn(DomainEvent):
+    name: str
+    email: str
 
 
 @dataclass(frozen=True)
@@ -97,3 +104,21 @@ def test_projector_process_event_out_of_order_raise_error(fake_logger):
         # Assert
     assert str(error.value) == ("Event out of order received at position 3 for Projection "
                                 "'018f55de-8321-7efd-a4e3-fcc2c5ec5eea'.")
+
+
+def test_projector_process_unknown_event_raise_error(fake_logger):
+    # Arrange
+    entity_id = UUID("018f55de-8321-7efd-a4e3-fcc2c5ec5eea")
+
+    event = UserLoggedIn(name="John Doe", email="john-doe@email.com")
+
+    projection = UserDetailsProjection()
+
+    projector = Projector(fake_logger, projection)
+
+    # Act
+    with pytest.raises(UnknownEvent) as error:
+        projector.process(event, position=2, entity_id=entity_id)
+
+        # Assert
+    assert str(error.value) == "Event 'UserLoggedIn' cannot be applied to 'UserDetailsProjection'"
