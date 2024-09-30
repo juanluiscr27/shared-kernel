@@ -44,7 +44,7 @@ class UserDetailsProjection(Projection[UserModel]):
         return 1
 
     def update_position(self, entity_id: UUID, event_type: str, position: int) -> None:
-        pass
+        print(f"{event_type} event processed by '{self.__class__.__name__}'")
 
     @singledispatchmethod
     def apply(self, event: DomainEvent) -> None:
@@ -104,6 +104,23 @@ def test_projector_process_event_out_of_order_raise_error(fake_logger):
         # Assert
     assert str(error.value) == ("Event out of order received at position 3 for Projection "
                                 "'018f55de-8321-7efd-a4e3-fcc2c5ec5eea'.")
+
+
+def test_projector_process_already_applied_event(fake_logger, capture_stdout):
+    # Arrange
+    entity_id = UUID("018f55de-8321-7efd-a4e3-fcc2c5ec5eea")
+
+    event = UserRegistered(user_id=101, name="John Doe", slug="john-doe")
+
+    projection = UserDetailsProjection()
+
+    projector = Projector(fake_logger, projection)
+
+    # Act
+    projector.process(event, position=1, entity_id=entity_id)
+
+    # Assert
+    assert not capture_stdout["console"]
 
 
 def test_projector_process_unknown_event_raise_error(fake_logger):
