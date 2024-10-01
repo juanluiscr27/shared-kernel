@@ -39,6 +39,7 @@ class RequestMapper(ABC, Generic[TRequest]):
 
 
 class RequestMappingBehavior(ABC):
+    @abstractmethod
     def map(self, request: TRequest, **query_params) -> TMessage:
         ...
 
