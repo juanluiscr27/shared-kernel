@@ -358,20 +358,6 @@ def test_object_with_sanitized_text_is_created():
     assert result.value == username_value
 
 
-def test_object_with_special_character_raise_an_error():
-    # Arrange
-    special_text = "1 = 1"
-
-    # Act
-    with pytest.raises(ValueError) as error:
-        _ = Username.create(special_text)
-
-    error_message = str(error.value)
-
-    # Assert
-    assert error_message == "Username contains an invalid character"
-
-
 def test_object_with_reserved_name_raise_an_error():
     # Arrange
     user = "root"
@@ -386,7 +372,21 @@ def test_object_with_reserved_name_raise_an_error():
     assert error_message == "Username should not be equal to root"
 
 
-def test_object_with_reserved_word_raise_an_error():
+def test_text_with_equal_sign_raise_an_error():
+    # Arrange
+    special_text = "1 = 1"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_drop_reserved_word_raise_an_error():
     # Arrange
     special_text = "DROP TABLE users"
 
@@ -397,7 +397,7 @@ def test_object_with_reserved_word_raise_an_error():
     error_message = str(error.value)
 
     # Assert
-    assert error_message == "Username contains an invalid word"
+    assert error_message == "Text contains an invalid word"
 
 
 def test_object_with_valid_length_is_created():
