@@ -386,6 +386,216 @@ def test_text_with_equal_sign_raise_an_error():
     assert error_message == "Text contains an invalid character"
 
 
+def test_text_with_quotes_raise_an_error():
+    # Arrange
+    special_text = '"USERS"'
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_less_than_sign_raise_an_error():
+    # Arrange
+    special_text = "0 < 1"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_greater_than_sign_raise_an_error():
+    # Arrange
+    special_text = "1 > 0"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_semi_colon_raise_an_error():
+    # Arrange
+    special_text = "TRUE;"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_number_sign_raise_an_error():
+    # Arrange
+    special_text = "#TempTables"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_money_sign_raise_an_error():
+    # Arrange
+    special_text = "AS $$ DECLARE"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_percentage_sign_raise_an_error():
+    # Arrange
+    special_text = "%admin%"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_caret_sign_raise_an_error():
+    # Arrange
+    special_text = "5 ^ 3"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_ampersand_sign_raise_an_error():
+    # Arrange
+    special_text = "&user"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_asterisk_sign_raise_an_error():
+    # Arrange
+    special_text = "*"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_open_parenthesis_raise_an_error():
+    # Arrange
+    special_text = "(user"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_close_parenthesis_raise_an_error():
+    # Arrange
+    special_text = "user)"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_system_variable_raise_an_error():
+    # Arrange
+    special_text = "@@CHARACTER_SET_CLIENT"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_concat_operator_raise_an_error():
+    # Arrange
+    special_text = ":name || :password"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
+def test_text_with_comment_sign_raise_an_error():
+    # Arrange
+    special_text = "true --"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid character"
+
+
 def test_text_with_drop_reserved_word_raise_an_error():
     # Arrange
     special_text = "DROP TABLE users"
