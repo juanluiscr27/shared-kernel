@@ -596,9 +596,149 @@ def test_text_with_comment_sign_raise_an_error():
     assert error_message == "Text contains an invalid character"
 
 
+def test_text_with_alter_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "ALTER VIEW users"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid word"
+
+
+def test_text_with_create_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "CREATE VIEW users"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid word"
+
+
+def test_text_with_delete_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "DELETE VIEW users"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid word"
+
+
 def test_text_with_drop_reserved_word_raise_an_error():
     # Arrange
-    special_text = "DROP TABLE users"
+    special_text = "DROP VIEW users"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid word"
+
+
+def test_text_with_execute_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "EXECUTE function get_user"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid word"
+
+
+def test_text_with_insert_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "INSERT INTO"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid word"
+
+
+def test_text_with_merge_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "MERGE VIEW"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid word"
+
+
+def test_text_with_select_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "SELECT name"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid word"
+
+
+def test_text_with_update_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "UPDATE VIEW"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid word"
+
+
+def test_text_with_or_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "true OR false"
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = Username.create(special_text)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "Text contains an invalid word"
+
+
+def test_text_with_table_reserved_word_raise_an_error():
+    # Arrange
+    special_text = "FLUSH TABLE users"
 
     # Act
     with pytest.raises(ValueError) as error:
