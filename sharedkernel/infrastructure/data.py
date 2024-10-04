@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from datetime import datetime
+from uuid import UUID
 
 
 @dataclass(frozen=True)
@@ -11,20 +13,20 @@ class DataModel:
 
 @dataclass(frozen=True)
 class Event(DataModel):
-    event_id: str
+    event_id: UUID
     event_type: str
     position: int
     data: str
-    stream_id: str
+    stream_id: UUID
     stream_type: str
     version: int
-    created: str
-    correlation_id: str
+    created: datetime
+    correlation_id: UUID
 
 
 @dataclass(frozen=True)
 class Message:
-    message_id: str
+    message_id: UUID
     content_type: str
     subject: str
     body: str
