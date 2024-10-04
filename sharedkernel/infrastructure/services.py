@@ -155,7 +155,6 @@ class EventDispatcher:
             MapperNotFound
         """
         event_type = event.event_type
-        entity_id = UUID(event.stream_id)
 
         if event_type not in self._listeners:
             self._logger.debug(f"No listener subscribed for {event_type} event")
@@ -172,4 +171,4 @@ class EventDispatcher:
 
         self._logger.info(f"{event_type} event dispatched to all listeners")
         for listener in listener_group:
-            listener.process(domain_event, event.position, entity_id)
+            listener.process(domain_event, event.position, event.stream_id)
