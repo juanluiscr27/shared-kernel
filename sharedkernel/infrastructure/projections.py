@@ -7,7 +7,7 @@ from uuid import UUID
 from typeinspection import gethandledtypes
 
 from sharedkernel.domain.errors import UnknownEvent
-from sharedkernel.domain.events import DomainEvent, TEvent
+from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel
 from sharedkernel.infrastructure.errors import OutOfOrderEvent
 
@@ -47,10 +47,10 @@ class Projector(Generic[TProjection]):
     def handles(self) -> List[str]:
         return gethandledtypes(type(self.projection))
 
-    def process(self, event: TEvent, position: int, entity_id: UUID) -> None:
+    def process(self, event: DomainEvent, position: int, entity_id: UUID) -> None:
         current_position = self.projection.get_position(entity_id, event.qualname)
 
-        event_type = type(event).__name__
+        event_type = event.qualname
         if position < current_position + 1:
             self._logger.debug(f"{event_type} position {position} has been already applied to Projection {entity_id}")
             return
@@ -62,5 +62,5 @@ class Projector(Generic[TProjection]):
         self.projection.apply(event)
         self._logger.info(f"{event_type} position {position} has been projected to record {entity_id}")
 
-        self.projection.update_position(entity_id, event.qualname, position)
+        self.projection.update_position(entity_id, event_type, position)
         self._logger.debug(f"{event_type} at Projection {entity_id} has been updated to position {position}")
