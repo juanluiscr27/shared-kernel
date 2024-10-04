@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Dict, Any, Optional
 from uuid import UUID
 
@@ -71,16 +72,16 @@ def test_extract_return_same_json_string():
 def test_deserialize_json_string_to_event():
     # Arrange
     expected = Event(
-        event_id="018ff859-d78c-4dc8-e0d2-4094d208a18c",
+        event_id=UUID("018ff859-d78c-4dc8-e0d2-4094d208a18c"),
         event_type="OfficialNameUpdated",
         position=4,
         data="{\"official_id\": \"018fdb92-75b9-2616-9a6c-720aae66a022\", \"new_name\": \"John Doe IV\", "
              "\"previous_name\": \"John Doe III\"}",
-        stream_id="018fdb92-75b9-2616-9a6c-720aae66a022",
+        stream_id=UUID("018fdb92-75b9-2616-9a6c-720aae66a022"),
         stream_type="Official",
         version=7,
-        created="2024-06-08 14:56:28.542193+00",
-        correlation_id="018ff859-d78b-c284-3284-b7cbd0a31642",
+        created=datetime.fromisoformat("2024-06-08 14:56:28.542193+00"),
+        correlation_id=UUID("018ff859-d78b-c284-3284-b7cbd0a31642"),
     )
 
     obj_dict = {
@@ -131,7 +132,6 @@ def test_mapper_return_none_with_invalid_data():
     mapper = UserRegisteredMapper()
 
     # Act
-
     result = mapper.map(data, event_type)
 
     # Assert
