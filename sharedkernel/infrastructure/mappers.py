@@ -1,9 +1,11 @@
 import json
 from collections import deque
+from datetime import datetime
 from typing import get_args, Generic, TypeVar, Deque, List
 from abc import abstractmethod, ABC
 from types import get_original_bases
 from typing import Dict, Any, Optional, Self
+from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import Event
@@ -22,17 +24,18 @@ def extract(data: str) -> str:
     return data
 
 
+# noinspection PyUnusedLocal
 def to_event(message: Dict[str, Any], context: Any):
     return Event(
-        event_id=message['id'],
+        event_id=UUID(message['id']),
         event_type=message['type'],
         position=message['position'],
         data=extract(message['data']),
-        stream_id=message['stream_id'],
+        stream_id=UUID(message['stream_id']),
         stream_type=message['stream_type'],
         version=message['version'],
-        created=message['created'],
-        correlation_id=message['correlation_id'],
+        created=datetime.fromisoformat(message['created']),
+        correlation_id=UUID(message['correlation_id']),
     )
 
 
