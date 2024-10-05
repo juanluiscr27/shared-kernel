@@ -2,6 +2,12 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 4.0.0 (2024-10-04)
+
+### Changed
+
+- event data model property data types.
+
 ## 3.5.0 (2024-09-02)
 
 ### Added
