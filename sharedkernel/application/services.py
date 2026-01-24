@@ -16,7 +16,7 @@ from sharedkernel.application.errors import HandlerAlreadyRegistered, Rejection,
 from sharedkernel.application.queries import Query, QueryHandler, TResult
 from sharedkernel.application.validators import Validator, ValidationResult, TRequest
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import DomainError
+from sharedkernel.domain.errors import DomainException
 
 
 class ApplicationService:
@@ -114,7 +114,7 @@ class ServiceBus:
             self._logger.info(f"{type(request).__name__} request received")
             process_result = self.process(request)
             response = self.post_process(process_result)
-        except DomainError as error:
+        except DomainException as error:
             self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
             response = Rejection.from_exception(status_code=422, error=error)
         finally:

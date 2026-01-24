@@ -3,13 +3,13 @@ from types import SimpleNamespace
 from typing import List, Any
 
 from sharedkernel.application.validators import ValidationResult
-from sharedkernel.domain.errors import Error, DomainError, ServiceError
+from sharedkernel.domain.errors import Error, DomainException, SystemException
 
 ERROR_CONTEXT = 'error'
 
 
-class ApplicationError(ServiceError):
-    """Application Error
+class ApplicationException(SystemException):
+    """Application Exception
 
     Represents an error that occurred during the orchestration of the business logic.
 
@@ -25,14 +25,14 @@ class ApplicationError(ServiceError):
         self.service = f"{service_module}.{service_name}"
 
 
-class HandlerAlreadyRegistered(ApplicationError):
+class HandlerAlreadyRegistered(ApplicationException):
 
     def __init__(self, service: object, request_type: str):
         message = f"A Handler has been already registered for `{request_type}`"
         super().__init__(type(service), message)
 
 
-class UnsupportedHandler(ApplicationError):
+class UnsupportedHandler(ApplicationException):
 
     def __init__(self, service: object, handler: str):
         service_name = type(service).__name__
@@ -136,7 +136,7 @@ class Rejection:
         return cls(status_code=status_code, errors=[error_detail])
 
     @classmethod
-    def from_exception(cls, status_code: int, error: DomainError):
+    def from_exception(cls, status_code: int, error: DomainException):
         module = type(error).__module__
         error_name = type(error).__name__
         error_type = f"{module}.{error_name}"
