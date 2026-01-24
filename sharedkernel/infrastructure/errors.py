@@ -1,8 +1,8 @@
-from sharedkernel.domain.errors import ServiceError
+from sharedkernel.domain.errors import SystemException
 
 
-class InfrastructureError(ServiceError):
-    """Infrastructure Error
+class InfrastructureException(SystemException):
+    """Infrastructure Exception
 
     Represents an error that occurred during the interaction with external services.
 
@@ -18,8 +18,8 @@ class InfrastructureError(ServiceError):
         self.service = f"{service_module}.{service_name}"
 
 
-class MapperNotFound(InfrastructureError):
-    """MapperNotFound Error
+class MapperNotFound(InfrastructureException):
+    """MapperNotFound Exception
 
     Raised when no `EventMapper` was found in the `MappingPipeline` for a given event type.
 
@@ -32,7 +32,7 @@ class MapperNotFound(InfrastructureError):
         super().__init__(type(service), message)
 
 
-class UnsupportedEventHandler(InfrastructureError):
+class UnsupportedEventHandler(InfrastructureException):
 
     def __init__(self, service: object, handler: str):
         service_name = type(service).__name__
@@ -40,21 +40,21 @@ class UnsupportedEventHandler(InfrastructureError):
         super().__init__(type(service), message)
 
 
-class UnprocessableListener(InfrastructureError):
+class UnprocessableListener(InfrastructureException):
 
     def __init__(self, service: object, listener: str):
         message = f"Cannot subscribe `{listener}` because it does not handle any event"
         super().__init__(type(service), message)
 
 
-class IntegrityError(InfrastructureError):
+class IntegrityError(InfrastructureException):
 
     def __init__(self, service: object, entity_id: str, position: int):
         message = f"Transaction concurrency control was invalid for Entity '{entity_id}' at position {position}."
         super().__init__(type(service), message)
 
 
-class OutOfOrderEvent(InfrastructureError):
+class OutOfOrderEvent(InfrastructureException):
 
     def __init__(self, service: object, entity_id: str, position: int):
         message = f"Event out of order received at position {position} for Projection '{entity_id}'."
