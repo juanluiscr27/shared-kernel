@@ -98,6 +98,17 @@ class Rejection:
     errors: List[ErrorDetail] = field(default_factory=list)
 
     @classmethod
+    def default(cls):
+        error = ErrorDetail(
+            loc=["Application.Service", ],
+            msg="Unknown error occurred.",
+            type="ServiceBus.Request.ProcessRequest",
+        )
+        error.ctx = {ERROR_CONTEXT: "Unknown error"}
+
+        return cls(status_code=501, errors=[error, ])
+
+    @classmethod
     def from_validation(cls, result: ValidationResult):
         errors = []
         for result_error in result.errors:
