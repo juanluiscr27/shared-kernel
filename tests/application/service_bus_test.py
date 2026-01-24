@@ -11,11 +11,11 @@ from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.services import ServiceBus, RequestContext, get_request_id
 from sharedkernel.application.validators import Validator, ValidationResult
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import Error, DomainError
+from sharedkernel.domain.errors import Error, DomainException
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 
 
-class DuplicateName(DomainError):
+class DuplicateName(DomainException):
     def __init__(self, aggregate: object, name: str):
         message = f"User '{name}' has already been selected."
         super().__init__(entity=aggregate, message=message)
