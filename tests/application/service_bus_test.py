@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from uuid import UUID
 
 import pytest
@@ -7,7 +8,7 @@ from result import Result, Ok, Err
 from sharedkernel.application.commands import Command, CommandHandler, Acknowledgement, CommandStatus
 from sharedkernel.application.errors import UnsupportedHandler, HandlerAlreadyRegistered
 from sharedkernel.application.queries import Query, QueryHandler
-from sharedkernel.application.services import ServiceBus
+from sharedkernel.application.services import ServiceBus, RequestContext, get_request_id
 from sharedkernel.application.validators import Validator, ValidationResult
 from sharedkernel.domain.data import ReadModel, ReadModelList
 from sharedkernel.domain.errors import Error, DomainError
@@ -147,6 +148,37 @@ class RegistrationEventHandler(DomainEventHandler[UserRegistered]):
 
     def process(self, event: UserRegistered, position: int):
         pass
+
+
+class RegisterUserWithContextHandler(CommandHandler[RegisterUser]):
+
+    def execute(self, command: RegisterUser) -> Result[Acknowledgement, Error]:
+        if command.name == "John Doe":
+            raise DuplicateName(self, command.name)
+
+        if command.user_id == UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'):
+            ack = Acknowledgement(
+                status=CommandStatus.RECEIVED,
+                action="RegisterUser",
+                entity_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+                version=1,
+            )
+            print(f"{type(command).__name__}(request_id={get_request_id()})")
+            return Ok(ack)
+        else:
+            error = slug_not_unique_error(command.slug)
+            return Err(error)
+
+
+@pytest.fixture
+def fake_context():
+    timestamp = datetime.fromisoformat('2026-01-24T14:45:15-04:00')
+    request_id = UUID('019bf1bf-7398-7860-b4a8-9cafdda482ff')
+
+    return RequestContext.new(
+        request_id=request_id,
+        timestamp=timestamp,
+    )
 
 
 def test_command_handler_is_registered_to_service_bus(fake_logger):
@@ -384,7 +416,7 @@ def test_process_invalid_query_return_rejection(fake_logger):
     assert result.status_code == expected
 
 
-def test_send_valid_command_return_command_acknowledgment(fake_logger):
+def test_send_valid_command_return_command_acknowledgment(fake_logger, fake_context):
     # Arrange
     bus = ServiceBus(fake_logger)
     handler = RegisterUserCommandHandler()
@@ -397,13 +429,13 @@ def test_send_valid_command_return_command_acknowledgment(fake_logger):
     )
 
     # Act
-    result = bus.send(command)
+    result = bus.send(command, fake_context)
 
     # Assert
     assert result.status is CommandStatus.RECEIVED
 
 
-def test_send_valid_query_return_read_model(fake_logger):
+def test_send_valid_query_return_read_model(fake_logger, fake_context):
     # Arrange
     user_id = UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c')
 
@@ -414,13 +446,13 @@ def test_send_valid_query_return_read_model(fake_logger):
     query = GetUserByID(user_id=user_id)
 
     # Act
-    result = bus.send(query)
+    result = bus.send(query, fake_context)
 
     # Assert
     assert result.user_id == user_id
 
 
-def test_send_valid_query_return_read_model_list(fake_logger):
+def test_send_valid_query_return_read_model_list(fake_logger, fake_context):
     # Arrange
     bus = ServiceBus(fake_logger)
     handler = GetAllUsersQueryHandler()
@@ -429,13 +461,13 @@ def test_send_valid_query_return_read_model_list(fake_logger):
     query = GetAllUsers()
 
     # Act
-    result = bus.send(query)
+    result = bus.send(query, fake_context)
 
     # Assert
     assert result.total == 1
 
 
-def test_send_event_as_request_return_rejection(fake_logger):
+def test_send_event_as_request_return_rejection(fake_logger, fake_context):
     # Arrange
     user_registered = UserRegistered(
         event_id='01921c1b-18b9-7d74-ac5e-4a4c7570dca7',
@@ -446,13 +478,13 @@ def test_send_event_as_request_return_rejection(fake_logger):
 
     # Act
     # noinspection PyTypeChecker
-    result = bus.send(user_registered)
+    result = bus.send(user_registered, fake_context)
 
     # Assert
     assert len(result.errors) == 1
 
 
-def test_send_invalid_request_return_rejection(fake_logger):
+def test_send_invalid_request_return_rejection(fake_logger, fake_context):
     # Arrange
     bus = ServiceBus(fake_logger)
     validator = RegisterOfficialValidator()
@@ -465,13 +497,13 @@ def test_send_invalid_request_return_rejection(fake_logger):
     )
 
     # Act
-    result = bus.send(command)
+    result = bus.send(command, fake_context)
 
     # Assert
     assert len(result.errors) == 1
 
 
-def test_send_conflicting_command_return_rejection(fake_logger):
+def test_send_conflicting_command_return_rejection(fake_logger, fake_context):
     # Arrange
     bus = ServiceBus(fake_logger)
     handler = RegisterUserCommandHandler()
@@ -484,7 +516,47 @@ def test_send_conflicting_command_return_rejection(fake_logger):
     )
 
     # Act
-    result = bus.send(command)
+    result = bus.send(command, fake_context)
 
     # Assert
     assert len(result.errors) == 1
+
+
+def test_send_valid_command_with_context_set_request_id(fake_logger, fake_context, capture_stdout):
+    # Arrange
+    bus = ServiceBus(fake_logger)
+    handler = RegisterUserWithContextHandler()
+    bus.register(handler)
+    console = "RegisterUser(request_id=019bf1bf-7398-7860-b4a8-9cafdda482ff)\n"
+
+    command = RegisterUser(
+        user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+        name="John Doe Smith",
+        slug="john-doe-smith",
+    )
+
+    # Act
+    _ = bus.send(command, fake_context)
+
+    # Assert
+    assert capture_stdout["console"] == console
+
+
+def test_send_valid_command_with_context_reset_request_id(fake_logger, fake_context):
+    # Arrange
+    bus = ServiceBus(fake_logger)
+    handler = RegisterUserWithContextHandler()
+    bus.register(handler)
+
+    command = RegisterUser(
+        user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+        name="John Doe Smith",
+        slug="john-doe-smith",
+    )
+
+    # Act
+    _ = bus.send(command, fake_context)
+    result = get_request_id()
+
+    # Assert
+    assert result != fake_context.request_id
