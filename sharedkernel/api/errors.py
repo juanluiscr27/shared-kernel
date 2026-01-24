@@ -1,8 +1,8 @@
-from sharedkernel.domain.errors import ServiceError
+from sharedkernel.domain.errors import SystemException
 
 
-class ApiError(ServiceError):
-    """API Error
+class ApiException(SystemException):
+    """API Exception
 
     Represents an error that occurred when processing requests or returning responses.
 
@@ -18,8 +18,8 @@ class ApiError(ServiceError):
         self.service = f"{service_module}.{service_name}"
 
 
-class RequestMapperNotFound(ApiError):
-    """Request MapperNotFound Error
+class RequestMapperNotFound(ApiException):
+    """Request MapperNotFound Exception
 
     Raised when no `RequestMapper` was found in the `MappingPipeline`.
 
@@ -32,8 +32,8 @@ class RequestMapperNotFound(ApiError):
         super().__init__(type(service), message)
 
 
-class UnknownResponseModel(ApiError):
-    """Unknown Response Model Error
+class UnknownResponseModel(ApiException):
+    """Unknown Response Model Exception
 
     Raised when the result of the execution from a Query or a Command cannot be mapped to `ResponseModel`.
 

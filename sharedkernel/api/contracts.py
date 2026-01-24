@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from sharedkernel.domain.errors import Error, DomainError
+from sharedkernel.domain.errors import Error, DomainException
 
 
 class Request(BaseModel):
@@ -89,7 +89,7 @@ class DomainErrorResponse(ProblemDetail):
             error: Domain error.
         """
 
-    def __init__(self, error: DomainError):
+    def __init__(self, error: DomainException):
         location = [error.domain]
         message = error.message
         module = error.__module__
