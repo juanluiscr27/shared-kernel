@@ -4,8 +4,8 @@ from typing import Any
 from sharedkernel.domain.events import DomainEvent
 
 
-class ServiceError(Exception):
-    """Service Error
+class SystemException(Exception):
+    """System Exception
 
     The base class for all other exceptions in the entire system.
 
@@ -18,8 +18,8 @@ class ServiceError(Exception):
         self.message = message
 
 
-class DomainError(ServiceError):
-    """Domain Error
+class DomainException(SystemException):
+    """Domain Exception
 
     Represents a violation to the business rule or domain logic constraints.
 
@@ -35,8 +35,8 @@ class DomainError(ServiceError):
         self.domain = f"{entity_module}.{entity_name}"
 
 
-class UnknownEvent(DomainError):
-    """Unknown Event Error
+class UnknownEvent(DomainException):
+    """Unknown Event Exception
 
     Thrown when an event is applied to an aggregate that does not correspond.
 
