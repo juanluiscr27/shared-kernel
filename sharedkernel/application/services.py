@@ -1,8 +1,13 @@
+import contextvars
 import typing
+import uuid
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from datetime import datetime, UTC
 from logging import Logger
 from types import get_original_bases
-from typing import Dict, TypeVar, Union
+from typing import Dict, TypeVar, Union, Optional
+from uuid import UUID
 
 from result import Ok, Err
 
@@ -46,6 +51,25 @@ class Sender(ABC):
 
 NOT_FOUND = 'NotFound'
 
+request_id_var: contextvars.ContextVar[UUID] = contextvars.ContextVar("request-id")
+
+
+@dataclass(frozen=True)
+class RequestContext:
+    request_id: UUID
+    timestamp: datetime
+
+    @staticmethod
+    def new(request_id: UUID, timestamp: Optional[datetime]) -> "RequestContext":
+        return RequestContext(
+            request_id=request_id,
+            timestamp=timestamp or datetime.now(UTC)
+        )
+
+
+def get_request_id() -> UUID:
+    return request_id_var.get(uuid.uuid4())
+
 
 class ServiceBus:
     """Service Bus
@@ -83,14 +107,19 @@ class ServiceBus:
         handler_type = type(handler).__name__
         raise UnsupportedHandler(self, handler_type)
 
-    def send(self, request: TRequest) -> Union[TResponse, Rejection]:
+    def send(self, request: TRequest, context: RequestContext) -> Union[TResponse, Rejection]:
+        response = Rejection.default()
+        token = request_id_var.set(context.request_id)
         try:
             self._logger.info(f"{type(request).__name__} request received")
-            response = self.process(request)
-            return self.post_process(response)
+            process_result = self.process(request)
+            response = self.post_process(process_result)
         except DomainError as error:
             self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
-            return Rejection.from_exception(status_code=422, error=error)
+            response = Rejection.from_exception(status_code=422, error=error)
+        finally:
+            request_id_var.reset(token)
+            return response
 
     def process(self, request: TRequest) -> TResponse:
         validation_result = self.pre_process(request)
