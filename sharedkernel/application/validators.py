@@ -18,20 +18,21 @@ class ValidationResult:
 
     @property
     def is_valid(self) -> bool:
+        """Indicates if the validation result contains any errors."""
         return not self.errors
 
     @classmethod
     def success(cls):
-        """Creates a ```ValidationResult``` with no errors """
+        """Creates a ValidationResult with no errors."""
 
         return cls()
 
     @classmethod
     def with_errors(cls, errors: List[Error]):
-        """Creates a `ValidationResult` with the given list of errors
+        """Creates a ValidationResult with a given list of errors.
 
         Args:
-            errors: Validation errors.
+            errors: A list of validation errors.
         """
         return cls(errors=errors)
 

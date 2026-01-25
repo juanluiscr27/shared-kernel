@@ -61,6 +61,12 @@ class RequestContext:
 
     @staticmethod
     def new(request_id: UUID, timestamp: Optional[datetime]) -> "RequestContext":
+        """Creates a new request context.
+
+        Args:
+            request_id: A unique identifier for the request.
+            timestamp: The timestamp of the request. If None, the current UTC time is used.
+        """
         return RequestContext(
             request_id=request_id,
             timestamp=timestamp or datetime.now(UTC)
@@ -68,6 +74,11 @@ class RequestContext:
 
 
 def get_request_id() -> UUID:
+    """Retrieves the current request ID from the context variable.
+
+    Returns:
+        The current request ID or a new UUID if not set.
+    """
     return request_id_var.get(uuid.uuid4())
 
 
@@ -85,6 +96,18 @@ class ServiceBus:
         self._validators: Dict[str, Validator] = dict()
 
     def register(self, handler: Union[THandler, Validator]) -> bool:
+        """Registers a handler or validator to the service bus.
+
+        Args:
+            handler: The Command Handler, Query Handler, or Validator to register.
+
+        Returns:
+            True if registration was successful.
+
+        Raises:
+            HandlerAlreadyRegistered: If a handler is already registered for the request type.
+            UnsupportedHandler: If the handler type is not supported.
+        """
         bases = get_original_bases(handler.__class__)
         args = typing.get_args(bases[0])
         request_type = args[0].__name__
@@ -108,6 +131,17 @@ class ServiceBus:
         raise UnsupportedHandler(self, handler_type)
 
     def send(self, request: TRequest, context: RequestContext) -> Union[TResponse, Rejection]:
+        """Sends a request through the service bus.
+
+        Sets the request ID in the context, processes the request, and performs post-processing.
+
+        Args:
+            request: The Command or Query to send.
+            context: The request context.
+
+        Returns:
+            The response from the handler or a Rejection if an error occurs.
+        """
         response = Rejection.default()
         token = request_id_var.set(context.request_id)
         try:
@@ -122,6 +156,14 @@ class ServiceBus:
             return response
 
     def process(self, request: TRequest) -> TResponse:
+        """Processes a request by validating it and routing it to the appropriate handler.
+
+        Args:
+            request: The request to process.
+
+        Returns:
+            The response from the handler or a Rejection if validation fails or no handler is found.
+        """
         validation_result = self.pre_process(request)
 
         if not validation_result.is_valid:
@@ -140,6 +182,14 @@ class ServiceBus:
         return Rejection.from_error(status_code=501, error=error)
 
     def pre_process(self, request: TRequest) -> ValidationResult:
+        """Performs pre-processing validation on a request.
+
+        Args:
+            request: The request to validate.
+
+        Returns:
+            A ValidationResult indicating success or containing errors.
+        """
         request_type = type(request).__name__
 
         if request_type not in self._validators:
@@ -151,6 +201,14 @@ class ServiceBus:
         return validator.validate(request)
 
     def process_command(self, command: Command) -> Union[Acknowledgement, Rejection]:
+        """Directly processes a command using its registered handler.
+
+        Args:
+            command: The command to process.
+
+        Returns:
+            An Acknowledgement if successful, or a Rejection if an error occurs.
+        """
         command_type = type(command).__name__
 
         if command_type not in self._handlers:
@@ -171,6 +229,14 @@ class ServiceBus:
                 return Rejection.from_error(status_code=status_code, error=error)
 
     def process_query(self, query: Query) -> Union[TResult, Rejection]:
+        """Directly processes a query using its registered handler.
+
+        Args:
+            query: The query to process.
+
+        Returns:
+            The query result (ReadModel or ReadModelList) if successful, or a Rejection if an error occurs.
+        """
         query_type = type(query).__name__
 
         if query_type not in self._handlers:
@@ -191,6 +257,14 @@ class ServiceBus:
                 return Rejection.from_error(status_code=status_code, error=error)
 
     def post_process(self, response: TResponse) -> TResponse:
+        """Performs post-processing cleanup and logging after a request is handled.
+
+        Args:
+            response: The response from the handler.
+
+        Returns:
+            The original response.
+        """
         if isinstance(response, Acknowledgement):
             self._logger.info(f"Request {response.action} {response.status}")
 
