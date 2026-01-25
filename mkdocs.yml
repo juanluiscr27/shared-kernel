@@ -1,0 +1,81 @@
+site_name: Shared Kernel
+site_description: A library that implements the Shared Kernel pattern to build projects using DDD principles.
+site_author: Juan Luis Casanova
+site_url: https://github.com/juanluiscr27
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Tutorials:
+    - Getting Started: tutorials/getting-started.md
+    - My First Aggregate: tutorials/first-aggregate.md
+  - How-to Guides:
+    - Messaging & Service Bus: how-to/messaging.md
+    - Domain Models: how-to/domain-models.md
+    - Validation: how-to/validation.md
+    - Persistence: how-to/persistence.md
+  - Explanation:
+    - Architecture Overview: explanation/architecture.md
+    - DDD Concepts: explanation/ddd.md
+    - Error Catalog: explanation/errors.md
+  - API Reference:
+    - Domain: reference/domain.md
+    - Application: reference/application.md
+    - Infrastructure: reference/infrastructure.md
+    - API: reference/api.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["."]
+          options:
+            show_source: true
+            show_root_heading: true
+            show_category_heading: true
+            import_module_with_grammar: true
