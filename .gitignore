@@ -171,3 +171,8 @@ cython_debug/
 
 # Unix
 *.sock
+
+# AI Agents
+*.local.json
+*.local.md
+*.tmp
