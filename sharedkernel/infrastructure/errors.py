@@ -33,6 +33,12 @@ class MapperNotFound(InfrastructureException):
 
 
 class UnsupportedEventHandler(InfrastructureException):
+    """Exception raised when a service is trying to register an invalid event handler.
+
+    Args:
+        service: The service where the registration was attempted.
+        handler: The name of the unsupported handler.
+    """
 
     def __init__(self, service: object, handler: str):
         service_name = type(service).__name__
@@ -41,6 +47,12 @@ class UnsupportedEventHandler(InfrastructureException):
 
 
 class UnprocessableListener(InfrastructureException):
+    """Exception raised when a listener cannot be processed (e.g., doesn't handle any events to subscribe to).
+
+    Args:
+        service: The service where the subscription was attempted.
+        listener: The name of the unprocessable listener.
+    """
 
     def __init__(self, service: object, listener: str):
         message = f"Cannot subscribe `{listener}` because it does not handle any event"
@@ -48,14 +60,26 @@ class UnprocessableListener(InfrastructureException):
 
 
 class IntegrityError(InfrastructureException):
+    """IntegrityError defines an optimistic concurrency control error.
 
+    Args:
+        service: The service where the error occurred.
+        entity_id: The identifier of the entity involved.
+        position: The invalid event position.
+        """
     def __init__(self, service: object, entity_id: str, position: int):
         message = f"Transaction concurrency control was invalid for Entity '{entity_id}' at position {position}."
         super().__init__(type(service), message)
 
 
 class OutOfOrderEvent(InfrastructureException):
+    """OutOfOrderEvent Exception marks when a domain event is received out of sequence.
 
+    Args:
+        service: The service where the error occurred.
+        entity_id: The identifier of the entity involved.
+        position: The out-of-order event position.
+    """
     def __init__(self, service: object, entity_id: str, position: int):
         message = f"Event out of order received at position {position} for Projection '{entity_id}'."
         super().__init__(type(service), message)

@@ -1,5 +1,5 @@
 from collections import deque
-from typing import get_args, Generic, TypeVar, Deque
+from typing import get_args, Generic, TypeVar, Deque, Any
 from abc import abstractmethod, ABC
 from types import get_original_bases
 from typing import Optional, Self
