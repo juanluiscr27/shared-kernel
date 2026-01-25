@@ -16,6 +16,14 @@ QUOTES = "\""
 
 
 def extract(data: str) -> str:
+    """Extracts a JSON string by removing leading/trailing double quotes if present.
+
+    Args:
+        data: The string to extract from.
+
+    Returns:
+        The extracted JSON string or the original string if no quotes were found.
+    """
     length = len(data)
 
     if length > 0 and data[0] == QUOTES and data[length - 1] == QUOTES:
@@ -25,7 +33,16 @@ def extract(data: str) -> str:
 
 
 # noinspection PyUnusedLocal
-def to_event(message: Dict[str, Any], context: Any):
+def to_event(message: Dict[str, Any], context: Any) -> Event:
+    """Converts a raw message dictionary to an Event data model.
+
+    Args:
+        message: The raw message dictionary.
+        context: Optional context for mapping.
+
+    Returns:
+        A populated Event instance.
+    """
     return Event(
         event_id=UUID(message['id']),
         event_type=message['type'],
@@ -40,6 +57,10 @@ def to_event(message: Dict[str, Any], context: Any):
 
 
 class Mapper(ABC, Generic[TEvent]):
+    """Base class for event mappers.
+
+    Implementations should define how to map a dictionary of data into a specific TEvent.
+    """
 
     def __init__(self):
         self._next: Optional[Self] = None
@@ -50,14 +71,37 @@ class Mapper(ABC, Generic[TEvent]):
         args = get_args(bases[0])
         return args[0].__name__
 
-    def set_next(self, mapper: Self):
+    def set_next(self, mapper: Self) -> None:
+        """Sets the next mapper in the chain.
+
+        Args:
+            mapper: The next mapper instance.
+        """
         self._next = mapper
 
     @abstractmethod
     def map(self, data: Dict[str, Any], event_type: str) -> Optional[TEvent]:
+        """Maps raw data to a domain event if the type matches.
+
+        Args:
+            data: The raw event data dictionary.
+            event_type: The type name of the event.
+
+        Returns:
+            The mapped domain event, or None if the type does not match.
+        """
         ...
 
     def map_next(self, data: Dict[str, Any], event_type: str) -> Optional[DomainEvent]:
+        """Delegates mapping to the next mapper in the chain.
+
+        Args:
+            data: The raw event data dictionary.
+            event_type: The type name of the event.
+
+        Returns:
+            The result of the next mapper, or None if no next mapper exists.
+        """
         if not self._next:
             return None
 
@@ -65,19 +109,35 @@ class Mapper(ABC, Generic[TEvent]):
 
 
 class MappingBehavior(ABC):
+    """Abstract base class defining event mapping behavior."""
 
     @abstractmethod
     def map(self, data: Dict[str, Any], event_type: str) -> Optional[DomainEvent]:
+        """Maps raw data to a domain event.
+
+        Args:
+            data: The raw event data dictionary.
+            event_type: The type name of the event.
+
+        Returns:
+            The mapped domain event or None.
+        """
         ...
 
 
 class MappersChain(MappingBehavior):
+    """A chain of mappers that attempts to map an event using each mapper in sequence."""
 
     def __init__(self):
         self._mappers: Deque[Mapper] = deque()
         self._first: Optional[Mapper] = None
 
     def add(self, mapper: Mapper) -> None:
+        """Adds a mapper to the beginning of the chain.
+
+        Args:
+            mapper: The mapper instance to add.
+        """
         if self._first:
             mapper.set_next(self._first)
 
@@ -85,6 +145,15 @@ class MappersChain(MappingBehavior):
         self._first = mapper
 
     def map(self, data: Dict[str, Any], event_type: str) -> Optional[DomainEvent]:
+        """Attempts to map the event by passing it through the chain.
+
+        Args:
+            data: The raw event data dictionary.
+            event_type: The type name of the event.
+
+        Returns:
+            The first non-None result from the chain, or None if all fail.
+        """
         if not self._first:
             return None
 
@@ -92,14 +161,29 @@ class MappersChain(MappingBehavior):
 
 
 class MappingPipeline:
+    """A pipeline for registering and executing multiple mapping behaviors."""
 
     def __init__(self):
         self._chain: List[MappingBehavior] = list()
 
-    def register(self, behavior: MappingBehavior):
+    def register(self, behavior: MappingBehavior) -> None:
+        """Registers a mapping behavior in the pipeline.
+
+        Args:
+            behavior: The mapping behavior instance.
+        """
         self._chain.append(behavior)
 
     def map(self, data: Dict[str, Any], event_type: str) -> Optional[DomainEvent]:
+        """Executes the pipeline by calling each registered behavior until one returns a domain event.
+
+        Args:
+            data: The raw event data dictionary.
+            event_type: The type name of the event.
+
+        Returns:
+            The first successfully mapped domain event, or None.
+        """
         for behavior in self._chain:
             event = behavior.map(data, event_type)
 

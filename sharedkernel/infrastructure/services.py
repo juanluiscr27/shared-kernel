@@ -3,7 +3,7 @@ import typing
 from datetime import datetime
 from logging import Logger
 from types import get_original_bases
-from typing import List, TypeVar
+from typing import List, TypeVar, Any
 from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
@@ -16,21 +16,30 @@ TEventHandler = TypeVar("TEventHandler", bound=DomainEventHandler)
 
 
 class UUIDEncoder(json.JSONEncoder):
-    def default(self, obj):
+    """JSON encoder that supports UUID objects."""
+
+    def default(self, obj: Any) -> Any:
+        """Encodes UUID objects as strings."""
         if isinstance(obj, UUID):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
 
 
 class DateTimeEncoder(json.JSONEncoder):
-    def default(self, obj):
+    """JSON encoder that supports datetime objects."""
+
+    def default(self, obj: Any) -> Any:
+        """Encodes datetime objects as ISO format strings."""
         if isinstance(obj, datetime):
             return obj.isoformat()
         return json.JSONEncoder.default(self, obj)
 
 
 class ExtraEncoder(json.JSONEncoder):
-    def default(self, obj):
+    """JSON encoder that supports both UUID and datetime objects."""
+
+    def default(self, obj: Any) -> Any:
+        """Encodes UUID and datetime objects as strings."""
         if isinstance(obj, UUID):
             return str(obj)
 
@@ -41,10 +50,13 @@ class ExtraEncoder(json.JSONEncoder):
 
 
 class EventBroker:
-    """
-    Mediates the communication of event messages between producers and consumers.
+    """Mediates the communication of event messages between producers and consumers.
 
-    Notify consumers when a new message is received.
+    The Event Broker acts as an in-memory pub-sub mechanism, notifying registered consumers
+    (DomainEventHandlers) when a domain event is published.
+
+    Args:
+        logger: The logger instance.
     """
 
     def __init__(self, logger: Logger):
@@ -55,8 +67,7 @@ class EventBroker:
         """Subscribe a Domain Event Handler as consumers to an Event Group.
 
         Args:
-            event_handler: Event Consumer that will process a specific kind of
-            event when published.
+            event_handler: Event Consumer that will process a specific kind of event when published.
 
         Returns:
             True if the Event Handler was successfully subscribed, otherwise False.
@@ -105,13 +116,19 @@ class EventBroker:
 
 
 class EventDispatcher:
-    """
-    A Dispatcher is a service object that is given an Event object by an Emitter.
+    """Service that dispatches raw infrastructure events to interested listeners.
 
-    The Dispatcher is responsible for ensuring that the Event is passed to all relevant Listeners.
+    The dispatcher uses a MappingPipeline to convert raw event data into domain events
+    and then routes them to registered Projectors or other listeners.
     """
 
     def __init__(self, logger: Logger, mapper: MappingPipeline):
+        """Initializes an EventDispatcher.
+
+        Args:
+            logger: The logger instance.
+            mapper: The mapping pipeline to convert raw events to domain events.
+        """
         self._logger = logger
         self._mapper = mapper
         self._listeners: dict[str, List[Projector]] = dict()
@@ -152,7 +169,7 @@ class EventDispatcher:
            None
 
         Raises:
-            MapperNotFound
+            MapperNotFound: If the MappingPipeline does not have any event mapper for the given event type name.
         """
         event_type = event.event_type
 
