@@ -19,6 +19,7 @@ class Command:
 
 
 class CommandStatus(StrEnum):
+    """Represents the execution status of a command."""
     RECEIVED = 'received'
     PROCESSING = 'processing'
     EXECUTED = 'executed'
@@ -27,6 +28,14 @@ class CommandStatus(StrEnum):
 
 @dataclass
 class Acknowledgement:
+    """Represents the acknowledgement of a command execution.
+
+    Attributes:
+        status: The execution status of the command.
+        action: The name of the command that was executed.
+        entity_id: The identifier of the entity affected by the command.
+        version: The version number of the stream after the command execution.
+    """
     status: CommandStatus
     action: str
     entity_id: UUID
