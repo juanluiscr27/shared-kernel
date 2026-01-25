@@ -73,4 +73,9 @@ class Error:
     domain: str
 
     def to_dict(self) -> dict[str, Any]:
+        """Converts the error model to a dictionary.
+
+        Returns:
+            A dictionary representation of the error.
+        """
         return asdict(self)
