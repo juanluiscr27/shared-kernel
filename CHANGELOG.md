@@ -2,6 +2,20 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 5.0.0 (2026-01-25)
+
+### Added
+
+- project documentation.
+- request context class and request id context variable.
+- interface definition for an event store database.
+
+### Changed
+
+- package manager and build tool to UV.
+- error base class names to system exception.
+- docstrings for all modules and classes.
+
 ## 4.0.0 (2024-10-04)
 
 ### Changed

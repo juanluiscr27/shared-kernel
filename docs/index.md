@@ -1,10 +1,13 @@
 # Shared Kernel
 
-Welcome to the **Shared Kernel** documentation. This library provides a robust foundation for building Python applications following **Domain-Driven Design (DDD)**, **CQRS**, and **Clean Architecture** patterns.
+Welcome to the **Shared Kernel** documentation. This library provides a robust foundation for building Python
+applications following **Domain-Driven Design (DDD)**, **CQRS**, and **Clean Architecture** patterns.
 
 ## What is a Shared Kernel?
 
-In Domain-Driven Design, a **Shared Kernel** is a relationship where two or more bounded contexts share a common set of elements. This library provides those common elements to ensure consistency across your microservices or modules while maintaining clean boundaries.
+In Domain-Driven Design, a **Shared Kernel** is a relationship where two or more bounded contexts share a common set of
+elements. This library provides those common elements to ensure consistency across your microservices or modules while
+maintaining clean boundaries.
 
 ## Key Features
 
@@ -20,7 +23,7 @@ In Domain-Driven Design, a **Shared Kernel** is a relationship where two or more
 ### Installation
 
 ```bash
-pip install git+https://github.com/juanluiscr27/shared-kernel.git@v4.0.0-beta#egg=sharedkernel
+pip install git+https://github.com/juanluiscr27/shared-kernel.git@v5.0.0-beta#egg=sharedkernel
 ```
 
 ### Basic Example: Value Objects
