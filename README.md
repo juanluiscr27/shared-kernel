@@ -6,28 +6,48 @@
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://docs.python.org/3.12/index.html)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
-A Python library that implements the Shared Kernel pattern to build projects using Domain-Driven Design principles.
+A Python library that implements the **Shared Kernel** pattern to build projects using **Domain-Driven Design (DDD)** and **Clean Architecture** principles.
+---
 
-## Features
+## 📖 Documentation
 
-A Shared Kernel is a relationship in DDD where two or more bounded contexts share common elements.
-The catalog of elements included in this library is as follows:
+We have comprehensive documentation organized according to the **Diátaxis** framework:
+*   **[Tutorials](docs/tutorials/getting-started.md)**: Learn by doing. Build your first aggregate and send your first command.
+*   **[How-to Guides](docs/how-to/)**: Practical recipes for common tasks like Messaging, Validation, and Persistence.
+*   **[Concepts & Explanation](docs/explanation/)**: Deep dives into the Architecture, DDD patterns, and the Error Catalog.
+*   **[API Reference](docs/reference/)**: Automatically generated documentation for every module in the library.
 
-* Value Objects, Domain Entities, Aggregates
-* Domain Service
-* CQRS Pattern with Commands, Queries and Handlers
-* Domain Events and Event Handlers
-* Guard Clauses
-* Command Validator
-* Domain Errors
-* Event Broker (in memory)
-* Event Dispatcher
-* Service Bus
-* Event Mapping Pipeline
-* Repository Pattern
-* Projections
-* API Contracts
-* Clean Architecture
+💡 You can serve the documentation locally with live-reload:
+```bash
+pip install mkdocs-material mkdocstrings[python]
+mkdocs serve
+```
+
+## 🌟 Features
+
+This library provides a standard set of building blocks for sophisticated Python applications:
+
+*   **Core DDD**: Value Objects, Entities, Aggregates, and Domain Events.
+*   **Messaging**: Service Bus, in-memory Event Broker, and Event Dispatcher.
+*   **CQRS**: Commands, Queries and Handlers.
+*   **Validation**: Fail-fast Guard clauses and request-level Validators.
+*   **Infrastructure**: Abstract Event Store, Repository Pattern, Projections, and Mapping pipelines.
+*   **API Layer**: Standardized Pydantic contracts and Response models.
+
+---
+
+## 🏗️ Architecture Overview
+
+The library facilitates a layered approach where dependencies only point inwards toward the Domain:
+
+```mermaid
+graph TD
+    API[API Layer] --> Application[Application Layer]
+    Infrastructure[Infrastructure Layer] --> Application
+    Application --> Domain[Domain Layer]
+```
+
+---
 
 ### Dependencies
 
