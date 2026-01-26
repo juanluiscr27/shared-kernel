@@ -20,7 +20,7 @@ In Domain-Driven Design, a **Shared Kernel** is a relationship where two or more
 ### Installation
 
 ```bash
-pip install sharedkernel
+pip install git+https://github.com/juanluiscr27/shared-kernel.git@v4.0.0-beta#egg=sharedkernel
 ```
 
 ### Basic Example: Value Objects
