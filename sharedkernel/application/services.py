@@ -60,7 +60,7 @@ class RequestContext:
     timestamp: datetime
 
     @staticmethod
-    def new(request_id: UUID, timestamp: Optional[datetime]) -> "RequestContext":
+    def new(request_id: UUID, timestamp: Optional[datetime] = None) -> "RequestContext":
         """Creates a new request context.
 
         Args:

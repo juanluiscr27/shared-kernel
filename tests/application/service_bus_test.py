@@ -560,3 +560,14 @@ def test_send_valid_command_with_context_reset_request_id(fake_logger, fake_cont
 
     # Assert
     assert result != fake_context.request_id
+
+
+def test_new_request_context_with_no_datetime_param_set_datetime_now():
+    # Arrange
+    request_id = UUID('019bf1bf-7398-7860-b4a8-9cafdda482ff')
+
+    # Act
+    result = RequestContext.new(request_id=request_id)
+
+    # Assert
+    assert result.timestamp is not None
