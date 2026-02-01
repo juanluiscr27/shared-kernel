@@ -4,7 +4,7 @@ from types import get_original_bases
 from typing import TypeVar, Generic, List, get_args
 from uuid import UUID
 
-from typeinspection import gethandledtypes
+from typeinspection import get_handled_types
 
 from sharedkernel.domain.errors import UnknownEvent
 from sharedkernel.domain.events import DomainEvent
@@ -81,7 +81,7 @@ class Projector(Generic[TProjection]):
     @property
     def handles(self) -> List[str]:
         """Returns a list of event names that this projector handles."""
-        return gethandledtypes(type(self.projection))
+        return get_handled_types(type(self.projection))
 
     def process(self, event: DomainEvent, position: int, entity_id: UUID) -> None:
         """Processes a domain event by applying it to the projection and updating the position.
