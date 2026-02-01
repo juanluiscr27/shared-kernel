@@ -2,7 +2,7 @@ from collections import deque
 from typing import get_args, Generic, TypeVar, Deque, Any
 from abc import abstractmethod, ABC
 from types import get_original_bases
-from typing import Optional, Self
+from typing import Optional
 
 from sharedkernel.api.contracts import Request
 from sharedkernel.api.errors import RequestMapperNotFound
@@ -17,7 +17,7 @@ class RequestMapper(ABC, Generic[TRequest]):
     """Base class for request mappers that convert API requests into application messages."""
 
     def __init__(self):
-        self._next: Optional[Self] = None
+        self._next: Optional["RequestMapper"] = None
 
     @property
     def request_type(self) -> str:
@@ -26,7 +26,7 @@ class RequestMapper(ABC, Generic[TRequest]):
         args = get_args(bases[0])
         return args[0].__name__
 
-    def set_next(self, mapper: Self) -> None:
+    def set_next(self, mapper: "RequestMapper") -> None:
         """Sets the next mapper in the chain.
 
         Args:
