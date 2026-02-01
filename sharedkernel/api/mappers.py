@@ -35,7 +35,7 @@ class RequestMapper(ABC, Generic[TRequest]):
         self._next = mapper
 
     @abstractmethod
-    def map(self, request: TRequest, **query_params: dict[str, Any]) -> Optional[TMessage]:
+    def map(self, request: TRequest, **query_params: Any) -> Optional[TMessage]:
         """Maps an API request to an application Command or Query.
 
         Args:
@@ -47,7 +47,7 @@ class RequestMapper(ABC, Generic[TRequest]):
         """
         ...
 
-    def map_next(self, request: TRequest, **query_params: dict[str, Any]) -> Optional[TMessage]:
+    def map_next(self, request: TRequest, **query_params: Any) -> Optional[TMessage]:
         """Delegates mapping to the next mapper in the chain.
 
         Args:
@@ -67,7 +67,7 @@ class RequestMappingBehavior(ABC):
     """Abstract base class defining the behavior for mapping requests."""
 
     @abstractmethod
-    def map(self, request: TRequest, **query_params: dict[str, Any]) -> TMessage:
+    def map(self, request: TRequest, **query_params: Any) -> TMessage:
         """Maps an API request to an application message.
 
         Args:
@@ -87,7 +87,7 @@ class RequestMappersChain(RequestMappingBehavior):
         self._mappers: Deque[RequestMapper] = deque()
         self._first: Optional[RequestMapper] = None
 
-    def __call__(self, request: TRequest, **query_params: dict[str, Any]) -> TMessage:
+    def __call__(self, request: TRequest, **query_params: Any) -> TMessage:
         """Makes the chain callable, delegating to the map method."""
         return self.map(request, **query_params)
 
@@ -103,7 +103,7 @@ class RequestMappersChain(RequestMappingBehavior):
         self._mappers.appendleft(mapper)
         self._first = mapper
 
-    def map(self, request: TRequest, **query_params: dict[str, Any]) -> TMessage:
+    def map(self, request: TRequest, **query_params: Any) -> TMessage:
         """Attempts to map the request by passing it through the chain.
 
         Args:
