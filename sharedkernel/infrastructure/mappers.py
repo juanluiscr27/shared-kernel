@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import get_args, Generic, TypeVar, Deque, List
 from abc import abstractmethod, ABC
 from types import get_original_bases
-from typing import Dict, Any, Optional, Self
+from typing import Dict, Any, Optional
 from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
@@ -63,7 +63,7 @@ class Mapper(ABC, Generic[TEvent]):
     """
 
     def __init__(self):
-        self._next: Optional[Self] = None
+        self._next: Optional["Mapper"] = None
 
     @property
     def event_type(self) -> str:
@@ -71,7 +71,7 @@ class Mapper(ABC, Generic[TEvent]):
         args = get_args(bases[0])
         return args[0].__name__
 
-    def set_next(self, mapper: Self) -> None:
+    def set_next(self, mapper: "Mapper") -> None:
         """Sets the next mapper in the chain.
 
         Args:
