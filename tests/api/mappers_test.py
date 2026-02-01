@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Any
 from uuid import UUID
 
 import pytest
@@ -11,15 +11,14 @@ from sharedkernel.api.mappers import RequestMappersChain
 from sharedkernel.application.commands import Command
 
 
-class RegisterUserRequest(Request):
-    user_id: str
-    name: str
-    slug: str
-
-
 class LogInUserRequest(Request):
     name: str
     email: str
+
+
+class RegisterUserRequest(Request):
+    name: str
+    slug: str
 
 
 @dataclass(frozen=True)
@@ -37,12 +36,14 @@ class RegisterUser(Command):
 
 class RegisterUserRequestMapper(RequestMapper[RegisterUserRequest]):
 
-    def map(self, request: RegisterUserRequest, **query_params) -> Optional[RegisterUser]:
+    def map(self, request: RegisterUserRequest, **query_params: Any) -> Optional[RegisterUser]:
         if type(request).__name__ != self.request_type:
             return self.map_next(request, **query_params)
 
+        user_id = query_params.get('user_id')
+
         return RegisterUser(
-            user_id=UUID(request.user_id),
+            user_id=UUID(user_id),
             name=request.name,
             slug=request.slug,
         )
@@ -50,7 +51,7 @@ class RegisterUserRequestMapper(RequestMapper[RegisterUserRequest]):
 
 class LogInUserRequestMapper(RequestMapper[LogInUserRequest]):
 
-    def map(self, request: LogInUserRequest, **query_params) -> Optional[LogInUser]:
+    def map(self, request: LogInUserRequest, **query_params: Any) -> Optional[LogInUser]:
         if type(request).__name__ != self.request_type:
             return self.map_next(request, **query_params)
 
@@ -68,8 +69,9 @@ def test_mapper_return_command_with_valid_request():
         slug="john-doe-smith",
     )
 
+    user_id = '018f9284-769b-726d-b3bf-3885bf2ddd3c'
+
     request = RegisterUserRequest(
-        user_id='018f9284-769b-726d-b3bf-3885bf2ddd3c',
         name="John Doe Smith",
         slug="john-doe-smith",
     )
@@ -77,7 +79,7 @@ def test_mapper_return_command_with_valid_request():
     mapper = RegisterUserRequestMapper()
 
     # Act
-    result = mapper.map(request)
+    result = mapper.map(request, user_id=user_id)
 
     # Assert
     assert result == expected
@@ -108,8 +110,9 @@ def test_mapper_chain_return_command_with_valid_data():
         slug="john-doe-smith",
     )
 
+    user_id = '018f9284-769b-726d-b3bf-3885bf2ddd3c'
+
     request = RegisterUserRequest(
-        user_id='018f9284-769b-726d-b3bf-3885bf2ddd3c',
         name="John Doe Smith",
         slug="john-doe-smith",
     )
@@ -122,7 +125,7 @@ def test_mapper_chain_return_command_with_valid_data():
     # Act
     MapToCommand.add(mapper)
 
-    result = MapToCommand(request)
+    result = MapToCommand(request, user_id=user_id)
 
     # Assert
     assert result == expected
@@ -136,8 +139,9 @@ def test_mapper_chain_return_command_when_several_mapper_added():
         slug="john-doe-smith",
     )
 
+    user_id = '018f9284-769b-726d-b3bf-3885bf2ddd3c'
+
     request = RegisterUserRequest(
-        user_id='018f9284-769b-726d-b3bf-3885bf2ddd3c',
         name="John Doe Smith",
         slug="john-doe-smith",
     )
@@ -152,7 +156,7 @@ def test_mapper_chain_return_command_when_several_mapper_added():
     MapToCommand.add(register_user_mapper)
     MapToCommand.add(login_user_mapper)
 
-    result = MapToCommand(request)
+    result = MapToCommand(request, user_id=user_id)
 
     # Assert
     assert result == expected
@@ -162,8 +166,9 @@ def test_mapper_chain_raise_error_when_no_mapper_added():
     # Arrange
     expected = "No Request Mapper was found for 'RegisterUserRequest'."
 
+    user_id = '018f9284-769b-726d-b3bf-3885bf2ddd3c'
+
     request = RegisterUserRequest(
-        user_id='018f9284-769b-726d-b3bf-3885bf2ddd3c',
         name="John Doe Smith",
         slug="john-doe-smith",
     )
@@ -173,7 +178,7 @@ def test_mapper_chain_raise_error_when_no_mapper_added():
     # Act
     with pytest.raises(RequestMapperNotFound) as error:
         # noinspection PyTypeChecker
-        _ = chain.map(request)
+        _ = chain.map(request, user_id=user_id)
 
     # Assert
     assert str(error.value) == expected
