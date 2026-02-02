@@ -2,6 +2,17 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 5.1.0 (2026-02-02)
+
+### Added
+
+- default value to datetime parameter in request context variable
+
+### Changed
+
+- type inspection dependency version to v0.6.0
+- request mapper map function kwargs type hint signature
+
 ## 5.0.0 (2026-01-25)
 
 ### Added
