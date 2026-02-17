@@ -170,6 +170,12 @@ class RegisterUserWithContextHandler(CommandHandler[RegisterUser]):
             return Err(error)
 
 
+class FaultyRegisterUserHandler(CommandHandler[RegisterUser]):
+
+    def execute(self, command: RegisterUser) -> Result[Acknowledgement, Error]:
+        raise ValueError('User data format is invalid.')
+
+
 @pytest.fixture
 def fake_context():
     timestamp = datetime.fromisoformat('2026-01-24T14:45:15-04:00')
@@ -560,6 +566,28 @@ def test_send_valid_command_with_context_reset_request_id(fake_logger, fake_cont
 
     # Assert
     assert result != fake_context.request_id
+
+
+def test_send_command_to_faulty_handler_raises_error(fake_logger, fake_context):
+    # Arrange
+    bus = ServiceBus(fake_logger)
+    handler = FaultyRegisterUserHandler()
+    bus.register(handler)
+
+    command = RegisterUser(
+        user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+        name="John Doe Smith",
+        slug="john-doe-smith",
+    )
+
+    # Act
+    with pytest.raises(ValueError) as error:
+        _ = bus.send(command, fake_context)
+
+    error_message = str(error.value)
+
+    # Assert
+    assert error_message == "User data format is invalid."
 
 
 def test_new_request_context_with_no_datetime_param_set_datetime_now():

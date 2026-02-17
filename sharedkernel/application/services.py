@@ -142,7 +142,6 @@ class ServiceBus:
         Returns:
             The response from the handler or a Rejection if an error occurs.
         """
-        response = Rejection.default()
         token = request_id_var.set(context.request_id)
         try:
             self._logger.info(f"{type(request).__name__} request received")
@@ -153,7 +152,8 @@ class ServiceBus:
             response = Rejection.from_exception(status_code=422, error=error)
         finally:
             request_id_var.reset(token)
-            return response
+
+        return response
 
     def process(self, request: TRequest) -> TResponse:
         """Processes a request by validating it and routing it to the appropriate handler.
