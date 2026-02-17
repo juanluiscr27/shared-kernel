@@ -102,7 +102,7 @@ class Rejection:
         error = ErrorDetail(
             loc=["Application.Service", ],
             msg="Unknown error occurred.",
-            type="ServiceBus.Request.ProcessRequest",
+            type="ServiceBus.Request.Failed",
         )
         error.ctx = {ERROR_CONTEXT: "Unknown error"}
 
