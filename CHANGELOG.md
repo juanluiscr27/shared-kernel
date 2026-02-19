@@ -6,6 +6,7 @@ All notable changes to Shared Kernel will be documented in this file.
 
 ### Fixed
 
+- Service Bus send method logic to throw when exception occurs in command query handlers.
 - error mapping in service bus to return correct HTTP status code.
 
 ### Added
