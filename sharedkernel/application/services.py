@@ -1,4 +1,5 @@
 import contextvars
+import re
 import typing
 import uuid
 from abc import ABC, abstractmethod
@@ -16,7 +17,7 @@ from sharedkernel.application.errors import HandlerAlreadyRegistered, Rejection,
 from sharedkernel.application.queries import Query, QueryHandler, TResult
 from sharedkernel.application.validators import Validator, ValidationResult, TRequest
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import DomainException
+from sharedkernel.domain.errors import DomainException, UnknownEvent, EntityNotFound
 
 
 class ApplicationService:
@@ -49,7 +50,26 @@ class Sender(ABC):
         ...
 
 
-NOT_FOUND = 'NotFound'
+def get_status_code(error_code: str) -> int:
+    """Maps an error code to an HTTP status code.
+
+    Args:
+        error_code: The error code to map.
+
+    Returns:
+        The corresponding HTTP status code.
+    """
+    if re.search(r".*\.NotFound$", error_code, re.IGNORECASE):
+        return 404
+
+    if re.search(r".*\.(NotUnique|Conflict|Already.*)$", error_code, re.IGNORECASE):
+        return 409
+
+    if re.search(r".*\.Invalid.*$", error_code, re.IGNORECASE):
+        return 422
+
+    return 409
+
 
 request_id_var: contextvars.ContextVar[UUID] = contextvars.ContextVar("request-id")
 
@@ -147,9 +167,15 @@ class ServiceBus:
             self._logger.info(f"{type(request).__name__} request received")
             process_result = self.process(request)
             response = self.post_process(process_result)
+        except UnknownEvent as error:
+            self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
+            response = Rejection.from_exception(status_code=500, error=error)
+        except EntityNotFound as error:
+            self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
+            response = Rejection.from_exception(status_code=404, error=error)
         except DomainException as error:
             self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
-            response = Rejection.from_exception(status_code=422, error=error)
+            response = Rejection.from_exception(status_code=409, error=error)
         finally:
             request_id_var.reset(token)
 
@@ -225,7 +251,7 @@ class ServiceBus:
                 return ack
             case Err(error):
                 self._logger.error(error.message)
-                status_code = 404 if NOT_FOUND in error.code else 422
+                status_code = get_status_code(error.code)
                 return Rejection.from_error(status_code=status_code, error=error)
 
     def process_query(self, query: Query) -> Union[TResult, Rejection]:
@@ -253,7 +279,7 @@ class ServiceBus:
                 return read_model
             case Err(error):
                 self._logger.error(error.message)
-                status_code = 404 if NOT_FOUND in error.code else 422
+                status_code = get_status_code(error.code)
                 return Rejection.from_error(status_code=status_code, error=error)
 
     def post_process(self, response: TResponse) -> TResponse:
