@@ -2,6 +2,16 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 5.1.1 (2026-02-18)
+
+### Fixed
+
+- error mapping in service bus to return correct HTTP status code.
+
+### Added
+
+- exceptions under the domain hierarchy to match specific categories of errors in the domain layer.
+
 ## 5.1.0 (2026-02-02)
 
 ### Added
