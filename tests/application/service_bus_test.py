@@ -11,14 +11,14 @@ from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.services import ServiceBus, RequestContext, get_request_id
 from sharedkernel.application.validators import Validator, ValidationResult
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import Error, DomainException
+from sharedkernel.domain.errors import Error, UniqueConstraintViolation
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 
 
-class DuplicateName(DomainException):
+class DuplicateName(UniqueConstraintViolation):
     def __init__(self, aggregate: object, name: str):
         message = f"User '{name}' has already been selected."
-        super().__init__(entity=aggregate, message=message)
+        super().__init__(aggregate=aggregate, message=message)
 
 
 @dataclass(frozen=True)
@@ -83,7 +83,8 @@ class RegisterUserCommandHandler(CommandHandler[RegisterUser]):
                 status=CommandStatus.RECEIVED,
                 action="RegisterUser",
                 entity_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
-                version=1, )
+                version=1,
+            )
             return Ok(ack)
         else:
             error = slug_not_unique_error(command.slug)
@@ -351,7 +352,7 @@ def test_process_valid_command_return_command_acknowledgment(fake_logger):
 
 def test_process_invalid_command_return_rejection(fake_logger):
     # Arrange
-    expected = 422
+    expected = 409
     bus = ServiceBus(fake_logger)
     handler = RegisterUserCommandHandler()
     bus.register(handler)
