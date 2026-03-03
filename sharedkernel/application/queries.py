@@ -18,7 +18,6 @@ class Query:
 
 
 TQuery = TypeVar("TQuery", bound=Query)
-TResult = TypeVar("TResult", bound=ReadModel | ReadModelList)
 
 
 class QueryHandler(ABC, Generic[TQuery]):
@@ -30,7 +29,7 @@ class QueryHandler(ABC, Generic[TQuery]):
     """
 
     @abstractmethod
-    def execute(self, query: TQuery) -> Result[TResult, Error]:
+    def execute(self, query: TQuery) -> Result[ReadModel | ReadModelList, Error]:
         """Execute a Query.
 
         Args:
