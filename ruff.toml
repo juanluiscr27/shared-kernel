@@ -1,0 +1,52 @@
+line-length = 120
+
+lint.extend-select = [
+    "E",
+    "W",
+    "I",
+    "N",
+    "D",
+    "UP",
+    "B",
+    "C4",
+    "SIM",
+    "RET",
+    "TRY",
+    "RSE",
+    "ARG",
+    "PTH",
+    "PL",
+    "S",
+    "ANN",
+    "RUF",
+]
+
+lint.ignore = [
+    "D100",   # Missing docstring in public module
+    "D104",   # Missing docstring in public package
+    "D105",   # Missing docstring in magic method
+    "D107",   # Missing docstring in __init__
+    "D200",   # One-line docstring should fit on one line
+    "D202",   # No blank lines allowed after function docstring
+    "D204",   # 1 blank line required after class docstring
+    "D205",   # 1 blank line required between summary line and description
+    "D208",   # Docstring is over-indented
+    "D212",   # Multi-line docstring summary should start at the first line
+    "D214",   # Section is over-indented
+    "D401",   # First line of docstring should be in imperative mood
+    "D413",   # Missing blank line after last section
+    "D415",   # First line should end with a period, question mark, or exclamation point
+    "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "TRY003", # Avoid specifying long messages outside the exception class
+]
+
+lint.pydocstyle.convention = "google"
+
+[lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",   # Use of assert detected
+    "D",      # Missing docstrings
+    "ANN",    # Missing type annotations
+    "ARG002", # Unused method argument (fixtures)
+    "PLR2004",# Magic value used in comparison
+]
