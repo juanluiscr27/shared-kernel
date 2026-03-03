@@ -11,7 +11,7 @@ class ApiException(SystemException):
         message: Human readable string describing the exception.
     """
 
-    def __init__(self, service: object, message: str):
+    def __init__(self, service: object, message: str) -> None:
         super().__init__(message)
         service_module = service.__module__
         service_name = service.__name__
@@ -27,7 +27,7 @@ class RequestMapperNotFound(ApiException):
         request: API Request trying to map.
     """
 
-    def __init__(self, service: object, request: str):
+    def __init__(self, service: object, request: str) -> None:
         message = f"No Request Mapper was found for '{request}'."
         super().__init__(type(service), message)
 
@@ -41,6 +41,6 @@ class UnknownResponseModel(ApiException):
         response: Query or Command response.
     """
 
-    def __init__(self, service: object, response: str):
+    def __init__(self, service: object, response: str) -> None:
         message = f"Unknown response model for '{response}'."
         super().__init__(type(service), message)

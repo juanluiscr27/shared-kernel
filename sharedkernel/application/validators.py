@@ -22,13 +22,13 @@ class ValidationResult:
         return not self.errors
 
     @classmethod
-    def success(cls):
+    def success(cls) -> "ValidationResult":
         """Creates a ValidationResult with no errors."""
 
         return cls()
 
     @classmethod
-    def with_errors(cls, errors: list[Error]):
+    def with_errors(cls, errors: list[Error]) -> "ValidationResult":
         """Creates a ValidationResult with a given list of errors.
 
         Args:

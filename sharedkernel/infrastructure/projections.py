@@ -68,13 +68,13 @@ TProjection = TypeVar("TProjection", bound=Projection)
 
 class Projector(Generic[TProjection]):
     """Wraps a Projection to handle event processing logic, including out-of-order detection.
-    
+
     Args:
         logger: The logger to use for logging.
         projection: The projection to wrap.
     """
 
-    def __init__(self, logger: Logger, projection: Projection):
+    def __init__(self, logger: Logger, projection: Projection) -> None:
         self._logger = logger
         self.projection = projection
 

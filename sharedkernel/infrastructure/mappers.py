@@ -32,7 +32,7 @@ def extract(data: str) -> str:
 
 
 # noinspection PyUnusedLocal
-def to_event(message: dict[str, Any], context: Any) -> Event:
+def to_event(message: dict[str, Any], context: Any) -> Event:  # noqa: ARG001
     """Converts a raw message dictionary to an Event data model.
 
     Args:
@@ -61,11 +61,12 @@ class Mapper(ABC, Generic[TEvent]):
     Implementations should define how to map a dictionary of data into a specific TEvent.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._next: Mapper | None = None
 
     @property
     def event_type(self) -> str:
+        """Returns the name of the event type this mapper handles."""
         bases = get_original_bases(self.__class__)
         args = get_args(bases[0])
         return args[0].__name__
@@ -127,7 +128,7 @@ class MappingBehavior(ABC):
 class MappersChain(MappingBehavior):
     """A chain of mappers that attempts to map an event using each mapper in sequence."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._mappers: deque[Mapper] = deque()
         self._first: Mapper | None = None
 
@@ -162,8 +163,8 @@ class MappersChain(MappingBehavior):
 class MappingPipeline:
     """A pipeline for registering and executing multiple mapping behaviors."""
 
-    def __init__(self):
-        self._chain: list[MappingBehavior] = list()
+    def __init__(self) -> None:
+        self._chain: list[MappingBehavior] = []
 
     def register(self, behavior: MappingBehavior) -> None:
         """Registers a mapping behavior in the pipeline.

@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, TypeAlias
+from typing import Any
 
 
 class DomainService:
@@ -11,7 +11,7 @@ class DomainService:
     """
 
 
-Number: TypeAlias = int | float
+type Number = int | float
 
 
 class Guard:

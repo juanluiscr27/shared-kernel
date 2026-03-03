@@ -18,7 +18,7 @@ class ApplicationException(SystemException):
         message: Human readable string describing the exception.
     """
 
-    def __init__(self, service: object, message: str):
+    def __init__(self, service: object, message: str) -> None:
         super().__init__(message)
         service_module = service.__module__
         service_name = service.__name__
@@ -26,15 +26,17 @@ class ApplicationException(SystemException):
 
 
 class HandlerAlreadyRegistered(ApplicationException):
+    """Raised when a handler is already registered for a request type."""
 
-    def __init__(self, service: object, request_type: str):
+    def __init__(self, service: object, request_type: str) -> None:
         message = f"A Handler has been already registered for `{request_type}`"
         super().__init__(type(service), message)
 
 
 class UnsupportedHandler(ApplicationException):
+    """Raised when a handler type is not supported by the service bus."""
 
-    def __init__(self, service: object, handler: str):
+    def __init__(self, service: object, handler: str) -> None:
         service_name = type(service).__name__
         message = f"`{handler}` cannot be registered to {service_name}"
         super().__init__(type(service), message)
@@ -47,6 +49,7 @@ class ServiceBusErrors:
 
     @staticmethod
     def request_not_supported(request_type: str) -> Error:
+        """Creates an error indicating a request type is not supported."""
         return Error(
             message=f"Request '{request_type} cannot be handled by the Service Bus'.",
             code="ServiceBus.Request.NotSupported",
@@ -56,6 +59,7 @@ class ServiceBusErrors:
 
     @staticmethod
     def no_handler_registered_for_request(request_type: str) -> Error:
+        """Creates an error indicating no handler is registered for a request type."""
         return Error(
             message=f"Request '{request_type} has not handler registered the Service Bus'.",
             code="ServiceBus.Request.NoHandlerRegistered",
@@ -79,6 +83,7 @@ class ErrorDetail(SimpleNamespace):
     type: str
 
     def asdict(self) -> dict[str, Any]:
+        """Converts the error detail to a dictionary."""
         return self.__dict__
 
 
@@ -98,7 +103,8 @@ class Rejection:
     errors: list[ErrorDetail] = field(default_factory=list)
 
     @classmethod
-    def from_validation(cls, result: ValidationResult):
+    def from_validation(cls, result: ValidationResult) -> "Rejection":
+        """Creates a Rejection from a failed validation result."""
         errors = []
         for result_error in result.errors:
             error = ErrorDetail(
@@ -113,7 +119,8 @@ class Rejection:
         return cls(status_code=400, errors=errors)
 
     @classmethod
-    def from_error(cls, status_code: int, error: Error):
+    def from_error(cls, status_code: int, error: Error) -> "Rejection":
+        """Creates a Rejection from an application Error."""
         error_detail = ErrorDetail(
             loc=[error.domain, ],
             msg=error.message,
@@ -125,7 +132,8 @@ class Rejection:
         return cls(status_code=status_code, errors=[error_detail])
 
     @classmethod
-    def from_exception(cls, status_code: int, error: DomainException):
+    def from_exception(cls, status_code: int, error: DomainException) -> "Rejection":
+        """Creates a Rejection from a DomainException."""
         module = type(error).__module__
         error_name = type(error).__name__
         error_type = f"{module}.{error_name}"

@@ -11,7 +11,7 @@ class InfrastructureException(SystemException):
         message: Human readable string describing the exception.
     """
 
-    def __init__(self, service: object, message: str):
+    def __init__(self, service: object, message: str) -> None:
         super().__init__(message)
         service_module = service.__module__
         service_name = service.__name__
@@ -27,7 +27,7 @@ class MapperNotFound(InfrastructureException):
         event_type: Entity on which the error was raised.
     """
 
-    def __init__(self, service: object, event_type: str):
+    def __init__(self, service: object, event_type: str) -> None:
         message = f"No Event Mapper was found for event {event_type}."
         super().__init__(type(service), message)
 
@@ -40,7 +40,7 @@ class UnsupportedEventHandler(InfrastructureException):
         handler: The name of the unsupported handler.
     """
 
-    def __init__(self, service: object, handler: str):
+    def __init__(self, service: object, handler: str) -> None:
         service_name = type(service).__name__
         message = f"`{handler}` cannot be registered to {service_name}"
         super().__init__(type(service), message)
@@ -54,7 +54,7 @@ class UnprocessableListener(InfrastructureException):
         listener: The name of the unprocessable listener.
     """
 
-    def __init__(self, service: object, listener: str):
+    def __init__(self, service: object, listener: str) -> None:
         message = f"Cannot subscribe `{listener}` because it does not handle any event"
         super().__init__(type(service), message)
 
@@ -67,7 +67,7 @@ class IntegrityError(InfrastructureException):
         entity_id: The identifier of the entity involved.
         position: The invalid event position.
         """
-    def __init__(self, service: object, entity_id: str, position: int):
+    def __init__(self, service: object, entity_id: str, position: int) -> None:
         message = f"Transaction concurrency control was invalid for Entity '{entity_id}' at position {position}."
         super().__init__(type(service), message)
 
@@ -80,6 +80,6 @@ class OutOfOrderEvent(InfrastructureException):
         entity_id: The identifier of the entity involved.
         position: The out-of-order event position.
     """
-    def __init__(self, service: object, entity_id: str, position: int):
+    def __init__(self, service: object, entity_id: str, position: int) -> None:
         message = f"Event out of order received at position {position} for Projection '{entity_id}'."
         super().__init__(type(service), message)
