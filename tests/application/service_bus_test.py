@@ -3,13 +3,13 @@ from datetime import datetime
 from uuid import UUID
 
 import pytest
-from result import Result, Ok, Err
+from result import Err, Ok, Result
 
-from sharedkernel.application.commands import Command, CommandHandler, Acknowledgement, CommandStatus
-from sharedkernel.application.errors import UnsupportedHandler, HandlerAlreadyRegistered
+from sharedkernel.application.commands import Acknowledgement, Command, CommandHandler, CommandStatus
+from sharedkernel.application.errors import HandlerAlreadyRegistered, UnsupportedHandler
 from sharedkernel.application.queries import Query, QueryHandler
-from sharedkernel.application.services import ServiceBus, RequestContext, get_request_id
-from sharedkernel.application.validators import Validator, ValidationResult
+from sharedkernel.application.services import RequestContext, ServiceBus, get_request_id
+from sharedkernel.application.validators import ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
 from sharedkernel.domain.errors import Error, UniqueConstraintViolation
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
@@ -49,7 +49,7 @@ def name_null_or_empty_error() -> Error:
     return Error(
         message="User name is null or empty.",
         code="User.Name.NullOrEmpty",
-        reason=f"User 'name' should not be null nor empty.",
+        reason="User 'name' should not be null nor empty.",
         domain="Test.Users.RegisterUser",
     )
 
@@ -67,7 +67,7 @@ def id_not_found(user_id: str) -> Error:
     return Error(
         message=f"User id '{user_id} not found'.",
         code="User.Id.NotFound",
-        reason=f"User 'ID' is not available.",
+        reason="User 'ID' is not available.",
         domain="Test.users.GetUserById",
     )
 
@@ -86,9 +86,8 @@ class RegisterUserCommandHandler(CommandHandler[RegisterUser]):
                 version=1,
             )
             return Ok(ack)
-        else:
-            error = slug_not_unique_error(command.slug)
-            return Err(error)
+        error = slug_not_unique_error(command.slug)
+        return Err(error)
 
 
 class GetUserByIDQueryHandler(QueryHandler[GetUserByID]):
@@ -101,9 +100,8 @@ class GetUserByIDQueryHandler(QueryHandler[GetUserByID]):
                 slug="john-doe-smith",
             )
             return Ok(user)
-        else:
-            error = id_not_found(str(command.user_id))
-            return Err(error)
+        error = id_not_found(str(command.user_id))
+        return Err(error)
 
 
 class GetAllUsersQueryHandler(QueryHandler[GetAllUsers]):
@@ -135,8 +133,7 @@ class RegisterOfficialValidator(Validator[RegisterUser]):
             errors.append(name_null_or_empty)
         if errors:
             return ValidationResult.with_errors(errors=errors)
-        else:
-            return ValidationResult.success()
+        return ValidationResult.success()
 
 
 @dataclass(frozen=True)
@@ -166,9 +163,8 @@ class RegisterUserWithContextHandler(CommandHandler[RegisterUser]):
             )
             print(f"{type(command).__name__}(request_id={get_request_id()})")
             return Ok(ack)
-        else:
-            error = slug_not_unique_error(command.slug)
-            return Err(error)
+        error = slug_not_unique_error(command.slug)
+        return Err(error)
 
 
 class FaultyRegisterUserHandler(CommandHandler[RegisterUser]):

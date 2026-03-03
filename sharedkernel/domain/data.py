@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List
 
 
 @dataclass(frozen=True)
@@ -25,4 +24,4 @@ class ReadModelList:
     offset: int
     limit: int
     total: int
-    items: List[ReadModel]
+    items: list[ReadModel]

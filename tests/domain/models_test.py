@@ -5,7 +5,7 @@ import pytest
 
 from sharedkernel.domain.errors import UnknownEvent
 from sharedkernel.domain.events import DomainEvent
-from sharedkernel.domain.models import ValueObject, EntityID, Entity, Aggregate
+from sharedkernel.domain.models import Aggregate, Entity, EntityID, ValueObject
 
 
 @dataclass(frozen=True)

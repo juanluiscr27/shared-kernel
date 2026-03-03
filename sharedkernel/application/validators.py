@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, TypeVar, Generic
+from typing import Generic, TypeVar
 
 from sharedkernel.application.commands import Command
 from sharedkernel.application.queries import Query
@@ -14,7 +14,7 @@ class ValidationResult:
     Instances of `ValidationResult` should be created using the ```success```
     or ```with_errors``` functions.
     """
-    errors: List[Error] = field(default_factory=list)
+    errors: list[Error] = field(default_factory=list)
 
     @property
     def is_valid(self) -> bool:
@@ -28,7 +28,7 @@ class ValidationResult:
         return cls()
 
     @classmethod
-    def with_errors(cls, errors: List[Error]):
+    def with_errors(cls, errors: list[Error]):
         """Creates a ValidationResult with a given list of errors.
 
         Args:

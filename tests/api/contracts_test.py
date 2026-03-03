@@ -1,10 +1,10 @@
 import json
 from dataclasses import dataclass
 
-from sharedkernel.api.contracts import ErrorResponse, ProblemDetail, DomainErrorResponse
+from sharedkernel.api.contracts import DomainErrorResponse, ErrorResponse, ProblemDetail
 from sharedkernel.domain.errors import Error, UnknownEvent
 from sharedkernel.domain.events import DomainEvent
-from sharedkernel.domain.models import EntityID, Aggregate
+from sharedkernel.domain.models import Aggregate, EntityID
 
 
 @dataclass(frozen=True)
@@ -51,7 +51,7 @@ def test_problem_detail_is_constructed_with_error_response():
     null_or_empty = Error(
         message="First name is null or empty.",
         code="FirstName.NullOrEmpty",
-        reason=f"User 'first name' should not be null nor empty.",
+        reason="User 'first name' should not be null nor empty.",
         domain="Users.CreateUser", )
 
     # Act

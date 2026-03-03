@@ -1,8 +1,7 @@
+from abc import ABC, abstractmethod
 from collections import deque
-from typing import get_args, Generic, TypeVar, Deque, Any
-from abc import abstractmethod, ABC
 from types import get_original_bases
-from typing import Optional
+from typing import Any, Generic, TypeVar, get_args
 
 from sharedkernel.api.contracts import Request
 from sharedkernel.api.errors import RequestMapperNotFound
@@ -17,7 +16,7 @@ class RequestMapper(ABC, Generic[TRequest]):
     """Base class for request mappers that convert API requests into application messages."""
 
     def __init__(self):
-        self._next: Optional["RequestMapper"] = None
+        self._next: RequestMapper | None = None
 
     @property
     def request_type(self) -> str:
@@ -35,7 +34,7 @@ class RequestMapper(ABC, Generic[TRequest]):
         self._next = mapper
 
     @abstractmethod
-    def map(self, request: TRequest, **query_params: Any) -> Optional[TMessage]:
+    def map(self, request: TRequest, **query_params: Any) -> TMessage | None:
         """Maps an API request to an application Command or Query.
 
         Args:
@@ -47,7 +46,7 @@ class RequestMapper(ABC, Generic[TRequest]):
         """
         ...
 
-    def map_next(self, request: TRequest, **query_params: Any) -> Optional[TMessage]:
+    def map_next(self, request: TRequest, **query_params: Any) -> TMessage | None:
         """Delegates mapping to the next mapper in the chain.
 
         Args:
@@ -84,8 +83,8 @@ class RequestMappersChain(RequestMappingBehavior):
     """A chain of request mappers that attempts to map a request using each mapper in sequence."""
 
     def __init__(self):
-        self._mappers: Deque[RequestMapper] = deque()
-        self._first: Optional[RequestMapper] = None
+        self._mappers: deque[RequestMapper] = deque()
+        self._first: RequestMapper | None = None
 
     def __call__(self, request: TRequest, **query_params: Any) -> TMessage:
         """Makes the chain callable, delegating to the map method."""

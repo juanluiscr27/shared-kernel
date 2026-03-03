@@ -4,7 +4,7 @@ from typing import Any
 import pytest
 
 from sharedkernel.domain.models import ValueObject
-from sharedkernel.domain.services import Guard, Detect
+from sharedkernel.domain.services import Detect, Guard
 
 
 @dataclass(frozen=True)

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sharedkernel.api.contracts import AckResponse, AckData
+from sharedkernel.api.contracts import AckData, AckResponse
 from sharedkernel.application.commands import Acknowledgement
 
 

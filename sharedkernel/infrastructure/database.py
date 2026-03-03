@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Sequence, TypeVar, List, Optional, Generic
+from collections.abc import Sequence
+from typing import Generic, TypeVar
 from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
@@ -53,7 +54,7 @@ class EventStore(ABC, Generic[E, S]):
         """
 
     @abstractmethod
-    def get_last(self, stream_id: UUID, types: List[type]) -> Optional[E]:
+    def get_last(self, stream_id: UUID, types: list[type]) -> E | None:
         """Fetch the latest event of the specified types for a stream.
 
         Args:
@@ -65,7 +66,7 @@ class EventStore(ABC, Generic[E, S]):
         """
 
     @abstractmethod
-    def get_stream(self, stream_id: UUID) -> Optional[S]:
+    def get_stream(self, stream_id: UUID) -> S | None:
         """Retrieves a single stream by its identifier.
 
         Args:

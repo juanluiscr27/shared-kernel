@@ -1,9 +1,8 @@
-from typing import List
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from sharedkernel.domain.errors import Error, DomainException
+from sharedkernel.domain.errors import DomainException, Error
 
 
 class Request(BaseModel):
@@ -59,7 +58,7 @@ class ProblemDetail(Response):
         msg: A short summary to describe the type of problem in general.
         type: Identifies the problem type.
     """
-    loc: List[str]
+    loc: list[str]
     msg: str
     type: str
 

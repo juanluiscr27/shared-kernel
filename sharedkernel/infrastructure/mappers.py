@@ -1,10 +1,9 @@
 import json
+from abc import ABC, abstractmethod
 from collections import deque
 from datetime import datetime
-from typing import get_args, Generic, TypeVar, Deque, List
-from abc import abstractmethod, ABC
 from types import get_original_bases
-from typing import Dict, Any, Optional
+from typing import Any, Generic, TypeVar, get_args
 from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
@@ -33,7 +32,7 @@ def extract(data: str) -> str:
 
 
 # noinspection PyUnusedLocal
-def to_event(message: Dict[str, Any], context: Any) -> Event:
+def to_event(message: dict[str, Any], context: Any) -> Event:
     """Converts a raw message dictionary to an Event data model.
 
     Args:
@@ -63,7 +62,7 @@ class Mapper(ABC, Generic[TEvent]):
     """
 
     def __init__(self):
-        self._next: Optional["Mapper"] = None
+        self._next: Mapper | None = None
 
     @property
     def event_type(self) -> str:
@@ -80,7 +79,7 @@ class Mapper(ABC, Generic[TEvent]):
         self._next = mapper
 
     @abstractmethod
-    def map(self, data: Dict[str, Any], event_type: str) -> Optional[TEvent]:
+    def map(self, data: dict[str, Any], event_type: str) -> TEvent | None:
         """Maps raw data to a domain event if the type matches.
 
         Args:
@@ -92,7 +91,7 @@ class Mapper(ABC, Generic[TEvent]):
         """
         ...
 
-    def map_next(self, data: Dict[str, Any], event_type: str) -> Optional[DomainEvent]:
+    def map_next(self, data: dict[str, Any], event_type: str) -> DomainEvent | None:
         """Delegates mapping to the next mapper in the chain.
 
         Args:
@@ -112,7 +111,7 @@ class MappingBehavior(ABC):
     """Abstract base class defining event mapping behavior."""
 
     @abstractmethod
-    def map(self, data: Dict[str, Any], event_type: str) -> Optional[DomainEvent]:
+    def map(self, data: dict[str, Any], event_type: str) -> DomainEvent | None:
         """Maps raw data to a domain event.
 
         Args:
@@ -129,8 +128,8 @@ class MappersChain(MappingBehavior):
     """A chain of mappers that attempts to map an event using each mapper in sequence."""
 
     def __init__(self):
-        self._mappers: Deque[Mapper] = deque()
-        self._first: Optional[Mapper] = None
+        self._mappers: deque[Mapper] = deque()
+        self._first: Mapper | None = None
 
     def add(self, mapper: Mapper) -> None:
         """Adds a mapper to the beginning of the chain.
@@ -144,7 +143,7 @@ class MappersChain(MappingBehavior):
         self._mappers.appendleft(mapper)
         self._first = mapper
 
-    def map(self, data: Dict[str, Any], event_type: str) -> Optional[DomainEvent]:
+    def map(self, data: dict[str, Any], event_type: str) -> DomainEvent | None:
         """Attempts to map the event by passing it through the chain.
 
         Args:
@@ -164,7 +163,7 @@ class MappingPipeline:
     """A pipeline for registering and executing multiple mapping behaviors."""
 
     def __init__(self):
-        self._chain: List[MappingBehavior] = list()
+        self._chain: list[MappingBehavior] = list()
 
     def register(self, behavior: MappingBehavior) -> None:
         """Registers a mapping behavior in the pipeline.
@@ -174,7 +173,7 @@ class MappingPipeline:
         """
         self._chain.append(behavior)
 
-    def map(self, data: Dict[str, Any], event_type: str) -> Optional[DomainEvent]:
+    def map(self, data: dict[str, Any], event_type: str) -> DomainEvent | None:
         """Executes the pipeline by calling each registered behavior until one returns a domain event.
 
         Args:

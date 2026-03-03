@@ -1,8 +1,8 @@
 import json
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
-from sharedkernel.infrastructure.services import UUIDEncoder, DateTimeEncoder, ExtraEncoder
+from sharedkernel.infrastructure.services import DateTimeEncoder, ExtraEncoder, UUIDEncoder
 
 
 def test_serialize_uuid_return_encoded_value():

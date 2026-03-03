@@ -4,20 +4,20 @@ import typing
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from logging import Logger
 from types import get_original_bases
-from typing import Dict, TypeVar, Union, Optional
+from typing import TypeVar
 from uuid import UUID
 
-from result import Ok, Err
+from result import Err, Ok
 
-from sharedkernel.application.commands import Command, CommandHandler, Acknowledgement
-from sharedkernel.application.errors import HandlerAlreadyRegistered, Rejection, UnsupportedHandler, ServiceBusErrors
+from sharedkernel.application.commands import Acknowledgement, Command, CommandHandler
+from sharedkernel.application.errors import HandlerAlreadyRegistered, Rejection, ServiceBusErrors, UnsupportedHandler
 from sharedkernel.application.queries import Query, QueryHandler, TResult
-from sharedkernel.application.validators import Validator, ValidationResult, TRequest
+from sharedkernel.application.validators import TRequest, ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import DomainException, UnknownEvent, EntityNotFound
+from sharedkernel.domain.errors import DomainException, EntityNotFound, UnknownEvent
 
 
 class ApplicationService:
@@ -32,7 +32,7 @@ class Sender(ABC):
     """Request Sender Interface"""
 
     @abstractmethod
-    def register(self, handler: Union[THandler, Validator]) -> bool:
+    def register(self, handler: THandler | Validator) -> bool:
         """Register a handler to process a request when a message is sent.
 
             Args:
@@ -41,7 +41,7 @@ class Sender(ABC):
         ...
 
     @abstractmethod
-    def send(self, request: TRequest) -> Union[TResponse, Rejection]:
+    def send(self, request: TRequest) -> TResponse | Rejection:
         """Routes a request to a particular handler.
 
             Args:
@@ -80,7 +80,7 @@ class RequestContext:
     timestamp: datetime
 
     @staticmethod
-    def new(request_id: UUID, timestamp: Optional[datetime] = None) -> "RequestContext":
+    def new(request_id: UUID, timestamp: datetime | None = None) -> "RequestContext":
         """Creates a new request context.
 
         Args:
@@ -112,10 +112,10 @@ class ServiceBus:
 
     def __init__(self, logger: Logger) -> None:
         self._logger = logger
-        self._handlers: Dict[str, THandler] = dict()
-        self._validators: Dict[str, Validator] = dict()
+        self._handlers: dict[str, THandler] = dict()
+        self._validators: dict[str, Validator] = dict()
 
-    def register(self, handler: Union[THandler, Validator]) -> bool:
+    def register(self, handler: THandler | Validator) -> bool:
         """Registers a handler or validator to the service bus.
 
         Args:
@@ -150,7 +150,7 @@ class ServiceBus:
         handler_type = type(handler).__name__
         raise UnsupportedHandler(self, handler_type)
 
-    def send(self, request: TRequest, context: RequestContext) -> Union[TResponse, Rejection]:
+    def send(self, request: TRequest, context: RequestContext) -> TResponse | Rejection:
         """Sends a request through the service bus.
 
         Sets the request ID in the context, processes the request, and performs post-processing.
@@ -226,7 +226,7 @@ class ServiceBus:
 
         return validator.validate(request)
 
-    def process_command(self, command: Command) -> Union[Acknowledgement, Rejection]:
+    def process_command(self, command: Command) -> Acknowledgement | Rejection:
         """Directly processes a command using its registered handler.
 
         Args:
@@ -254,7 +254,7 @@ class ServiceBus:
                 status_code = get_status_code(error.code)
                 return Rejection.from_error(status_code=status_code, error=error)
 
-    def process_query(self, query: Query) -> Union[TResult, Rejection]:
+    def process_query(self, query: Query) -> TResult | Rejection:
         """Directly processes a query using its registered handler.
 
         Args:
