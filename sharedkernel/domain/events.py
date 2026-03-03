@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic
+from dataclasses import dataclass
+from typing import Generic, TypeVar
 
 
 @dataclass(frozen=True)

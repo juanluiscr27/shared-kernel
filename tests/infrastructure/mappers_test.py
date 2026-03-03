@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Any
 from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
@@ -22,7 +22,7 @@ class UserLoggedIn(DomainEvent):
 
 class UserRegisteredMapper(Mapper[UserRegistered]):
 
-    def map(self, data: Dict[str, Any], event_type: str) -> Optional[UserRegistered]:
+    def map(self, data: dict[str, Any], event_type: str) -> UserRegistered | None:
         if event_type != self.event_type:
             return self.map_next(data, event_type)
 
@@ -34,7 +34,7 @@ class UserRegisteredMapper(Mapper[UserRegistered]):
 
 class UserLoggedInMapper(Mapper[UserLoggedIn]):
 
-    def map(self, data: Dict[str, Any], event_type: str) -> Optional[UserLoggedIn]:
+    def map(self, data: dict[str, Any], event_type: str) -> UserLoggedIn | None:
         if event_type == self.event_type:
             return UserLoggedIn(
                 name=data['name'],

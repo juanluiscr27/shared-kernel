@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from types import SimpleNamespace
-from typing import List, Any
+from typing import Any
 
 from sharedkernel.application.validators import ValidationResult
-from sharedkernel.domain.errors import Error, DomainException, SystemException
+from sharedkernel.domain.errors import DomainException, Error, SystemException
 
 ERROR_CONTEXT = 'error'
 
@@ -74,7 +74,7 @@ class ErrorDetail(SimpleNamespace):
         msg: A short summary to describe the type of error in general.
         type: Identifies the error type.
     """
-    loc: List[str]
+    loc: list[str]
     msg: str
     type: str
 
@@ -95,7 +95,7 @@ class Rejection:
     """
 
     status_code: int
-    errors: List[ErrorDetail] = field(default_factory=list)
+    errors: list[ErrorDetail] = field(default_factory=list)
 
     @classmethod
     def from_validation(cls, result: ValidationResult):

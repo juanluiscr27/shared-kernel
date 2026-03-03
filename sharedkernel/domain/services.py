@@ -1,5 +1,5 @@
 import inspect
-from typing import Optional, Any, TypeAlias
+from typing import Any, TypeAlias
 
 
 class DomainService:
@@ -45,7 +45,7 @@ class Guard:
         return class_definition.__qualname__
 
     @staticmethod
-    def is_not_null(value: Optional[str]) -> None:
+    def is_not_null(value: str | None) -> None:
         """Ensures that a specified value is not null.
 
         Args:
@@ -80,7 +80,7 @@ class Guard:
             raise ValueError(f"{value_name} cannot be empty")
 
     @staticmethod
-    def is_not_null_or_empty(value: Optional[str]) -> None:
+    def is_not_null_or_empty(value: str | None) -> None:
         """Ensures that a specified value is not null, an empty string or
         whitespace.
 
@@ -98,7 +98,7 @@ class Guard:
             raise ValueError(f"{value_name} cannot be null nor empty")
 
     @staticmethod
-    def is_null(value: Optional[str]) -> None:
+    def is_null(value: str | None) -> None:
         """Checks if a property value is null.
 
         It is the opposite of the ``is_not_null`` guard clause.

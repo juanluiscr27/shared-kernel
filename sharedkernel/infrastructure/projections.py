@@ -1,7 +1,7 @@
+from abc import ABC, abstractmethod
 from logging import Logger
-from abc import abstractmethod, ABC
 from types import get_original_bases
-from typing import TypeVar, Generic, List, get_args
+from typing import Generic, TypeVar, get_args
 from uuid import UUID
 
 from typeinspection import get_handled_types
@@ -79,7 +79,7 @@ class Projector(Generic[TProjection]):
         self.projection = projection
 
     @property
-    def handles(self) -> List[str]:
+    def handles(self) -> list[str]:
         """Returns a list of event names that this projector handles."""
         return get_handled_types(type(self.projection))
 

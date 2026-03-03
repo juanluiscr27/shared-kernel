@@ -1,7 +1,7 @@
+import sys
 from typing import Protocol
 
 import pytest
-import sys
 
 
 class LoggerProtocol(Protocol):

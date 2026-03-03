@@ -1,6 +1,5 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional
 
 from sharedkernel.domain.models import Aggregate, EntityID
 from sharedkernel.domain.repositories import Repository
@@ -24,15 +23,15 @@ class Users(Repository[User]):
         ...
 
     @abstractmethod
-    def find_by_id(self, user_id: UserID) -> Optional[UserID]:
+    def find_by_id(self, user_id: UserID) -> UserID | None:
         ...
 
     @abstractmethod
-    def find_by_slug(self, slug: str) -> Optional[UserID]:
+    def find_by_slug(self, slug: str) -> UserID | None:
         ...
 
     @abstractmethod
-    def find_all(self) -> List[User]:
+    def find_all(self) -> list[User]:
         ...
 
 
@@ -45,13 +44,13 @@ def test_repository_with_aggregates():
         def save(self, user: User) -> int:
             pass
 
-        def find_by_id(self, user_id: UserID) -> Optional[UserID]:
+        def find_by_id(self, user_id: UserID) -> UserID | None:
             pass
 
-        def find_by_slug(self, slug: str) -> Optional[UserID]:
+        def find_by_slug(self, slug: str) -> UserID | None:
             pass
 
-        def find_all(self) -> List[User]:
+        def find_all(self) -> list[User]:
             pass
 
     # Act

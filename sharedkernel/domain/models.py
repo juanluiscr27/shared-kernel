@@ -1,11 +1,10 @@
 from collections import deque
 from dataclasses import dataclass
-from typing import Deque, Generic, Tuple, TypeVar
-
+from typing import Generic, TypeVar
 from uuid import UUID
 
-from sharedkernel.domain.events import DomainEvent
 from sharedkernel.domain.errors import UnknownEvent
+from sharedkernel.domain.events import DomainEvent
 
 
 @dataclass(frozen=True)
@@ -64,15 +63,13 @@ class Entity(Generic[TId]):
     def __eq__(self, other):
         if other.__class__ is self.__class__:
             return self._id == other.id
-        else:
-            return NotImplemented
+        return NotImplemented
 
     def __ne__(self, other):
         result = self.__eq__(other)
         if result is NotImplemented:
             return NotImplemented
-        else:
-            return not result
+        return not result
 
     def __hash__(self):
         return hash((self.__class__, self._id))
@@ -93,7 +90,7 @@ class Aggregate(Entity[TId]):
     def __init__(self, entity_id: TId, version: int) -> None:
         super().__init__(entity_id)
         self._version = version
-        self._events: Deque[DomainEvent] = deque()
+        self._events: deque[DomainEvent] = deque()
 
     @property
     def version(self) -> int:
@@ -101,7 +98,7 @@ class Aggregate(Entity[TId]):
         return self._version
 
     @property
-    def changes(self) -> Tuple[DomainEvent, ...]:
+    def changes(self) -> tuple[DomainEvent, ...]:
         """A tuple containing all the domain events that have occurred in the aggregate."""
         return tuple(self._events)
 

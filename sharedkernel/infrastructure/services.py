@@ -3,12 +3,12 @@ import typing
 from datetime import datetime
 from logging import Logger
 from types import get_original_bases
-from typing import List, TypeVar, Any
+from typing import Any, TypeVar
 from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 from sharedkernel.infrastructure.data import Event
-from sharedkernel.infrastructure.errors import MapperNotFound, UnsupportedEventHandler, UnprocessableListener
+from sharedkernel.infrastructure.errors import MapperNotFound, UnprocessableListener, UnsupportedEventHandler
 from sharedkernel.infrastructure.mappers import MappingPipeline
 from sharedkernel.infrastructure.projections import Projector
 
@@ -131,7 +131,7 @@ class EventDispatcher:
         """
         self._logger = logger
         self._mapper = mapper
-        self._listeners: dict[str, List[Projector]] = dict()
+        self._listeners: dict[str, list[Projector]] = dict()
 
     def subscribe(self, listener: Projector) -> bool:
         """Subscribe an Event Handler as listener to an Event Group.
