@@ -7,32 +7,31 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from logging import Logger
 from types import get_original_bases
-from typing import TypeVar
 from uuid import UUID
 
 from result import Err, Ok
 
 from sharedkernel.application.commands import Acknowledgement, Command, CommandHandler
 from sharedkernel.application.errors import HandlerAlreadyRegistered, Rejection, ServiceBusErrors, UnsupportedHandler
-from sharedkernel.application.queries import Query, QueryHandler, TResult
-from sharedkernel.application.validators import TRequest, ValidationResult, Validator
+from sharedkernel.application.queries import Query, QueryHandler
+from sharedkernel.application.validators import ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
 from sharedkernel.domain.errors import DomainException, EntityNotFound, UnknownEvent
+
+type Handler = CommandHandler | QueryHandler
+type Request = Command | Query
+type Response = Acknowledgement | ReadModel | ReadModelList
 
 
 class ApplicationService:
     """Application Service marker class"""
 
 
-THandler = TypeVar("THandler", bound=CommandHandler | QueryHandler)
-TResponse = TypeVar("TResponse", bound=Acknowledgement | ReadModel | ReadModelList)
-
-
 class Sender(ABC):
     """Request Sender Interface"""
 
     @abstractmethod
-    def register(self, handler: THandler | Validator) -> bool:
+    def register(self, handler: Handler | Validator) -> bool:
         """Register a handler to process a request when a message is sent.
 
             Args:
@@ -41,7 +40,7 @@ class Sender(ABC):
         ...
 
     @abstractmethod
-    def send(self, request: TRequest) -> TResponse | Rejection:
+    def send(self, request: Request) -> Response | Rejection:
         """Routes a request to a particular handler.
 
             Args:
@@ -113,10 +112,11 @@ class ServiceBus:
 
     def __init__(self, logger: Logger) -> None:
         self._logger = logger
-        self._handlers: dict[str, THandler] = {}
-        self._validators: dict[str, Validator] = {}
+        self._command_handlers: dict[str, CommandHandler[Command]] = {}
+        self._query_handlers: dict[str, QueryHandler[Query]] = {}
+        self._validators: dict[str, Validator[Command | Query]] = {}
 
-    def register(self, handler: THandler | Validator) -> bool:
+    def register(self, handler: Handler | Validator[Command | Query]) -> bool:
         """Registers a handler or validator to the service bus.
 
         Args:
@@ -133,13 +133,20 @@ class ServiceBus:
         args = typing.get_args(bases[0])
         request_type = args[0].__name__
 
-        if request_type in self._handlers:
-            self._logger.error(f"A handler for {request_type} was already registered")
-            raise HandlerAlreadyRegistered(self, request_type)
-
-        if isinstance(handler, CommandHandler | QueryHandler):
+        if isinstance(handler, CommandHandler):
+            if request_type in self._command_handlers:
+                self._logger.error(f"A handler for {request_type} was already registered")
+                raise HandlerAlreadyRegistered(self, request_type)
             self._logger.debug(f"{type(handler).__name__} was successfully registered")
-            self._handlers[request_type] = handler
+            self._command_handlers[request_type] = handler
+            return True
+
+        if isinstance(handler, QueryHandler):
+            if request_type in self._query_handlers:
+                self._logger.error(f"A handler for {request_type} was already registered")
+                raise HandlerAlreadyRegistered(self, request_type)
+            self._logger.debug(f"{type(handler).__name__} was successfully registered")
+            self._query_handlers[request_type] = handler
             return True
 
         if isinstance(handler, Validator):
@@ -151,7 +158,7 @@ class ServiceBus:
         handler_type = type(handler).__name__
         raise UnsupportedHandler(self, handler_type)
 
-    def send(self, request: TRequest, context: RequestContext) -> TResponse | Rejection:
+    def send(self, request: Request, context: RequestContext) -> Response | Rejection:
         """Sends a request through the service bus.
 
         Sets the request ID in the context, processes the request, and performs post-processing.
@@ -182,7 +189,7 @@ class ServiceBus:
 
         return response
 
-    def process(self, request: TRequest) -> TResponse:
+    def process(self, request: Request) -> Response | Rejection:
         """Processes a request by validating it and routing it to the appropriate handler.
 
         Args:
@@ -208,7 +215,7 @@ class ServiceBus:
         self._logger.warning(f"{type(self).__name__} cannot process {type(request).__name__} requests")
         return Rejection.from_error(status_code=501, error=error)
 
-    def pre_process(self, request: TRequest) -> ValidationResult:
+    def pre_process(self, request: Request) -> ValidationResult:
         """Performs pre-processing validation on a request.
 
         Args:
@@ -238,12 +245,12 @@ class ServiceBus:
         """
         command_type = type(command).__name__
 
-        if command_type not in self._handlers:
+        if command_type not in self._command_handlers:
             self._logger.warning(f"No handler registered for request {type(command).__name__}")
             error = ServiceBusErrors.no_handler_registered_for_request(command_type)
             return Rejection.from_error(status_code=501, error=error)
 
-        handler = self._handlers[command_type]
+        handler = self._command_handlers[command_type]
 
         result = handler.execute(command)
 
@@ -255,7 +262,7 @@ class ServiceBus:
                 status_code = get_status_code(error.code)
                 return Rejection.from_error(status_code=status_code, error=error)
 
-    def process_query(self, query: Query) -> TResult | Rejection:
+    def process_query(self, query: Query) -> ReadModel | ReadModelList | Rejection:
         """Directly processes a query using its registered handler.
 
         Args:
@@ -266,12 +273,12 @@ class ServiceBus:
         """
         query_type = type(query).__name__
 
-        if query_type not in self._handlers:
+        if query_type not in self._query_handlers:
             self._logger.warning(f"No handler registered for request {type(query).__name__}")
             error = ServiceBusErrors.no_handler_registered_for_request(query_type)
             return Rejection.from_error(status_code=501, error=error)
 
-        handler = self._handlers[query_type]
+        handler = self._query_handlers[query_type]
 
         result = handler.execute(query)
 
@@ -283,7 +290,7 @@ class ServiceBus:
                 status_code = get_status_code(error.code)
                 return Rejection.from_error(status_code=status_code, error=error)
 
-    def post_process(self, response: TResponse) -> TResponse:
+    def post_process(self, response: Response | Rejection) -> Response | Rejection:
         """Performs post-processing cleanup and logging after a request is handled.
 
         Args:
