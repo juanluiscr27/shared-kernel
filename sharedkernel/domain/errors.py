@@ -13,7 +13,7 @@ class SystemException(Exception):
         message: Human readable string describing the exception.
     """
 
-    def __init__(self, message: str):
+    def __init__(self, message: str) -> None:
         super().__init__(message)
         self.message = message
 
@@ -28,7 +28,7 @@ class DomainException(SystemException):
         message: Human readable string describing the exception.
     """
 
-    def __init__(self, entity: object, message: str):
+    def __init__(self, entity: object, message: str) -> None:
         super().__init__(message)
         entity_module = entity.__module__
         entity_name = entity.__class__.__name__
@@ -45,7 +45,7 @@ class UnknownEvent(DomainException):
         event: The event that is not handled by the entity.
     """
 
-    def __init__(self, aggregate: object, event: DomainEvent):
+    def __init__(self, aggregate: object, event: DomainEvent) -> None:
         event_name = type(event).__name__
         aggregate_name = type(aggregate).__name__
         message = f"Event '{event_name}' cannot be applied to '{aggregate_name}'"
@@ -64,7 +64,7 @@ class EntityNotFound(DomainException):
         message: Human readable string describing the entity not found.
     """
 
-    def __init__(self, aggregate: object, message: str):
+    def __init__(self, aggregate: object, message: str) -> None:
         super().__init__(entity=aggregate, message=message)
 
 
@@ -79,7 +79,7 @@ class InvalidState(DomainException):
         message: Human readable string describing the invariant violation.
     """
 
-    def __init__(self, aggregate: object, message: str):
+    def __init__(self, aggregate: object, message: str) -> None:
         super().__init__(entity=aggregate, message=message)
 
 
@@ -94,7 +94,7 @@ class UniqueConstraintViolation(DomainException):
         message: Human readable string describing the unique constraint violation.
     """
 
-    def __init__(self, aggregate: object, message: str):
+    def __init__(self, aggregate: object, message: str) -> None:
         super().__init__(entity=aggregate, message=message)
 
 
@@ -110,7 +110,7 @@ class ConcurrencyConflict(DomainException):
         version: The version of the entity when it was read.
     """
 
-    def __init__(self, entity: object, entity_id: Any, version: int):
+    def __init__(self, entity: object, entity_id: Any, version: int) -> None:
         message = f"Concurrency conflict for '{entity_id}' at version {version}"
         super().__init__(entity=entity, message=message)
 

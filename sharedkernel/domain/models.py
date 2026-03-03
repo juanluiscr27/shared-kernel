@@ -57,21 +57,21 @@ class Entity(Generic[TId]):
         """Returns the full qualified name of the entity class (module + name)."""
         return f"{self.__module__}.{self.qualname}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(id={self._id})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if other.__class__ is self.__class__:
             return self._id == other.id
         return NotImplemented
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         result = self.__eq__(other)
         if result is NotImplemented:
             return NotImplemented
         return not result
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.__class__, self._id))
 
 

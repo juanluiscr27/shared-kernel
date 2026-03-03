@@ -38,6 +38,12 @@ lint.ignore = [
     "D415",   # First line should end with a period, question mark, or exclamation point
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
     "TRY003", # Avoid specifying long messages outside the exception class
+    "TRY400", # Use `logging.exception` instead of `logging.error` (intentional: error logged without traceback)
+    "UP046",  # Generic class uses `Generic` subclass instead of type parameters (needed for TypeVar bounds)
+    "N818",   # Exception name should be named with an Error suffix (public API uses Exception suffix)
+    "B024",   # Abstract base class without abstract methods (intentional facade pattern)
+    "PLR0912",# Too many branches (acceptable for Guard/Detect validation methods)
+    "PLR0913",# Too many arguments (acceptable for EventStore.append)
 ]
 
 lint.pydocstyle.convention = "google"
@@ -49,4 +55,6 @@ lint.pydocstyle.convention = "google"
     "ANN",    # Missing type annotations
     "ARG002", # Unused method argument (fixtures)
     "PLR2004",# Magic value used in comparison
+    "N806",   # Variable in function should be lowercase (test fixtures using PascalCase callables)
+    "S105",   # Possible hardcoded password (test data)
 ]

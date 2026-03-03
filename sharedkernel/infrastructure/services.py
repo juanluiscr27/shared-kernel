@@ -59,9 +59,9 @@ class EventBroker:
         logger: The logger instance.
     """
 
-    def __init__(self, logger: Logger):
+    def __init__(self, logger: Logger) -> None:
         self._logger = logger
-        self._consumers: dict[str, list[TEventHandler]] = dict()
+        self._consumers: dict[str, list[TEventHandler]] = {}
 
     def subscribe(self, event_handler: TEventHandler) -> bool:
         """Subscribe a Domain Event Handler as consumers to an Event Group.
@@ -122,7 +122,7 @@ class EventDispatcher:
     and then routes them to registered Projectors or other listeners.
     """
 
-    def __init__(self, logger: Logger, mapper: MappingPipeline):
+    def __init__(self, logger: Logger, mapper: MappingPipeline) -> None:
         """Initializes an EventDispatcher.
 
         Args:
@@ -131,7 +131,7 @@ class EventDispatcher:
         """
         self._logger = logger
         self._mapper = mapper
-        self._listeners: dict[str, list[Projector]] = dict()
+        self._listeners: dict[str, list[Projector]] = {}
 
     def subscribe(self, listener: Projector) -> bool:
         """Subscribe an Event Handler as listener to an Event Group.

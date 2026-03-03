@@ -76,6 +76,7 @@ request_id_var: contextvars.ContextVar[UUID] = contextvars.ContextVar("request-i
 
 @dataclass(frozen=True)
 class RequestContext:
+    """Encapsulates the context of an incoming request."""
     request_id: UUID
     timestamp: datetime
 
@@ -112,8 +113,8 @@ class ServiceBus:
 
     def __init__(self, logger: Logger) -> None:
         self._logger = logger
-        self._handlers: dict[str, THandler] = dict()
-        self._validators: dict[str, Validator] = dict()
+        self._handlers: dict[str, THandler] = {}
+        self._validators: dict[str, Validator] = {}
 
     def register(self, handler: THandler | Validator) -> bool:
         """Registers a handler or validator to the service bus.

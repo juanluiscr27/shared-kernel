@@ -15,7 +15,7 @@ TMessage = TypeVar("TMessage", bound=Command | Query)
 class RequestMapper(ABC, Generic[TRequest]):
     """Base class for request mappers that convert API requests into application messages."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._next: RequestMapper | None = None
 
     @property
@@ -82,7 +82,7 @@ class RequestMappingBehavior(ABC):
 class RequestMappersChain(RequestMappingBehavior):
     """A chain of request mappers that attempts to map a request using each mapper in sequence."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._mappers: deque[RequestMapper] = deque()
         self._first: RequestMapper | None = None
 

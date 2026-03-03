@@ -72,7 +72,7 @@ class ErrorResponse(ProblemDetail):
             error: Application error or validation error.
         """
 
-    def __init__(self, error: Error):
+    def __init__(self, error: Error) -> None:
         location = [error.domain]
         message = error.message
         error_type = error.code
@@ -88,7 +88,7 @@ class DomainErrorResponse(ProblemDetail):
             error: Domain error.
         """
 
-    def __init__(self, error: DomainException):
+    def __init__(self, error: DomainException) -> None:
         location = [error.domain]
         message = error.message
         module = error.__module__
