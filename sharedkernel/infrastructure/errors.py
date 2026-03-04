@@ -11,7 +11,7 @@ class InfrastructureException(SystemException):
         message: Human readable string describing the exception.
     """
 
-    def __init__(self, service: object, message: str) -> None:
+    def __init__(self, service: type, message: str) -> None:
         super().__init__(message)
         service_module = service.__module__
         service_name = service.__name__

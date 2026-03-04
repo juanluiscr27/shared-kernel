@@ -1,11 +1,11 @@
 from abc import ABC
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from typeinspection.handlers import get_super_name
 
 from sharedkernel.domain.models import Entity
 
-TEntity = TypeVar("TEntity", bound=Entity)
+TEntity = TypeVar("TEntity", bound=Entity[Any])
 
 
 class Repository(ABC, Generic[TEntity]):

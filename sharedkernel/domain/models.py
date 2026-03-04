@@ -61,9 +61,9 @@ class Entity(Generic[TId]):
         return f"{self.__class__.__name__}(id={self._id})"
 
     def __eq__(self, other: object) -> bool:
-        if other.__class__ is self.__class__:
-            return self._id == other.id
-        return NotImplemented
+        if not isinstance(other, Entity):
+            return NotImplemented
+        return self._id == other.id
 
     def __ne__(self, other: object) -> bool:
         result = self.__eq__(other)

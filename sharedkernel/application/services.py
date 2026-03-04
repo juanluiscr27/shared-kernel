@@ -18,7 +18,7 @@ from sharedkernel.application.validators import ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
 from sharedkernel.domain.errors import DomainException, EntityNotFound, UnknownEvent
 
-type Handler = CommandHandler | QueryHandler
+type Handler = CommandHandler[Command] | QueryHandler[Query]
 type Request = Command | Query
 type Response = Acknowledgement | ReadModel | ReadModelList
 
@@ -31,7 +31,7 @@ class Sender(ABC):
     """Request Sender Interface"""
 
     @abstractmethod
-    def register(self, handler: Handler | Validator) -> bool:
+    def register(self, handler: Handler | Validator[Command | Query]) -> bool:
         """Register a handler to process a request when a message is sent.
 
             Args:
