@@ -49,6 +49,9 @@ lint.ignore = [
 lint.pydocstyle.convention = "google"
 
 [lint.per-file-ignores]
+"sharedkernel/domain/services.py" = [
+    "S101",   # Assert used for type narrowing on inspect.currentframe()
+]
 "tests/**/*.py" = [
     "S101",   # Use of assert detected
     "D",      # Missing docstrings

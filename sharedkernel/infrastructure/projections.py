@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from logging import Logger
 from types import get_original_bases
-from typing import Generic, TypeVar, get_args
+from typing import Any, Generic, TypeVar, get_args
 from uuid import UUID
 
 from typeinspection import get_handled_types
@@ -63,7 +63,7 @@ class Projection(ABC, Generic[TModel]):
         ...
 
 
-TProjection = TypeVar("TProjection", bound=Projection)
+TProjection = TypeVar("TProjection", bound=Projection[Any])
 
 
 class Projector(Generic[TProjection]):
@@ -74,7 +74,7 @@ class Projector(Generic[TProjection]):
         projection: The projection to wrap.
     """
 
-    def __init__(self, logger: Logger, projection: Projection) -> None:
+    def __init__(self, logger: Logger, projection: Projection[Any]) -> None:
         self._logger = logger
         self.projection = projection
 

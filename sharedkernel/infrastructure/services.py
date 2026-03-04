@@ -3,7 +3,7 @@ import typing
 from datetime import datetime
 from logging import Logger
 from types import get_original_bases
-from typing import Any, TypeVar
+from typing import Any
 from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
@@ -11,8 +11,6 @@ from sharedkernel.infrastructure.data import Event
 from sharedkernel.infrastructure.errors import MapperNotFound, UnprocessableListener, UnsupportedEventHandler
 from sharedkernel.infrastructure.mappers import MappingPipeline
 from sharedkernel.infrastructure.projections import Projector
-
-TEventHandler = TypeVar("TEventHandler", bound=DomainEventHandler)
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -61,9 +59,9 @@ class EventBroker:
 
     def __init__(self, logger: Logger) -> None:
         self._logger = logger
-        self._consumers: dict[str, list[TEventHandler]] = {}
+        self._consumers: dict[str, list[DomainEventHandler[DomainEvent]]] = {}
 
-    def subscribe(self, event_handler: TEventHandler) -> bool:
+    def subscribe(self, event_handler: DomainEventHandler[DomainEvent]) -> bool:
         """Subscribe a Domain Event Handler as consumers to an Event Group.
 
         Args:
@@ -131,9 +129,9 @@ class EventDispatcher:
         """
         self._logger = logger
         self._mapper = mapper
-        self._listeners: dict[str, list[Projector]] = {}
+        self._listeners: dict[str, list[Projector[Any]]] = {}
 
-    def subscribe(self, listener: Projector) -> bool:
+    def subscribe(self, listener: Projector[Any]) -> bool:
         """Subscribe an Event Handler as listener to an Event Group.
 
         Args:

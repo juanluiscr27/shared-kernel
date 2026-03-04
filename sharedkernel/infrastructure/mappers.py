@@ -62,7 +62,7 @@ class Mapper(ABC, Generic[TEvent]):
     """
 
     def __init__(self) -> None:
-        self._next: Mapper | None = None
+        self._next: Mapper[Any] | None = None
 
     @property
     def event_type(self) -> str:
@@ -71,7 +71,7 @@ class Mapper(ABC, Generic[TEvent]):
         args = get_args(bases[0])
         return args[0].__name__
 
-    def set_next(self, mapper: "Mapper") -> None:
+    def set_next(self, mapper: "Mapper[Any]") -> None:
         """Sets the next mapper in the chain.
 
         Args:
@@ -129,10 +129,10 @@ class MappersChain(MappingBehavior):
     """A chain of mappers that attempts to map an event using each mapper in sequence."""
 
     def __init__(self) -> None:
-        self._mappers: deque[Mapper] = deque()
-        self._first: Mapper | None = None
+        self._mappers: deque[Mapper[Any]] = deque()
+        self._first: Mapper[Any] | None = None
 
-    def add(self, mapper: Mapper) -> None:
+    def add(self, mapper: Mapper[Any]) -> None:
         """Adds a mapper to the beginning of the chain.
 
         Args:

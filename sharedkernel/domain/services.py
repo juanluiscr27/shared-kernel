@@ -37,8 +37,11 @@ class Guard:
                 that references its own class.
         """
         frame = inspect.currentframe()
+        assert frame is not None
         guard = frame.f_back
+        assert guard is not None
         caller = guard.f_back
+        assert caller is not None
         # If the caller method is not a class method with cls that reference
         # its own class will throw a 'KeyError'
         class_definition: type = caller.f_locals["cls"]
