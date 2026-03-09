@@ -61,30 +61,36 @@ class ReadRepository(ABC):
 
     This abstract class is a Facade that provides a simplified interface to retrieve data models optimized for reads.
 
-    Classes based on this abstract repository should implement the methods to `find_by_id`, `find_by_slug` and
-    `find_all` data models of a given type.
+    Classes based on this abstract repository should implement the methods to `get_by_id`, `get_by_slug` and
+    `get_all` data models of a given type.
     """
-    # def find_by_id(self, entity_id: UUID) -> Optional[ReadModel]:
-    #     """Finds a read model by its identifier.
+    # def get_by_id(self, entity_id: UUID) -> ReadModel:
+    #     """Gets a read model by its identifier.
     #
     #     Args:
     #         entity_id: The identifier.
     #
     #     Returns:
-    #         The found read model details or None.
+    #         The found read model details.
+    #
+    #       Raises:
+    #         EntityNotFound: If the identifier is not associated to any ReadModel in the repository.
     #     """
     #
-    # def find_by_slug(self, slug: str) -> Optional[ReadModel]:
-    #     """Finds a read model by its slug.
+    # def get_by_slug(self, slug: str) -> ReadModel:
+    #     """Gets a read model by its slug.
     #
     #     Args:
     #         slug: The slug.
     #
     #     Returns:
-    #         The found read model details or None.
+    #         The found read model details.
+    #
+    #       Raises:
+    #         EntityNotFound: If the slug is not associated to any ReadModel in the repository.
     #     """
     #
-    # def find_all(self) -> List[ReadModel]:
+    # def get_all(self) -> List[ReadModel]:
     #     """Retrieves all read models handled by this repository.
     #
     #     Returns:
