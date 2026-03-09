@@ -14,32 +14,32 @@ class ApplicationException(SystemException):
     Represents an error that occurred during the orchestration of the business logic.
 
     Args:
-        service: Service on which the error was raised.
+        source: Service on which the error was raised.
         message: Human readable string describing the exception.
     """
 
-    def __init__(self, service: type, message: str) -> None:
+    def __init__(self, source: type, message: str) -> None:
         super().__init__(message)
-        service_module = service.__module__
-        service_name = service.__name__
-        self.service = f"{service_module}.{service_name}"
+        source_module = source.__module__
+        source_name = source.__name__
+        self.source = f"{source_module}.{source_name}"
 
 
 class HandlerAlreadyRegistered(ApplicationException):
     """Raised when a handler is already registered for a request type."""
 
-    def __init__(self, service: object, request_type: str) -> None:
+    def __init__(self, source: object, request_type: str) -> None:
         message = f"A Handler has been already registered for `{request_type}`"
-        super().__init__(type(service), message)
+        super().__init__(type(source), message)
 
 
 class UnsupportedHandler(ApplicationException):
     """Raised when a handler type is not supported by the service bus."""
 
-    def __init__(self, service: object, handler: str) -> None:
-        service_name = type(service).__name__
-        message = f"`{handler}` cannot be registered to {service_name}"
-        super().__init__(type(service), message)
+    def __init__(self, source: object, handler: str) -> None:
+        source_name = type(source).__name__
+        message = f"`{handler}` cannot be registered to {source_name}"
+        super().__init__(type(source), message)
 
 
 class ServiceBusErrors:
