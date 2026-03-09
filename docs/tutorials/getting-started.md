@@ -7,7 +7,7 @@ This tutorial will guide you through the basic steps of using the **Shared Kerne
 Ensure you have Python 3.12+ installed.
 
 ```bash
-pip install sharedkernel
+pip install git+https://github.com/juanluiscr27/shared-kernel.git#egg=sharedkernel
 ```
 
 ## 2. Define your Domain Model
