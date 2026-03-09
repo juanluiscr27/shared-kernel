@@ -1,6 +1,5 @@
 from collections import deque
 from dataclasses import dataclass
-from typing import Generic, TypeVar
 from uuid import UUID
 
 from sharedkernel.domain.errors import UnknownEvent
@@ -27,10 +26,7 @@ class EntityID(ValueObject):
     value: UUID
 
 
-TId = TypeVar("TId", bound=EntityID)
-
-
-class Entity(Generic[TId]):
+class Entity[TId: EntityID]:
     """Entity base class
 
     Object with an identity relevant to the domain and a set of attributes that define its state.
@@ -75,7 +71,7 @@ class Entity(Generic[TId]):
         return hash((self.__class__, self._id))
 
 
-class Aggregate(Entity[TId]):
+class Aggregate[TId: EntityID](Entity[TId]):
     """Aggregate base class
 
     A cluster of domain objects that can be treated as a single unit. An aggregate defines a transactional

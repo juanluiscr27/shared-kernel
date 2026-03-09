@@ -3,13 +3,11 @@ from abc import ABC, abstractmethod
 from collections import deque
 from datetime import datetime
 from types import get_original_bases
-from typing import Any, Generic, TypeVar, get_args
+from typing import Any, get_args
 from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import Event
-
-TEvent = TypeVar("TEvent", bound=DomainEvent)
 
 QUOTES = "\""
 
@@ -55,7 +53,7 @@ def to_event(message: dict[str, Any], context: Any) -> Event:  # noqa: ARG001
     )
 
 
-class Mapper(ABC, Generic[TEvent]):
+class Mapper[TEvent: DomainEvent](ABC):
     """Base class for event mappers.
 
     Implementations should define how to map a dictionary of data into a specific TEvent.

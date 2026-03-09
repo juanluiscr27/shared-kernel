@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Generic, TypeVar
 from uuid import UUID
 
 from result import Result
@@ -42,10 +41,7 @@ class Acknowledgement:
     version: int
 
 
-TCommand = TypeVar("TCommand", bound=Command)
-
-
-class CommandHandler(ABC, Generic[TCommand]):
+class CommandHandler[TCommand: Command](ABC):
     """Command Handler
 
     Is an object that orchestrates a business process and executes the activities that can be performed with the

@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Generic, TypeVar
 
 
 @dataclass(frozen=True)
@@ -11,10 +10,7 @@ class IntegrationEvent:
     """
 
 
-TIEvent = TypeVar("TIEvent", bound=IntegrationEvent)
-
-
-class IntegrationEventHandler(ABC, Generic[TIEvent]):
+class IntegrationEventHandler[TIEvent: IntegrationEvent](ABC):
     """Event Consumer generic class to handle Integration Events.
 
     `TIEvent` defines a subclass of `IntegrationEvent` that can be handled.

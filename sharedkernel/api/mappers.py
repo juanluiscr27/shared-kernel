@@ -1,17 +1,15 @@
 from abc import ABC, abstractmethod
 from collections import deque
 from types import get_original_bases
-from typing import Any, Generic, TypeVar, get_args
+from typing import Any, get_args
 
 from sharedkernel.api.contracts import Request
 from sharedkernel.api.errors import RequestMapperNotFound
 from sharedkernel.application.commands import Command
 from sharedkernel.application.queries import Query
 
-TRequest = TypeVar("TRequest", bound=Request)
 
-
-class RequestMapper(ABC, Generic[TRequest]):
+class RequestMapper[TRequest: Request](ABC):
     """Base class for request mappers that convert API requests into application messages."""
 
     def __init__(self) -> None:

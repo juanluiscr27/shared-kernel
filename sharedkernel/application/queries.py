@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Generic, TypeVar
 
 from result import Result
 
@@ -17,10 +16,7 @@ class Query:
     """
 
 
-TQuery = TypeVar("TQuery", bound=Query)
-
-
-class QueryHandler(ABC, Generic[TQuery]):
+class QueryHandler[TQuery: Query](ABC):
     """Query Handler
 
     Is an object that defines a method to execute data retrieval.

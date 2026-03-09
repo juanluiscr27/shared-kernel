@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Generic, TypeVar
 
 
 @dataclass(frozen=True)
@@ -18,10 +17,7 @@ class DomainEvent:
         return f"{self.__module__}.{self.qualname}"
 
 
-TEvent = TypeVar("TEvent", bound=DomainEvent)
-
-
-class DomainEventHandler(ABC, Generic[TEvent]):
+class DomainEventHandler[TEvent: DomainEvent](ABC):
     """Event Consumer generic class to handle Domain Events
 
     `TEvent` defines a subclass of `DomainEvent` that can be handled
