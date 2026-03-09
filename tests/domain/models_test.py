@@ -3,7 +3,7 @@ from functools import singledispatchmethod
 
 import pytest
 
-from sharedkernel.domain.errors import UnknownEvent
+from sharedkernel.domain.errors import UnhandledEventType
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.domain.models import Aggregate, Entity, EntityID, ValueObject
 
@@ -305,7 +305,7 @@ def test_aggregates_unknown_events_raise_error():
     expected = "Event 'UserLoggedIn' cannot be applied to 'User'"
 
     # Act
-    with pytest.raises(UnknownEvent) as error:
+    with pytest.raises(UnhandledEventType) as error:
         _ = User.load(user_id=user_id, version=1, name="John Doe", events=events)
 
     error_message = str(error.value)

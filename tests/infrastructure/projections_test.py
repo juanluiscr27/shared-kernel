@@ -4,10 +4,10 @@ from uuid import UUID
 
 import pytest
 
-from sharedkernel.domain.errors import UnknownEvent
+from sharedkernel.domain.errors import UnhandledEventType
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel
-from sharedkernel.infrastructure.errors import OutOfOrderEvent
+from sharedkernel.infrastructure.errors import EventOutOfSequence
 from sharedkernel.infrastructure.projections import Projection, Projector
 
 
@@ -98,7 +98,7 @@ def test_projector_process_event_out_of_order_raise_error(fake_logger):
     projector = Projector(fake_logger, projection)
 
     # Act
-    with pytest.raises(OutOfOrderEvent) as error:
+    with pytest.raises(EventOutOfSequence) as error:
         projector.process(event, position=3, entity_id=entity_id)
 
         # Assert
@@ -134,7 +134,7 @@ def test_projector_process_unknown_event_raise_error(fake_logger):
     projector = Projector(fake_logger, projection)
 
     # Act
-    with pytest.raises(UnknownEvent) as error:
+    with pytest.raises(UnhandledEventType) as error:
         projector.process(event, position=2, entity_id=entity_id)
 
         # Assert

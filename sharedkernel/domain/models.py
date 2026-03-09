@@ -2,7 +2,7 @@ from collections import deque
 from dataclasses import dataclass
 from uuid import UUID
 
-from sharedkernel.domain.errors import UnknownEvent
+from sharedkernel.domain.errors import UnhandledEventType
 from sharedkernel.domain.events import DomainEvent
 
 
@@ -105,9 +105,9 @@ class Aggregate[TId: EntityID](Entity[TId]):
             event: The domain event to apply.
 
         Raises:
-            UnknownEvent: If the event is not handled by the aggregate.
+            UnhandledEventType: If the event is not handled by the aggregate.
         """
-        raise UnknownEvent(self, event)
+        raise UnhandledEventType(self, event)
 
     def _raise_event(self, event: DomainEvent) -> None:
         """Raises a domain event, applying it to the aggregate and adding it to the changes' collection.

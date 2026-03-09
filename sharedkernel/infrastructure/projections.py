@@ -6,10 +6,10 @@ from uuid import UUID
 
 from typeinspection import get_handled_types
 
-from sharedkernel.domain.errors import UnknownEvent
+from sharedkernel.domain.errors import UnhandledEventType
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel
-from sharedkernel.infrastructure.errors import OutOfOrderEvent
+from sharedkernel.infrastructure.errors import EventOutOfSequence
 
 
 class Projection[TModel: DataModel](ABC):
@@ -45,9 +45,9 @@ class Projection[TModel: DataModel](ABC):
             event: The domain event to apply.
 
         Raises:
-            UnknownEvent: If the event is not handled by the projection.
+            UnhandledEventType: If the event is not handled by the projection.
         """
-        raise UnknownEvent(self, event)
+        raise UnhandledEventType(self, event)
 
     @abstractmethod
     def update_position(self, entity_id: UUID, event_type: str, position: int) -> None:
@@ -87,7 +87,7 @@ class Projector[TProjection: Projection[Any]]:
             entity_id: The identifier of the entity the event belongs to.
 
         Raises:
-            OutOfOrderEvent: If the event is out of sequence.
+            EventOutOfSequence: If the event is out of sequence.
         """
         current_position = self.projection.get_position(entity_id, event.qualname)
 
@@ -98,7 +98,7 @@ class Projector[TProjection: Projection[Any]]:
 
         if position > current_position + 1:
             self._logger.error(f"{event_type} position {position} is out of order in Projection {entity_id}")
-            raise OutOfOrderEvent(self.projection, str(entity_id), position)
+            raise EventOutOfSequence(self.projection, str(entity_id), position)
 
         self.projection.apply(event)
         self._logger.info(f"{event_type} position {position} has been projected to record {entity_id}")
