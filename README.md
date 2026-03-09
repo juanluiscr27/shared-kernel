@@ -58,7 +58,7 @@ graph TD
 Shared Kernel is built using Python 3.12 and depends on the follow libraries:
 
 * [Pydantic](https://github.com/pydantic/pydantic)
-* [Result](https://github.com/rustedpy/result)
+* [TypeInspection](https://github.com/juanluiscr27/type-inspection)
 
 ## Quick Start
 
