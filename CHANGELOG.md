@@ -2,6 +2,39 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 6.0.0 (2026-03-09)
+
+### Added
+
+- ValueError catch in ServiceBus mapped to Rejection response.
+- ruff linting rules with project conventions.
+- linting and type check jobs to CI test workflow.
+- Pyright venv path configuration in pyproject.toml.
+- uv lock file to source control.
+
+### Changed
+
+- handler signatures to raise exceptions directly instead of returning Result wrapper.
+- ReadRepository methods renamed from `find` to `get`.
+- exception `service` parameter renamed to `source` across all exception layers.
+- DomainException enriched with `code` and `reason` fields.
+- generic classes migrated to PEP 695 type parameter syntax.
+- UnknownEvent and OutOfOrderEvent exception class names.
+- entity_id parameter type widened from `str` to `Any`.
+- DomainEvent base class init method to remove extra arguments.
+- ServiceBus handler registry split by command and query type.
+- typeinspection dependency updated to v0.7.0.
+
+### Removed
+
+- Result wrapper and result dependency.
+- JSON string extract function and its tests.
+
+### Fixed
+
+- all mypy type errors across codebase.
+- all ruff lint errors across codebase.
+
 ## 5.1.1 (2026-02-18)
 
 ### Fixed
