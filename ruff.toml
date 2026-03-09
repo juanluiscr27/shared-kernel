@@ -39,7 +39,6 @@ lint.ignore = [
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
     "TRY003", # Avoid specifying long messages outside the exception class
     "TRY400", # Use `logging.exception` instead of `logging.error` (intentional: error logged without traceback)
-    "UP046",  # Generic class uses `Generic` subclass instead of type parameters (needed for TypeVar bounds)
     "N818",   # Exception name should be named with an Error suffix (public API uses Exception suffix)
     "B024",   # Abstract base class without abstract methods (intentional facade pattern)
     "PLR0912",# Too many branches (acceptable for Guard/Detect validation methods)
