@@ -98,7 +98,7 @@ class Projector[TProjection: Projection[Any]]:
 
         if position > current_position + 1:
             self._logger.error(f"{event_type} position {position} is out of order in Projection {entity_id}")
-            raise EventOutOfSequence(self.projection, str(entity_id), position)
+            raise EventOutOfSequence(self.projection, entity_id, position)
 
         self.projection.apply(event)
         self._logger.info(f"{event_type} position {position} has been projected to record {entity_id}")

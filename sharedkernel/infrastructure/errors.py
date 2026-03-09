@@ -1,3 +1,5 @@
+from typing import Any
+
 from sharedkernel.domain.errors import SystemException
 
 
@@ -67,7 +69,7 @@ class IntegrityError(InfrastructureException):
         entity_id: The identifier of the entity involved.
         position: The invalid event position.
         """
-    def __init__(self, service: object, entity_id: str, position: int) -> None:
+    def __init__(self, service: object, entity_id: Any, position: int) -> None:
         message = f"Transaction concurrency control was invalid for Entity '{entity_id}' at position {position}."
         super().__init__(type(service), message)
 
@@ -80,6 +82,6 @@ class EventOutOfSequence(InfrastructureException):
         entity_id: The identifier of the entity involved.
         position: The out-of-order event position.
     """
-    def __init__(self, service: object, entity_id: str, position: int) -> None:
+    def __init__(self, service: object, entity_id: Any, position: int) -> None:
         message = f"Event out of order received at position {position} for Projection '{entity_id}'."
         super().__init__(type(service), message)
