@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Shared Kernel is a Python 3.12+ library implementing the Shared Kernel pattern for Domain-Driven Design (DDD) and Clean Architecture. It provides base classes and infrastructure for building microservices with CQRS, Event Sourcing, and strict layered architecture.
 
-**Key dependencies:** Pydantic 2.12.5+, Result 0.17.0+, typeinspection (custom git dep for generic type introspection).
+**Key dependencies:** Pydantic 2.12.5+, typeinspection (custom git dep for generic type introspection).
 
 ## Common Commands
 
@@ -44,7 +44,7 @@ The library enforces Clean Architecture with four layers. Dependencies point inw
 
 ### Key Patterns
 
-- **Result type:** Handlers return `Result[T, Error]` instead of raising exceptions. Use the `result` library. `CommandHandler.execute()` returns `Result[Acknowledgement, Error]`, `QueryHandler.execute()` returns `Result[ReadModel | ReadModelList, Error]`.
+- **Exception-based handlers:** Handlers return values directly (`Acknowledgement` or `ReadModel | ReadModelList`) and raise `DomainException` subclasses for business rule violations. The `ServiceBus` catches exceptions and converts them to `Rejection` responses.
 - **Frozen dataclasses:** ValueObjects and DomainEvents use `@dataclass(frozen=True)` for immutability.
 - **Generic handlers:** `CommandHandler[TCommand]`, `QueryHandler[TQuery]`, `Validator[TRequest]` — the ServiceBus uses type introspection on generic parameters for routing.
 - **ServiceBus:** Uses separate `_command_handlers` and `_query_handlers` dicts for correct type narrowing. Type aliases `Handler`, `Request`, `Response` are defined in `application/services.py`.

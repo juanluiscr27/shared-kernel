@@ -10,8 +10,8 @@ The Shared Kernel provides a hierarchy of exceptions to help you distinguish bet
 
 ## Common Domain Errors
 
-- **`UnknownEvent`**: Raised when an aggregate or projection receives an event it doesn't know how to handle.
-- **`Error`**: A simple DTO used to pass error information without raising exceptions (common in `Result` objects).
+- **`UnhandledEventType`**: Raised when an aggregate or projection receives an event it doesn't know how to handle.
+- **`Error`**: A simple DTO used to pass error information (common in validation results and service bus internal errors).
 
 ## Application Errors
 
@@ -27,6 +27,6 @@ The Shared Kernel provides a hierarchy of exceptions to help you distinguish bet
 
 ## Best Practices
 
-1. **Use `Result`**: Favor returning `Result[T, Error]` from your handlers instead of raising exceptions for expected business failures.
+1. **Use Exceptions**: Raise `DomainException` subclasses from handlers for expected business failures. The `ServiceBus` catches and converts them to `Rejection` responses with appropriate HTTP status codes.
 2. **Standardize Domains**: Use the `domain` field in the `Error` object to specify where the error originated (e.g., "Users", "Billing").
-3. **Capture Context**: When raising a `DomainException`, always pass the aggregate instance so the system can log the full context.
+3. **Capture Context**: When raising a `DomainException`, always pass the source instance and provide a meaningful `code` and `reason` for consistent API error responses.
