@@ -17,7 +17,6 @@ classifiers = [
 ]
 dependencies = [
     "pydantic>=2.12.5",
-    "result>=0.17.0",
     "typeinspection @ git+https://github.com/juanluiscr27/type-inspection.git@v0.7.0",
 ]
 
