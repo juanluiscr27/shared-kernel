@@ -1,4 +1,3 @@
-import json
 from abc import ABC, abstractmethod
 from collections import deque
 from datetime import datetime
@@ -8,25 +7,6 @@ from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import Event
-
-QUOTES = "\""
-
-
-def extract(data: str) -> str:
-    """Extracts a JSON string by removing leading/trailing double quotes if present.
-
-    Args:
-        data: The string to extract from.
-
-    Returns:
-        The extracted JSON string or the original string if no quotes were found.
-    """
-    length = len(data)
-
-    if length > 0 and data[0] == QUOTES and data[length - 1] == QUOTES:
-        return json.loads(data)
-
-    return data
 
 
 # noinspection PyUnusedLocal
@@ -44,7 +24,7 @@ def to_event(message: dict[str, Any], context: Any) -> Event:  # noqa: ARG001
         event_id=UUID(message['id']),
         event_type=message['type'],
         position=message['position'],
-        data=extract(message['data']),
+        data=message['data'],
         stream_id=UUID(message['stream_id']),
         stream_type=message['stream_type'],
         version=message['version'],
