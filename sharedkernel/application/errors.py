@@ -134,14 +134,11 @@ class Rejection:
     @classmethod
     def from_exception(cls, status_code: int, error: DomainException) -> "Rejection":
         """Creates a Rejection from a DomainException."""
-        module = type(error).__module__
-        error_name = type(error).__name__
-        error_type = f"{module}.{error_name}"
-
         error_detail = ErrorDetail(
-            loc=[error.domain, ],
+            loc=[error.domain],
             msg=error.message,
-            type=error_type,
+            type=error.code,
         )
+        error_detail.ctx = {ERROR_CONTEXT: error.reason}
 
         return cls(status_code=status_code, errors=[error_detail])

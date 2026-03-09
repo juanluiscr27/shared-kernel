@@ -24,15 +24,19 @@ class DomainException(SystemException):
     Represents a violation to the business rule or domain logic constraints.
 
     Args:
-        entity: Entity on which the error was raised.
+        source: Entity or object on which the error was raised.
         message: Human readable string describing the exception.
+        code: Identifies the problem type.
+        reason: A human-readable explanation specific to this occurrence of the problem.
     """
 
-    def __init__(self, entity: object, message: str) -> None:
+    def __init__(self, source: object, message: str, *, code: str, reason: str) -> None:
         super().__init__(message)
-        entity_module = entity.__module__
-        entity_name = entity.__class__.__name__
-        self.domain = f"{entity_module}.{entity_name}"
+        source_module = source.__module__
+        source_name = source.__class__.__name__
+        self.domain = f"{source_module}.{source_name}"
+        self.code = code
+        self.reason = reason
 
 
 class UnhandledEventType(DomainException):
@@ -41,15 +45,16 @@ class UnhandledEventType(DomainException):
     Thrown when an event is applied to an aggregate that does not correspond.
 
     Args:
-        aggregate: Entity on which the event invalid was applied.
+        source: Entity on which the event invalid was applied.
         event: The event that is not handled by the entity.
     """
 
-    def __init__(self, aggregate: object, event: DomainEvent) -> None:
+    def __init__(self, source: object, event: DomainEvent) -> None:
         event_name = type(event).__name__
-        aggregate_name = type(aggregate).__name__
+        aggregate_name = type(source).__name__
         message = f"Event '{event_name}' cannot be applied to '{aggregate_name}'"
-        super().__init__(entity=aggregate, message=message)
+        reason = f"Aggregate '{aggregate_name}' does not handle event '{event_name}'"
+        super().__init__(source, message, code="Aggregate.EventType.Unhandled", reason=reason)
         self.event = event
 
 
@@ -60,12 +65,13 @@ class EntityNotFound(DomainException):
     This can occur when an entity is not found in the repository or is not part of an aggregate.
 
     Args:
-        aggregate: Cluster on which the entity was not found.
+        source: Cluster on which the entity was not found.
         message: Human readable string describing the entity not found.
     """
 
-    def __init__(self, aggregate: object, message: str) -> None:
-        super().__init__(entity=aggregate, message=message)
+    def __init__(self, source: object, message: str) -> None:
+        source_name = type(source).__name__
+        super().__init__(source, message, code=f"{source_name}.NotFound", reason=message)
 
 
 class InvalidState(DomainException):
@@ -75,12 +81,13 @@ class InvalidState(DomainException):
     This can occur when a business rule is violated or when the entity is in an inconsistent state.
 
     Args:
-        aggregate: Entity on which the invalid state was detected.
+        source: Entity on which the invalid state was detected.
         message: Human readable string describing the invariant violation.
     """
 
-    def __init__(self, aggregate: object, message: str) -> None:
-        super().__init__(entity=aggregate, message=message)
+    def __init__(self, source: object, message: str) -> None:
+        source_name = type(source).__name__
+        super().__init__(source, message, code=f"{source_name}.State.Invalid", reason=message)
 
 
 class UniqueConstraintViolation(DomainException):
@@ -90,29 +97,32 @@ class UniqueConstraintViolation(DomainException):
     This can occur when trying to create or update an entity with a value that already exists in the system.
 
     Args:
-        aggregate: Entity on which the unique constraint violation was detected.
+        source: Entity on which the unique constraint violation was detected.
         message: Human readable string describing the unique constraint violation.
     """
 
-    def __init__(self, aggregate: object, message: str) -> None:
-        super().__init__(entity=aggregate, message=message)
+    def __init__(self, source: object, message: str) -> None:
+        source_name = type(source).__name__
+        super().__init__(source, message, code=f"{source_name}.NotUnique", reason=message)
 
 
 class ConcurrencyConflict(DomainException):
-    """Unknown Event Exception
+    """Concurrency Conflict Exception
 
     Thrown when an entity was modified by another transaction since it was read.
     This can occur when multiple transactions are trying to modify the same entity concurrently, leading to a conflict.
 
     Args:
-        entity: Entity with optimistic concurrency error.
-        entity_id: The event that is not handled by the entity.
+        source: Entity with optimistic concurrency error.
+        entity_id: The identifier of the entity with the conflict.
         version: The version of the entity when it was read.
     """
 
-    def __init__(self, entity: object, entity_id: Any, version: int) -> None:
+    def __init__(self, source: object, entity_id: Any, version: int) -> None:
+        source_name = type(source).__name__
         message = f"Concurrency conflict for '{entity_id}' at version {version}"
-        super().__init__(entity=entity, message=message)
+        reason = f"Entity '{entity_id}' was modified by another transaction at version {version}"
+        super().__init__(source, message, code=f"{source_name}.Conflict", reason=reason)
 
 
 @dataclass(frozen=True)

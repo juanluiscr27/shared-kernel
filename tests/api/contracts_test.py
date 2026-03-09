@@ -71,9 +71,9 @@ def test_problem_detail_is_constructed_with_domain_error():
 
     expected = ProblemDetail(loc=["tests.api.contracts_test.User"],
                              msg="Event 'AccountOpened' cannot be applied to 'User'",
-                             type="sharedkernel.domain.errors.UnhandledEventType", )
+                             type="Aggregate.EventType.Unhandled", )
 
-    unknown_event = UnhandledEventType(aggregate=user, event=account_opened)
+    unknown_event = UnhandledEventType(source=user, event=account_opened)
 
     # Act
     result = DomainErrorResponse(error=unknown_event)
