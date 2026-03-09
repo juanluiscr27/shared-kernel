@@ -11,6 +11,10 @@ The Shared Kernel provides a hierarchy of exceptions to help you distinguish bet
 ## Common Domain Errors
 
 - **`UnhandledEventType`**: Raised when an aggregate or projection receives an event it doesn't know how to handle.
+- **`EntityNotFound`**: Raised when an entity cannot be found in a repository or aggregate.
+- **`InvalidState`**: Raised when an entity's state is invalid for the requested operation (business rule violated).
+- **`UniqueConstraintViolation`**: Raised when a unique constraint on an identity value is violated.
+- **`ConcurrencyConflict`**: Raised when an entity has been modified by another transaction since it was read (optimistic concurrency).
 - **`Error`**: A simple DTO used to pass error information (common in validation results and service bus internal errors).
 
 ## Application Errors
@@ -21,12 +25,14 @@ The Shared Kernel provides a hierarchy of exceptions to help you distinguish bet
 
 ## Infrastructure Errors
 
-- **`OutOfOrderEvent`**: Raised by a `Projector` when it receives an event with a position that doesn't match the expected sequence.
+- **`EventOutOfSequence`**: Raised by a `Projector` when it receives an event with a position that doesn't match the expected sequence.
 - **`MapperNotFound`**: Raised when the `MappingPipeline` cannot find a mapper for a specific event type.
 - **`UnsupportedEventHandler`**: Raised when trying to subscribe an invalid handler to the `EventBroker`.
+- **`UnprocessableListener`**: Raised when a listener cannot be processed because it handles zero event types.
+- **`IntegrityError`**: Raised on optimistic concurrency control failures in the infrastructure layer.
 
 ## Best Practices
 
-1. **Use Exceptions**: Raise `DomainException` subclasses from handlers for expected business failures. The `ServiceBus` catches and converts them to `Rejection` responses with appropriate HTTP status codes.
+1. **Use Exceptions**: Raise `DomainException` subclasses from handlers for expected business failures. The `ServiceBus` catches and converts them to `Rejection` responses with appropriate HTTP status codes. It also catches `ValueError` exceptions (e.g., from `Guard` clauses) and maps them to `Rejection` with a 422 status code.
 2. **Standardize Domains**: Use the `domain` field in the `Error` object to specify where the error originated (e.g., "Users", "Billing").
 3. **Capture Context**: When raising a `DomainException`, always pass the source instance and provide a meaningful `code` and `reason` for consistent API error responses.
