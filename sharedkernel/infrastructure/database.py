@@ -1,15 +1,11 @@
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
-from typing import Generic, TypeVar
 from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
 
-E = TypeVar("E")
-S = TypeVar("S")
 
-
-class EventStore(ABC, Generic[E, S]):
+class EventStore[E, S](ABC):
     """An event store is a database optimized for storage of events
 
     An Event Store acts as append-only log and records only the events of a given entity.

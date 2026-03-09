@@ -1,14 +1,12 @@
 from abc import ABC
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from typeinspection.handlers import get_super_name
 
 from sharedkernel.domain.models import Entity
 
-TEntity = TypeVar("TEntity", bound=Entity[Any])
 
-
-class Repository(ABC, Generic[TEntity]):
+class Repository[TEntity: Entity[Any]](ABC):
     """Repository Generic Abstract Base class
 
     The Repository Interface defines the operations to manage data access logic in a centralized location.

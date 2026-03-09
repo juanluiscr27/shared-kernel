@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from logging import Logger
 from types import get_original_bases
-from typing import Any, Generic, TypeVar, get_args
+from typing import Any, get_args
 from uuid import UUID
 
 from typeinspection import get_handled_types
@@ -11,10 +11,8 @@ from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel
 from sharedkernel.infrastructure.errors import OutOfOrderEvent
 
-TModel = TypeVar("TModel", bound=DataModel)
 
-
-class Projection(ABC, Generic[TModel]):
+class Projection[TModel: DataModel](ABC):
     """Base class for projections.
 
     A projection is responsible for transforming a stream of events into a read-optimized data model.
@@ -63,10 +61,7 @@ class Projection(ABC, Generic[TModel]):
         ...
 
 
-TProjection = TypeVar("TProjection", bound=Projection[Any])
-
-
-class Projector(Generic[TProjection]):
+class Projector[TProjection: Projection[Any]]:
     """Wraps a Projection to handle event processing logic, including out-of-order detection.
 
     Args:
