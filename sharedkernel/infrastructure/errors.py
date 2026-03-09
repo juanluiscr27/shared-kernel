@@ -72,8 +72,8 @@ class IntegrityError(InfrastructureException):
         super().__init__(type(service), message)
 
 
-class OutOfOrderEvent(InfrastructureException):
-    """OutOfOrderEvent Exception marks when a domain event is received out of sequence.
+class EventOutOfSequence(InfrastructureException):
+    """EventOutOfSequence Exception marks when a domain event is received out of sequence.
 
     Args:
         service: The service where the error occurred.

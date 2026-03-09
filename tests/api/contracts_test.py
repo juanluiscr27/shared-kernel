@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 
 from sharedkernel.api.contracts import DomainErrorResponse, ErrorResponse, ProblemDetail
-from sharedkernel.domain.errors import Error, UnknownEvent
+from sharedkernel.domain.errors import Error, UnhandledEventType
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.domain.models import Aggregate, EntityID
 
@@ -71,9 +71,9 @@ def test_problem_detail_is_constructed_with_domain_error():
 
     expected = ProblemDetail(loc=["tests.api.contracts_test.User"],
                              msg="Event 'AccountOpened' cannot be applied to 'User'",
-                             type="sharedkernel.domain.errors.UnknownEvent", )
+                             type="sharedkernel.domain.errors.UnhandledEventType", )
 
-    unknown_event = UnknownEvent(aggregate=user, event=account_opened)
+    unknown_event = UnhandledEventType(aggregate=user, event=account_opened)
 
     # Act
     result = DomainErrorResponse(error=unknown_event)

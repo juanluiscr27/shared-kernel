@@ -35,8 +35,8 @@ class DomainException(SystemException):
         self.domain = f"{entity_module}.{entity_name}"
 
 
-class UnknownEvent(DomainException):
-    """Unknown Event Exception
+class UnhandledEventType(DomainException):
+    """Unhandled Event Type Exception
 
     Thrown when an event is applied to an aggregate that does not correspond.
 

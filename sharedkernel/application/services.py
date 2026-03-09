@@ -16,7 +16,7 @@ from sharedkernel.application.errors import HandlerAlreadyRegistered, Rejection,
 from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.validators import ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import DomainException, EntityNotFound, UnknownEvent
+from sharedkernel.domain.errors import DomainException, EntityNotFound, UnhandledEventType
 
 type Handler = CommandHandler[Command] | QueryHandler[Query]
 type Request = Command | Query
@@ -175,7 +175,7 @@ class ServiceBus:
             self._logger.info(f"{type(request).__name__} request received")
             process_result = self.process(request)
             response = self.post_process(process_result)
-        except UnknownEvent as error:
+        except UnhandledEventType as error:
             self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
             response = Rejection.from_exception(status_code=500, error=error)
         except EntityNotFound as error:
