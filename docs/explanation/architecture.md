@@ -44,9 +44,9 @@ Orchestrates the flow of data but contains no business logic.
 
 ### 3. Infrastructure Layer (`sharedkernel.infrastructure`)
 Provides technical implementations for domain/application requirements.
-- **Persistence**: `EventStore`, `Repository` interfaces.
-- **Messaging**: `EventBroker` for in-memory event publishing.
-- **Mapping**: Converting raw data to domain objects.
+- **Persistence**: `EventStore` interface, `Projections` for building read models.
+- **Messaging**: `EventBroker` for in-memory event publishing, `EventDispatcher` for projection-based event routing.
+- **Mapping**: Converting raw data to domain objects via `MappingPipeline`.
 
 ### 4. API Layer (`sharedkernel.api`)
 The entry point for external requests (e.g., via REST or gRPC).

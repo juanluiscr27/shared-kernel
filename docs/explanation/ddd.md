@@ -34,7 +34,7 @@ An abstraction for a collection of aggregates. It hides the details of the under
 
 ### Domain Services
 Logic that doesn't naturally belong to a single entity or aggregate.
-- Implementation: `sharedkernel.domain.services.DomainService`.
+- Implementation: `sharedkernel.domain.services.DomainService` (marker base class — subclass and add your own methods for cross-aggregate or external-dependency logic).
 
 ## Why use this library?
 
