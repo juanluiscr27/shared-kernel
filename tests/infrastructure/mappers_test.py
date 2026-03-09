@@ -5,7 +5,7 @@ from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import Event
-from sharedkernel.infrastructure.mappers import Mapper, MappersChain, MappingPipeline, extract, to_event
+from sharedkernel.infrastructure.mappers import Mapper, MappersChain, MappingPipeline, to_event
 
 
 @dataclass(frozen=True)
@@ -44,31 +44,6 @@ class UserLoggedInMapper(Mapper[UserLoggedIn]):
         return self.map_next(data, event_type)
 
 
-def test_extract_json_string_from_quoted_json_string():
-    # Arrange
-    expected = '{\"user_id\": \"018f9284-769b-726d-b3bf-3885bf2ddd3c\", \"email\": \"john-doe@example.com\"}'
-
-    quoted_json_str = ('"{\\"user_id\\": \\"018f9284-769b-726d-b3bf-3885bf2ddd3c\\", \\"email\\": '
-                       '\\"john-doe@example.com\\"}"')
-
-    # Act
-    result = extract(quoted_json_str)
-
-    # Assert
-    assert result == expected
-
-
-def test_extract_return_same_json_string():
-    # Arrange
-    expected = '{\"user_id\": \"018f9284-769b-726d-b3bf-3885bf2ddd3c\", \"email\": \"john-doe@example.com\"}'
-
-    # Act
-    result = extract(expected)
-
-    # Assert
-    assert result == expected
-
-
 def test_deserialize_json_string_to_event():
     # Arrange
     expected = Event(
@@ -88,8 +63,8 @@ def test_deserialize_json_string_to_event():
         "id": "018ff859-d78c-4dc8-e0d2-4094d208a18c",
         "type": "OfficialNameUpdated",
         "position": 4,
-        "data": '"{\\"official_id\\": \\"018fdb92-75b9-2616-9a6c-720aae66a022\\", \\"new_name\\": \\"John Doe IV\\", '
-                '\\"previous_name\\": \\"John Doe III\\"}"',
+        "data": '{\"official_id\": \"018fdb92-75b9-2616-9a6c-720aae66a022\", \"new_name\": \"John Doe IV\", '
+                '\"previous_name\": \"John Doe III\"}',
         "stream_id": "018fdb92-75b9-2616-9a6c-720aae66a022",
         "stream_type": "Official",
         "version": 7,
