@@ -12,10 +12,16 @@ The `sharedkernel.domain.services.Guard` class includes:
 - `is_not_null(value)`
 - `is_not_empty(value)`
 - `is_not_null_or_empty(value)`
-- `minimum_length(value, length)`
-- `maximum_length(value, length)`
-- `is_greater_than(value, min)`
-- `is_less_than(value, max)`
+- `is_null(value)`
+- `is_empty(value)`
+- `is_equal(value, reference_value)`
+- `is_not_equal(value, reference_value)`
+- `minimum_length(value, min_length)`
+- `maximum_length(value, max_length)`
+- `is_greater_than(value, reference_value)`
+- `is_greater_than_or_equal(value, reference_value)`
+- `is_less_than(value, reference_value)`
+- `is_less_than_or_equal(value, reference_value)`
 
 ### Example usage
 
