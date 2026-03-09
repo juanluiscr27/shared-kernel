@@ -30,7 +30,7 @@ class DomainException(SystemException):
         reason: A human-readable explanation specific to this occurrence of the problem.
     """
 
-    def __init__(self, source: object, message: str, *, code: str, reason: str) -> None:
+    def __init__(self, source: object, message: str, code: str, reason: str) -> None:
         super().__init__(message)
         source_module = source.__module__
         source_name = source.__class__.__name__
