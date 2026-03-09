@@ -3,10 +3,6 @@ from dataclasses import dataclass
 from enum import StrEnum
 from uuid import UUID
 
-from result import Result
-
-from sharedkernel.domain.errors import Error
-
 
 @dataclass(frozen=True)
 class Command:
@@ -49,13 +45,15 @@ class CommandHandler[TCommand: Command](ABC):
     """
 
     @abstractmethod
-    def execute(self, command: TCommand) -> Result[Acknowledgement, Error]:
+    def execute(self, command: TCommand) -> Acknowledgement:
         """Execute a Command.
 
         Args:
             command: Command to execute.
 
         Returns:
-            The execution result of the command.
-            It could be an acknowledgement of success or an `Error`.
+            An acknowledgement of the command execution.
+
+        Raises:
+            DomainException: If a business rule is violated.
         """

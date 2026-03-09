@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from result import Result
-
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import Error
 
 
 @dataclass(frozen=True)
@@ -25,13 +22,15 @@ class QueryHandler[TQuery: Query](ABC):
     """
 
     @abstractmethod
-    def execute(self, query: TQuery) -> Result[ReadModel | ReadModelList, Error]:
+    def execute(self, query: TQuery) -> ReadModel | ReadModelList:
         """Execute a Query.
 
         Args:
             query: Query to execute.
 
         Returns:
-            The execution result of the query.
-            It could be a `ReadModel`, a `ReadModelList` or an `Error`.
+            A `ReadModel` or `ReadModelList` with the query results.
+
+        Raises:
+            DomainException: If a business rule is violated.
         """
