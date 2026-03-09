@@ -7,7 +7,7 @@ import pytest
 from sharedkernel.application.commands import Acknowledgement, Command, CommandHandler, CommandStatus
 from sharedkernel.application.errors import HandlerAlreadyRegistered, UnsupportedHandler
 from sharedkernel.application.queries import Query, QueryHandler
-from sharedkernel.application.services import RequestContext, ServiceBus, get_request_id
+from sharedkernel.application.services import RequestContext, ServiceBus, error_from_exception, get_request_id
 from sharedkernel.application.validators import ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
 from sharedkernel.domain.errors import EntityNotFound, Error, UniqueConstraintViolation
@@ -543,7 +543,7 @@ def test_send_valid_command_with_context_reset_request_id(fake_logger, fake_cont
     assert result != fake_context.request_id
 
 
-def test_send_command_to_faulty_handler_raises_error(fake_logger, fake_context):
+def test_send_command_to_faulty_handler_return_rejection(fake_logger, fake_context):
     # Arrange
     bus = ServiceBus(fake_logger)
     handler = FaultyRegisterUserHandler()
@@ -556,13 +556,11 @@ def test_send_command_to_faulty_handler_raises_error(fake_logger, fake_context):
     )
 
     # Act
-    with pytest.raises(ValueError) as error:
-        _ = bus.send(command, fake_context)
-
-    error_message = str(error.value)
+    result = bus.send(command, fake_context)
 
     # Assert
-    assert error_message == "User data format is invalid."
+    assert result.status_code == 422
+    assert len(result.errors) == 1
 
 
 def test_new_request_context_with_no_datetime_param_set_datetime_now():
@@ -574,3 +572,40 @@ def test_new_request_context_with_no_datetime_param_set_datetime_now():
 
     # Assert
     assert result.timestamp is not None
+
+
+def test_error_from_exception_with_self_in_frame():
+    # Arrange
+    handler = FaultyRegisterUserHandler()
+
+    # Act
+    try:
+        handler.execute(RegisterUser(
+            user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+            name="John Doe Smith",
+            slug="john-doe-smith",
+        ))
+    except ValueError as exc:
+        result = error_from_exception(exc)
+
+    # Assert
+    assert result.code == "FaultyRegisterUserHandler.ValueError"
+    assert result.message == "User data format is invalid."
+    assert result.reason == "User data format is invalid."
+    assert "FaultyRegisterUserHandler" in result.domain
+
+
+def test_error_from_exception_without_self_in_frame():
+    # Arrange
+    def validate_name(name):
+        raise ValueError(f"Name '{name}' is invalid.")
+
+    # Act
+    try:
+        validate_name("")
+    except ValueError as exc:
+        result = error_from_exception(exc)
+
+    # Assert
+    assert "validate_name" in result.code
+    assert "validate_name" in result.domain

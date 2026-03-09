@@ -13,7 +13,7 @@ from sharedkernel.application.errors import HandlerAlreadyRegistered, Rejection,
 from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.validators import ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import DomainException, EntityNotFound, UnhandledEventType
+from sharedkernel.domain.errors import DomainException, EntityNotFound, Error, UnhandledEventType
 
 type Handler = CommandHandler[Command] | QueryHandler[Query]
 type Request = Command | Query
@@ -76,6 +76,45 @@ def get_request_id() -> UUID:
         The current request ID or a new UUID if not set.
     """
     return request_id_var.get(uuid.uuid4())
+
+
+def error_from_exception(exception: Exception) -> Error:
+    """Maps a standard exception to an Error by extracting context from the traceback.
+
+    Walks the exception's traceback to the frame where it was raised and extracts the
+    source object's module and class name. Falls back to the module and qualified name
+    of the function if no ``self`` reference is found in the frame's locals.
+
+    Args:
+        exception: The exception to map.
+
+    Returns:
+        An Error with domain, code, and reason derived from the exception context.
+    """
+    tb = exception.__traceback__
+    if tb is not None:
+        while tb.tb_next:
+            tb = tb.tb_next
+        source = tb.tb_frame.f_locals.get("self")
+        if source is not None:
+            source_module = source.__module__
+            source_name = source.__class__.__name__
+        else:
+            source_module = tb.tb_frame.f_globals.get("__name__", "unknown")
+            source_name = tb.tb_frame.f_code.co_qualname
+    else:
+        source_module = "unknown"
+        source_name = "unknown"
+
+    domain = f"{source_module}.{source_name}"
+    message = str(exception)
+
+    return Error(
+        code=f"{source_name}.ValueError",
+        message=message,
+        reason=message,
+        domain=domain,
+    )
 
 
 class ServiceBus:
@@ -160,6 +199,10 @@ class ServiceBus:
         except DomainException as error:
             self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
             response = Rejection.from_exception(status_code=409, error=error)
+        except ValueError as error:
+            self._logger.error(f"A ValueError occurred when processing request {type(request).__name__}")
+            mapped_error = error_from_exception(error)
+            response = Rejection.from_error(status_code=422, error=mapped_error)
         finally:
             request_id_var.reset(token)
 
