@@ -1,5 +1,4 @@
 import contextvars
-import re
 import typing
 import uuid
 from abc import ABC, abstractmethod
@@ -8,8 +7,6 @@ from datetime import UTC, datetime
 from logging import Logger
 from types import get_original_bases
 from uuid import UUID
-
-from result import Err, Ok
 
 from sharedkernel.application.commands import Acknowledgement, Command, CommandHandler
 from sharedkernel.application.errors import HandlerAlreadyRegistered, Rejection, ServiceBusErrors, UnsupportedHandler
@@ -47,27 +44,6 @@ class Sender(ABC):
                 request: Can be a Command or Query Handler.
             """
         ...
-
-
-def get_status_code(error_code: str) -> int:
-    """Maps an error code to an HTTP status code.
-
-    Args:
-        error_code: The error code to map.
-
-    Returns:
-        The corresponding HTTP status code.
-    """
-    if re.search(r".*\.NotFound$", error_code, re.IGNORECASE):
-        return 404
-
-    if re.search(r".*\.(NotUnique|Conflict|Already.*)$", error_code, re.IGNORECASE):
-        return 409
-
-    if re.search(r".*\.Invalid.*$", error_code, re.IGNORECASE):
-        return 422
-
-    return 409
 
 
 request_id_var: contextvars.ContextVar[UUID] = contextvars.ContextVar("request-id")
@@ -241,7 +217,10 @@ class ServiceBus:
             command: The command to process.
 
         Returns:
-            An Acknowledgement if successful, or a Rejection if an error occurs.
+            An Acknowledgement if successful, or a Rejection if no handler is registered.
+
+        Raises:
+            DomainException: If a business rule is violated during command execution.
         """
         command_type = type(command).__name__
 
@@ -252,15 +231,7 @@ class ServiceBus:
 
         handler = self._command_handlers[command_type]
 
-        result = handler.execute(command)
-
-        match result:
-            case Ok(ack):
-                return ack
-            case Err(error):
-                self._logger.error(error.message)
-                status_code = get_status_code(error.code)
-                return Rejection.from_error(status_code=status_code, error=error)
+        return handler.execute(command)
 
     def process_query(self, query: Query) -> ReadModel | ReadModelList | Rejection:
         """Directly processes a query using its registered handler.
@@ -269,7 +240,10 @@ class ServiceBus:
             query: The query to process.
 
         Returns:
-            The query result (ReadModel or ReadModelList) if successful, or a Rejection if an error occurs.
+            The query result (ReadModel or ReadModelList) if successful, or a Rejection if no handler is registered.
+
+        Raises:
+            DomainException: If a business rule is violated during query execution.
         """
         query_type = type(query).__name__
 
@@ -280,15 +254,7 @@ class ServiceBus:
 
         handler = self._query_handlers[query_type]
 
-        result = handler.execute(query)
-
-        match result:
-            case Ok(read_model):
-                return read_model
-            case Err(error):
-                self._logger.error(error.message)
-                status_code = get_status_code(error.code)
-                return Rejection.from_error(status_code=status_code, error=error)
+        return handler.execute(query)
 
     def post_process(self, response: Response | Rejection) -> Response | Rejection:
         """Performs post-processing cleanup and logging after a request is handled.

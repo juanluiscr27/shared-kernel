@@ -3,7 +3,6 @@ from datetime import datetime
 from uuid import UUID
 
 import pytest
-from result import Err, Ok, Result
 
 from sharedkernel.application.commands import Acknowledgement, Command, CommandHandler, CommandStatus
 from sharedkernel.application.errors import HandlerAlreadyRegistered, UnsupportedHandler
@@ -11,14 +10,14 @@ from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.services import RequestContext, ServiceBus, get_request_id
 from sharedkernel.application.validators import ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import Error, UniqueConstraintViolation
+from sharedkernel.domain.errors import EntityNotFound, Error, UniqueConstraintViolation
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 
 
 class DuplicateName(UniqueConstraintViolation):
-    def __init__(self, aggregate: object, name: str):
+    def __init__(self, source: object, name: str):
         message = f"User '{name}' has already been selected."
-        super().__init__(aggregate=aggregate, message=message)
+        super().__init__(source=source, message=message)
 
 
 @dataclass(frozen=True)
@@ -54,73 +53,61 @@ def name_null_or_empty_error() -> Error:
     )
 
 
-def slug_not_unique_error(slug: str) -> Error:
-    return Error(
-        message="User slug is not unique.",
-        code="User.Slug.NotUnique",
-        reason=f"User slug '{slug}' already exists.",
-        domain="Test.Users.RegisterUser",
-    )
+class SlugNotUnique(UniqueConstraintViolation):
+    def __init__(self, source: object, slug: str):
+        message = f"User slug '{slug}' is not unique."
+        super().__init__(source=source, message=message)
 
 
-def id_not_found(user_id: str) -> Error:
-    return Error(
-        message=f"User id '{user_id} not found'.",
-        code="User.Id.NotFound",
-        reason="User 'ID' is not available.",
-        domain="Test.users.GetUserById",
-    )
+class UserNotFound(EntityNotFound):
+    def __init__(self, source: object, user_id: str):
+        message = f"User id '{user_id}' not found."
+        super().__init__(source=source, message=message)
 
 
 class RegisterUserCommandHandler(CommandHandler[RegisterUser]):
 
-    def execute(self, command: RegisterUser) -> Result[Acknowledgement, Error]:
+    def execute(self, command: RegisterUser) -> Acknowledgement:
         if command.name == "John Doe":
             raise DuplicateName(self, command.name)
 
         if command.user_id == UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'):
-            ack = Acknowledgement(
+            return Acknowledgement(
                 status=CommandStatus.RECEIVED,
                 action="RegisterUser",
                 entity_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
                 version=1,
             )
-            return Ok(ack)
-        error = slug_not_unique_error(command.slug)
-        return Err(error)
+        raise SlugNotUnique(self, command.slug)
 
 
 class GetUserByIDQueryHandler(QueryHandler[GetUserByID]):
 
-    def execute(self, command: GetUserByID) -> Result[ReadModel, Error]:
-        if command.user_id == UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'):
-            user = UserModel(
+    def execute(self, query: GetUserByID) -> ReadModel:
+        if query.user_id == UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'):
+            return UserModel(
                 user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
                 name="John Doe Smith",
                 slug="john-doe-smith",
             )
-            return Ok(user)
-        error = id_not_found(str(command.user_id))
-        return Err(error)
+        raise UserNotFound(self, str(query.user_id))
 
 
 class GetAllUsersQueryHandler(QueryHandler[GetAllUsers]):
 
-    def execute(self, command: GetAllUsers) -> Result[ReadModelList, Error]:
+    def execute(self, query: GetAllUsers) -> ReadModelList:
         all_user = [UserModel(
             user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
             name="John Doe Smith",
             slug="john-doe-smith",
         )]
 
-        user_list = ReadModelList(
+        return ReadModelList(
             offset=0,
             limit=1,
             total=1,
             items=all_user,
         )
-
-        return Ok(user_list)
 
 
 class RegisterOfficialValidator(Validator[RegisterUser]):
@@ -150,26 +137,24 @@ class RegistrationEventHandler(DomainEventHandler[UserRegistered]):
 
 class RegisterUserWithContextHandler(CommandHandler[RegisterUser]):
 
-    def execute(self, command: RegisterUser) -> Result[Acknowledgement, Error]:
+    def execute(self, command: RegisterUser) -> Acknowledgement:
         if command.name == "John Doe":
             raise DuplicateName(self, command.name)
 
         if command.user_id == UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'):
-            ack = Acknowledgement(
+            print(f"{type(command).__name__}(request_id={get_request_id()})")
+            return Acknowledgement(
                 status=CommandStatus.RECEIVED,
                 action="RegisterUser",
                 entity_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
                 version=1,
             )
-            print(f"{type(command).__name__}(request_id={get_request_id()})")
-            return Ok(ack)
-        error = slug_not_unique_error(command.slug)
-        return Err(error)
+        raise SlugNotUnique(self, command.slug)
 
 
 class FaultyRegisterUserHandler(CommandHandler[RegisterUser]):
 
-    def execute(self, command: RegisterUser) -> Result[Acknowledgement, Error]:
+    def execute(self, command: RegisterUser) -> Acknowledgement:
         raise ValueError('User data format is invalid.')
 
 
@@ -346,9 +331,8 @@ def test_process_valid_command_return_command_acknowledgment(fake_logger):
     assert result.status is CommandStatus.RECEIVED
 
 
-def test_process_invalid_command_return_rejection(fake_logger):
+def test_process_invalid_command_raises_exception(fake_logger):
     # Arrange
-    expected = 409
     bus = ServiceBus(fake_logger)
     handler = RegisterUserCommandHandler()
     bus.register(handler)
@@ -359,11 +343,9 @@ def test_process_invalid_command_return_rejection(fake_logger):
         slug="john-doe-smith",
     )
 
-    # Act
-    result = bus.process_command(command)
-
-    # Assert
-    assert result.status_code == expected
+    # Act & Assert
+    with pytest.raises(UniqueConstraintViolation):
+        bus.process_command(command)
 
 
 def test_process_query_with_handler_return_rejection(fake_logger):
@@ -400,7 +382,7 @@ def test_process_valid_query_return_read_model(fake_logger):
     assert result.user_id == user_id
 
 
-def test_process_invalid_query_return_rejection(fake_logger):
+def test_process_invalid_query_raises_exception(fake_logger):
     # Arrange
     user_id = UUID('018f928b-5546-77e6-badf-3155de144924')
 
@@ -410,13 +392,9 @@ def test_process_invalid_query_return_rejection(fake_logger):
 
     query = GetUserByID(user_id=user_id)
 
-    expected = 404
-
-    # Act
-    result = bus.process_query(query)
-
-    # Assert
-    assert result.status_code == expected
+    # Act & Assert
+    with pytest.raises(EntityNotFound):
+        bus.process_query(query)
 
 
 def test_send_valid_command_return_command_acknowledgment(fake_logger, fake_context):
