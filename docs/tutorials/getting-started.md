@@ -102,21 +102,18 @@ class RegisterUser(Command):
 ### Create a Command Handler
 
 ```python
-from result import Result, Ok
 from sharedkernel.application.commands import CommandHandler, Acknowledgement, CommandStatus
-from sharedkernel.domain.errors import Error
 
 class RegisterUserHandler(CommandHandler[RegisterUser]):
-    def execute(self, command: RegisterUser) -> Result[Acknowledgement, Error]:
+    def execute(self, command: RegisterUser) -> Acknowledgement:
         # Business logic goes here...
-        
-        ack = Acknowledgement(
+
+        return Acknowledgement(
             status=CommandStatus.RECEIVED,
             action=type(command).__name__,
             entity_id=command.user_id,
             version=1
         )
-        return Ok(ack)
 ```
 
 ### Dispatch via Service Bus
