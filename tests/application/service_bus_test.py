@@ -17,7 +17,7 @@ from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 class DuplicateName(UniqueConstraintViolation):
     def __init__(self, source: object, name: str):
         message = f"User '{name}' has already been selected."
-        super().__init__(source=source, message=message)
+        super().__init__(source=source, message=message, code="User.Name.NotUnique", reason=message)
 
 
 @dataclass(frozen=True)
@@ -56,13 +56,13 @@ def name_null_or_empty_error() -> Error:
 class SlugNotUnique(UniqueConstraintViolation):
     def __init__(self, source: object, slug: str):
         message = f"User slug '{slug}' is not unique."
-        super().__init__(source=source, message=message)
+        super().__init__(source=source, message=message, code="User.Slug.NotUnique", reason=message)
 
 
 class UserNotFound(EntityNotFound):
     def __init__(self, source: object, user_id: str):
         message = f"User id '{user_id}' not found."
-        super().__init__(source=source, message=message)
+        super().__init__(source=source, message=message, code="User.NotFound", reason=message)
 
 
 class RegisterUserCommandHandler(CommandHandler[RegisterUser]):
