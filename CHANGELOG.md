@@ -2,6 +2,23 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 6.1.0 (2026-03-12)
+
+### Added
+
+- `qualname` and `full_qualname` properties to Command and Query base classes.
+- tests to achieve 100% code coverage.
+
+### Changed
+
+- CI workflows updated `astral-sh/setup-uv` from v5 to v7.
+- ServiceBus.send refactored to use structured logging with extra fields.
+- domain exception subclass init signatures unified with base class.
+
+### Fixed
+
+- `error_from_exception` classmethod to handle `cls` parameter for ValueError support.
+
 ## 6.0.0 (2026-03-09)
 
 ### Added
