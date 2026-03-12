@@ -595,6 +595,25 @@ def test_error_from_exception_with_self_in_frame():
     assert "FaultyRegisterUserHandler" in result.domain
 
 
+def test_error_from_exception_with_cls_in_frame():
+    # Arrange
+    class UserFactory:
+        @classmethod
+        def create(cls, name):
+            raise ValueError(f"Name '{name}' is invalid.")
+
+    # Act
+    try:
+        UserFactory.create("")
+    except ValueError as exc:
+        result = error_from_exception(exc)
+
+    # Assert
+    assert result.code == "UserFactory.ValueError"
+    assert result.reason == "Name '' is invalid."
+    assert "UserFactory" in result.domain
+
+
 def test_error_from_exception_without_self_in_frame():
     # Arrange
     def validate_name(name):
