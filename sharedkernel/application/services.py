@@ -82,8 +82,9 @@ def error_from_exception(exception: Exception) -> Error:
     """Maps a standard exception to an Error by extracting context from the traceback.
 
     Walks the exception's traceback to the frame where it was raised and extracts the
-    source object's module and class name. Falls back to the module and qualified name
-    of the function if no ``self`` reference is found in the frame's locals.
+    source object's module and class name. Checks for ``self`` (instance methods) and
+    ``cls`` (class methods) references. Falls back to the module and qualified name
+    of the function if neither is found in the frame's locals.
 
     Args:
         exception: The exception to map.
@@ -96,9 +97,13 @@ def error_from_exception(exception: Exception) -> Error:
         while tb.tb_next:
             tb = tb.tb_next
         source = tb.tb_frame.f_locals.get("self")
+        cls = tb.tb_frame.f_locals.get("cls")
         if source is not None:
             source_module = source.__module__
             source_name = source.__class__.__name__
+        elif cls is not None and isinstance(cls, type):
+            source_module = cls.__module__
+            source_name = cls.__name__
         else:
             source_module = tb.tb_frame.f_globals.get("__name__", "unknown")
             source_name = tb.tb_frame.f_code.co_qualname
