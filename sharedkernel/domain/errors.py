@@ -66,12 +66,13 @@ class EntityNotFound(DomainException):
 
     Args:
         source: Cluster on which the entity was not found.
-        message: Human readable string describing the entity not found.
+        message: Human readable string describing the exception.
+        code: Identifies the problem type.
+        reason: A human-readable explanation specific to this occurrence of the problem.
     """
 
-    def __init__(self, source: object, message: str) -> None:
-        source_name = type(source).__name__
-        super().__init__(source, message, code=f"{source_name}.NotFound", reason=message)
+    def __init__(self, source: object, message: str, code: str, reason: str) -> None:
+        super().__init__(source, message, code=code, reason=reason)
 
 
 class InvalidState(DomainException):
@@ -82,12 +83,13 @@ class InvalidState(DomainException):
 
     Args:
         source: Entity on which the invalid state was detected.
-        message: Human readable string describing the invariant violation.
+        message: Human readable string describing the exception.
+        code: Identifies the problem type.
+        reason: A human-readable explanation specific to this occurrence of the problem.
     """
 
-    def __init__(self, source: object, message: str) -> None:
-        source_name = type(source).__name__
-        super().__init__(source, message, code=f"{source_name}.State.Invalid", reason=message)
+    def __init__(self, source: object, message: str, code: str, reason: str) -> None:
+        super().__init__(source, message, code=code, reason=reason)
 
 
 class UniqueConstraintViolation(DomainException):
@@ -98,12 +100,13 @@ class UniqueConstraintViolation(DomainException):
 
     Args:
         source: Entity on which the unique constraint violation was detected.
-        message: Human readable string describing the unique constraint violation.
+        message: Human readable string describing the exception.
+        code: Identifies the problem type.
+        reason: A human-readable explanation specific to this occurrence of the problem.
     """
 
-    def __init__(self, source: object, message: str) -> None:
-        source_name = type(source).__name__
-        super().__init__(source, message, code=f"{source_name}.NotUnique", reason=message)
+    def __init__(self, source: object, message: str, code: str, reason: str) -> None:
+        super().__init__(source, message, code=code, reason=reason)
 
 
 class ConcurrencyConflict(DomainException):
