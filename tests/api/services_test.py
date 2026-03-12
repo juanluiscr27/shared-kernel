@@ -1,8 +1,10 @@
 import time
 from uuid import UUID
 
+import pytest
 from pytest import approx
 
+from sharedkernel.api.errors import UnknownResponseModel
 from sharedkernel.api.services import AckResponseModel, ElapsedTime
 from sharedkernel.application.commands import Acknowledgement, CommandStatus
 
@@ -49,3 +51,19 @@ def test_elapsed_time_return_valid_milliseconds():
 
     # Assert
     assert result == approx(expected, 1.0e+01)
+
+
+def test_unknown_response_model_exception_sets_attributes():
+    # Arrange
+    class ResponseMapper:
+        pass
+
+    source = ResponseMapper()
+
+    # Act
+    with pytest.raises(UnknownResponseModel) as error:
+        raise UnknownResponseModel(source, "UserResponse")
+
+    # Assert
+    assert "UserResponse" in str(error.value)
+    assert "ResponseMapper" in error.value.source

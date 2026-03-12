@@ -2,6 +2,8 @@ import json
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
+import pytest
+
 from sharedkernel.infrastructure.services import DateTimeEncoder, ExtraEncoder, UUIDEncoder
 
 
@@ -65,3 +67,30 @@ def test_serialize_extra_types_return_encoded_value():
 
     # Assert
     assert result == expected
+
+
+def test_uuid_encoder_raises_error_for_unsupported_type():
+    # Arrange
+    data = {'value': {1, 2, 3}}
+
+    # Act & Assert
+    with pytest.raises(TypeError):
+        json.dumps(data, cls=UUIDEncoder)
+
+
+def test_datetime_encoder_raises_error_for_unsupported_type():
+    # Arrange
+    data = {'value': {1, 2, 3}}
+
+    # Act & Assert
+    with pytest.raises(TypeError):
+        json.dumps(data, cls=DateTimeEncoder)
+
+
+def test_extra_encoder_raises_error_for_unsupported_type():
+    # Arrange
+    data = {'value': {1, 2, 3}}
+
+    # Act & Assert
+    with pytest.raises(TypeError):
+        json.dumps(data, cls=ExtraEncoder)
