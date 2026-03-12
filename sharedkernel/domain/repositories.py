@@ -28,6 +28,19 @@ class Repository[TEntity: Entity[Any]](ABC):
     #         entity: The entity to save.
     #     """
     #
+    # def get(self, entity_id: UUID) -> TEntity:
+    #     """Gets an entity by its unique identifier.
+    #
+    #     Args:
+    #         entity_id: The identifier.
+    #
+    #     Returns:
+    #         The found entity.
+    #
+    #       Raises:
+    #         EntityNotFound: If the identifier is not associated to any Entity in the repository.
+    #     """
+    #
     # def find_by_id(self, entity_id: UUID) -> Optional[TEntity]:
     #     """Finds an entity by its unique identifier.
     #
