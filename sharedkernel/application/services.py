@@ -191,21 +191,37 @@ class ServiceBus:
             The response from the handler or a Rejection if an error occurs.
         """
         token = request_id_var.set(context.request_id)
+        request_context = {
+            "request_id": str(context.request_id),
+            "request_type": request.full_qualname,
+        }
         try:
-            self._logger.info(f"{type(request).__name__} request received")
+            self._logger.info("Request received", extra=request_context)
             process_result = self.process(request)
             response = self.post_process(process_result)
         except UnhandledEventType as error:
-            self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
+            self._logger.error(
+                "Unhandled event type error occurred",
+                extra={**request_context, "error_type": type(error).__name__, "error_code": error.code},
+            )
             response = Rejection.from_exception(status_code=500, error=error)
         except EntityNotFound as error:
-            self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
+            self._logger.error(
+                "Entity not found error occurred",
+                extra={**request_context, "error_type": type(error).__name__, "error_code": error.code},
+            )
             response = Rejection.from_exception(status_code=404, error=error)
         except DomainException as error:
-            self._logger.error(f"A {type(error).__name__} occurred when processing request {type(request).__name__}")
+            self._logger.error(
+                "Domain exception occurred",
+                extra={**request_context, "error_type": type(error).__name__, "error_code": error.code},
+            )
             response = Rejection.from_exception(status_code=409, error=error)
         except ValueError as error:
-            self._logger.error(f"A ValueError occurred when processing request {type(request).__name__}")
+            self._logger.error(
+                "ValueError occurred",
+                extra={**request_context, "error_type": "ValueError"},
+            )
             mapped_error = error_from_exception(error)
             response = Rejection.from_error(status_code=422, error=mapped_error)
         finally:
