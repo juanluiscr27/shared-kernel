@@ -10,7 +10,7 @@ from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.services import RequestContext, ServiceBus, error_from_exception, get_request_id
 from sharedkernel.application.validators import ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import EntityNotFound, Error, UniqueConstraintViolation
+from sharedkernel.domain.errors import EntityNotFound, Error, UnhandledEventType, UniqueConstraintViolation
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 
 
@@ -156,6 +156,29 @@ class FaultyRegisterUserHandler(CommandHandler[RegisterUser]):
 
     def execute(self, command: RegisterUser) -> Acknowledgement:
         raise ValueError('User data format is invalid.')
+
+
+class UnhandledEventCommandHandler(CommandHandler[RegisterUser]):
+
+    def execute(self, command: RegisterUser) -> Acknowledgement:
+        event = UserRegistered(event_id="test", message="test")
+        raise UnhandledEventType(self, event)
+
+
+class NotFoundCommandHandler(CommandHandler[RegisterUser]):
+
+    def execute(self, command: RegisterUser) -> Acknowledgement:
+        raise UserNotFound(self, str(command.user_id))
+
+
+class SecondGetUserByIDHandler(QueryHandler[GetUserByID]):
+
+    def execute(self, query: GetUserByID) -> ReadModel:
+        return UserModel(
+            user_id=query.user_id,
+            name="Jane Doe",
+            slug="jane-doe",
+        )
 
 
 @pytest.fixture
@@ -628,3 +651,75 @@ def test_error_from_exception_without_self_in_frame():
     # Assert
     assert "validate_name" in result.code
     assert "validate_name" in result.domain
+
+
+def test_error_from_exception_without_traceback():
+    # Arrange
+    exception = ValueError("Something went wrong.")
+
+    # Act
+    result = error_from_exception(exception)
+
+    # Assert
+    assert result.code == "unknown.ValueError"
+    assert result.domain == "unknown.unknown"
+    assert result.message == "Something went wrong."
+
+
+def test_register_query_handler_twice_raise_error(fake_logger):
+    # Arrange
+    bus = ServiceBus(fake_logger)
+    handler = GetUserByIDQueryHandler()
+    second_handler = SecondGetUserByIDHandler()
+
+    expected = "A Handler has been already registered for `GetUserByID`"
+
+    # Act
+    bus.register(handler)
+
+    with pytest.raises(HandlerAlreadyRegistered) as error:
+        # noinspection PyTypeChecker
+        _ = bus.register(second_handler)
+
+    # Assert
+    assert str(error.value) == expected
+
+
+def test_send_command_raising_unhandled_event_return_rejection(fake_logger, fake_context):
+    # Arrange
+    bus = ServiceBus(fake_logger)
+    handler = UnhandledEventCommandHandler()
+    bus.register(handler)
+
+    command = RegisterUser(
+        user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+        name="John Doe Smith",
+        slug="john-doe-smith",
+    )
+
+    # Act
+    result = bus.send(command, fake_context)
+
+    # Assert
+    assert result.status_code == 500
+    assert len(result.errors) == 1
+
+
+def test_send_command_raising_entity_not_found_return_rejection(fake_logger, fake_context):
+    # Arrange
+    bus = ServiceBus(fake_logger)
+    handler = NotFoundCommandHandler()
+    bus.register(handler)
+
+    command = RegisterUser(
+        user_id=UUID('018f9284-769b-726d-b3bf-3885bf2ddd3c'),
+        name="John Doe Smith",
+        slug="john-doe-smith",
+    )
+
+    # Act
+    result = bus.send(command, fake_context)
+
+    # Assert
+    assert result.status_code == 404
+    assert len(result.errors) == 1
