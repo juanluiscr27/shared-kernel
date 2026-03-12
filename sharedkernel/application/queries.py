@@ -12,6 +12,16 @@ class Query:
     the request.
     """
 
+    @property
+    def qualname(self) -> str:
+        """Returns the qualified name of the query class."""
+        return self.__class__.__qualname__
+
+    @property
+    def full_qualname(self) -> str:
+        """Returns the full qualified name of the query class (module + name)."""
+        return f"{self.__module__}.{self.qualname}"
+
 
 class QueryHandler[TQuery: Query](ABC):
     """Query Handler

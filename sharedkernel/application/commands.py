@@ -12,6 +12,16 @@ class Command:
     the request.
     """
 
+    @property
+    def qualname(self) -> str:
+        """Returns the qualified name of the command class."""
+        return self.__class__.__qualname__
+
+    @property
+    def full_qualname(self) -> str:
+        """Returns the full qualified name of the command class (module + name)."""
+        return f"{self.__module__}.{self.qualname}"
+
 
 class CommandStatus(StrEnum):
     """Represents the execution status of a command."""
