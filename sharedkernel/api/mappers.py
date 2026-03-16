@@ -43,7 +43,7 @@ class RequestMapper[TRequest: Request](ABC):
         """
         ...
 
-    def map_next(self, request: TRequest, **query_params: Any) -> Command | Query | None:
+    def map_next(self, request: TRequest, **query_params: Any) -> Any:
         """Delegates mapping to the next mapper in the chain.
 
         Args:
