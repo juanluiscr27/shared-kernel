@@ -23,7 +23,7 @@ maintaining clean boundaries.
 ### Installation
 
 ```bash
-pip install git+https://github.com/juanluiscr27/shared-kernel.git@v6.1.0#egg=sharedkernel
+pip install git+https://github.com/juanluiscr27/shared-kernel.git@v6.1.1#egg=sharedkernel
 ```
 
 ### Basic Example: Value Objects

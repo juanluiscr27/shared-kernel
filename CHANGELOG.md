@@ -2,6 +2,14 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 6.1.1 (2026-03-15)
+
+### Fixed
+
+- Type annotation for `ReadModelList.items` changed from invariant `list` to covariant `Sequence`.
+- `Mapper.map_next()` return type corrected from `DomainEvent | None` to `TEvent | None`.
+- `RequestMapper.map_next()` return type corrected from `Command | Query | None` to `Any`.
+
 ## 6.1.0 (2026-03-12)
 
 ### Added
