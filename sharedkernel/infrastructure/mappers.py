@@ -70,7 +70,7 @@ class Mapper[TEvent: DomainEvent](ABC):
         """
         ...
 
-    def map_next(self, data: dict[str, Any], event_type: str) -> DomainEvent | None:
+    def map_next(self, data: dict[str, Any], event_type: str) -> TEvent | None:
         """Delegates mapping to the next mapper in the chain.
 
         Args:

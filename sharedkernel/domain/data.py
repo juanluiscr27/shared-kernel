@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 
@@ -19,9 +20,9 @@ class ReadModelList:
         offset: number of skipped items.
         limit: number of items per page.
         total: total number of items.
-        items: list of `ReadModel` paginated items.
+        items: sequence of `ReadModel` paginated items.
     """
     offset: int
     limit: int
     total: int
-    items: list[ReadModel]
+    items: Sequence[ReadModel]
