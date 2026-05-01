@@ -26,6 +26,13 @@ class Country(Entity[CountryID]):
         self.name: str = name
 
 
+class City(Entity[CountryID]):
+
+    def __init__(self, city_id: CountryID, name):
+        super().__init__(city_id)
+        self.name: str = name
+
+
 @dataclass(frozen=True)
 class UserID(EntityID):
     value: int
@@ -151,6 +158,30 @@ def test_entities_with_different_id_are_not_equal():
 
     # Assert
     assert country1 != country2
+
+
+def test_entities_of_different_types_with_same_id_are_not_equal():
+    # Arrange
+    shared_id = CountryID("DO")
+
+    # Act
+    country = Country(country_id=shared_id, name="Dominican Republic")
+    city = City(city_id=shared_id, name="Santo Domingo")
+
+    # Assert
+    assert country != city
+
+
+def test_entities_of_different_types_with_same_id_are_not_equal_reversed():
+    # Arrange
+    shared_id = CountryID("DO")
+
+    # Act
+    country = Country(country_id=shared_id, name="Dominican Republic")
+    city = City(city_id=shared_id, name="Santo Domingo")
+
+    # Assert
+    assert city != country
 
 
 def test_entity_not_equal_to_value_object_is_true():
