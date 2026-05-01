@@ -57,9 +57,10 @@ class Entity[TId: EntityID]:
         return f"{self.__class__.__name__}(id={self._id})"
 
     def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Entity):
+            return NotImplemented
         if type(self) is not type(other):
             return NotImplemented
-        assert isinstance(other, Entity)
         return self._id == other.id
 
     def __ne__(self, other: object) -> bool:
