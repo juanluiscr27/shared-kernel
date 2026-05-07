@@ -9,11 +9,13 @@ from types import get_original_bases
 from uuid import UUID
 
 from sharedkernel.application.commands import Acknowledgement, Command, CommandHandler
-from sharedkernel.application.errors import HandlerAlreadyRegistered, Rejection, ServiceBusErrors, UnsupportedHandler
+from sharedkernel.application.errors import Rejection, ServiceBusErrors
+from sharedkernel.application.exceptions import HandlerAlreadyRegistered, UnsupportedHandler
 from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.validators import ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import DomainException, EntityNotFound, Error, UnhandledEventType
+from sharedkernel.domain.errors import Error
+from sharedkernel.domain.exceptions import DomainException, EntityNotFound, UnhandledEventType
 
 type Handler = CommandHandler[Command] | QueryHandler[Query]
 type Request = Command | Query

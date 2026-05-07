@@ -2,8 +2,9 @@ import json
 from dataclasses import dataclass
 
 from sharedkernel.api.contracts import DomainErrorResponse, ErrorResponse, ProblemDetail
-from sharedkernel.domain.errors import Error, UnhandledEventType
+from sharedkernel.domain.errors import Error
 from sharedkernel.domain.events import DomainEvent
+from sharedkernel.domain.exceptions import UnhandledEventType
 from sharedkernel.domain.models import Aggregate, EntityID
 
 

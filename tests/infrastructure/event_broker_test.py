@@ -5,7 +5,7 @@ import pytest
 
 from sharedkernel.application.commands import Command, CommandHandler
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
-from sharedkernel.infrastructure.errors import UnsupportedEventHandler
+from sharedkernel.infrastructure.exceptions import UnsupportedEventHandler
 from sharedkernel.infrastructure.services import EventBroker
 
 

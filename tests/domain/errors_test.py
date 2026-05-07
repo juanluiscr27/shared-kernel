@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from sharedkernel.domain.errors import ConcurrencyConflict, Error, InvalidState
+from sharedkernel.domain.errors import Error
+from sharedkernel.domain.exceptions import ConcurrencyConflict, InvalidState
 
 
 def test_error_is_parsed_to_dictionary():

@@ -7,7 +7,7 @@ import pytest
 
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel, Event
-from sharedkernel.infrastructure.errors import MapperNotFound, UnprocessableListener
+from sharedkernel.infrastructure.exceptions import MapperNotFound, UnprocessableListener
 from sharedkernel.infrastructure.projections import Projection, Projector
 from sharedkernel.infrastructure.services import EventDispatcher, MappingPipeline
 

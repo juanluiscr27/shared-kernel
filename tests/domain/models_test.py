@@ -3,8 +3,8 @@ from functools import singledispatchmethod
 
 import pytest
 
-from sharedkernel.domain.errors import UnhandledEventType
 from sharedkernel.domain.events import DomainEvent
+from sharedkernel.domain.exceptions import UnhandledEventType
 from sharedkernel.domain.models import Aggregate, Entity, EntityID, ValueObject
 
 

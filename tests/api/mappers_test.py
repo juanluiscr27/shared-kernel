@@ -5,7 +5,7 @@ from uuid import UUID
 import pytest
 
 from sharedkernel.api.contracts import Request
-from sharedkernel.api.errors import RequestMapperNotFound
+from sharedkernel.api.exceptions import RequestMapperNotFound
 from sharedkernel.api.mappers import RequestMapper, RequestMappersChain
 from sharedkernel.application.commands import Command
 

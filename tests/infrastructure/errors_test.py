@@ -1,4 +1,4 @@
-from sharedkernel.infrastructure.errors import IntegrityError
+from sharedkernel.infrastructure.exceptions import IntegrityError
 
 
 def test_integrity_error_exception_sets_attributes():

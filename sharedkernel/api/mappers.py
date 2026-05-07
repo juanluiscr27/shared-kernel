@@ -4,7 +4,7 @@ from types import get_original_bases
 from typing import Any, get_args
 
 from sharedkernel.api.contracts import Request
-from sharedkernel.api.errors import RequestMapperNotFound
+from sharedkernel.api.exceptions import RequestMapperNotFound
 from sharedkernel.application.commands import Command
 from sharedkernel.application.queries import Query
 
