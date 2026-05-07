@@ -6,10 +6,10 @@ from uuid import UUID
 
 from typeinspection import get_handled_types
 
-from sharedkernel.domain.errors import UnhandledEventType
 from sharedkernel.domain.events import DomainEvent
+from sharedkernel.domain.exceptions import UnhandledEventType
 from sharedkernel.infrastructure.data import DataModel
-from sharedkernel.infrastructure.errors import EventOutOfSequence
+from sharedkernel.infrastructure.exceptions import EventOutOfSequence
 
 
 class Projection[TModel: DataModel](ABC):

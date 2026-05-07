@@ -4,7 +4,7 @@ from uuid import UUID
 import pytest
 from pytest import approx
 
-from sharedkernel.api.errors import UnknownResponseModel
+from sharedkernel.api.exceptions import UnknownResponseModel
 from sharedkernel.api.services import AckResponseModel, ElapsedTime
 from sharedkernel.application.commands import Acknowledgement, CommandStatus
 

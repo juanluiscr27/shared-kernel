@@ -8,7 +8,7 @@ from uuid import UUID
 
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 from sharedkernel.infrastructure.data import Event
-from sharedkernel.infrastructure.errors import MapperNotFound, UnprocessableListener, UnsupportedEventHandler
+from sharedkernel.infrastructure.exceptions import MapperNotFound, UnprocessableListener, UnsupportedEventHandler
 from sharedkernel.infrastructure.mappers import MappingPipeline
 from sharedkernel.infrastructure.projections import Projector
 

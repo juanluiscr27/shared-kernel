@@ -2,7 +2,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from sharedkernel.domain.errors import DomainException, Error
+from sharedkernel.domain.errors import Error
+from sharedkernel.domain.exceptions import DomainException
 
 
 class Request(BaseModel):

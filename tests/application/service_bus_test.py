@@ -5,13 +5,14 @@ from uuid import UUID
 import pytest
 
 from sharedkernel.application.commands import Acknowledgement, Command, CommandHandler, CommandStatus
-from sharedkernel.application.errors import HandlerAlreadyRegistered, UnsupportedHandler
+from sharedkernel.application.exceptions import HandlerAlreadyRegistered, UnsupportedHandler
 from sharedkernel.application.queries import Query, QueryHandler
 from sharedkernel.application.services import RequestContext, ServiceBus, error_from_exception, get_request_id
 from sharedkernel.application.validators import ValidationResult, Validator
 from sharedkernel.domain.data import ReadModel, ReadModelList
-from sharedkernel.domain.errors import EntityNotFound, Error, UnhandledEventType, UniqueConstraintViolation
+from sharedkernel.domain.errors import Error
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
+from sharedkernel.domain.exceptions import EntityNotFound, UnhandledEventType, UniqueConstraintViolation
 
 
 class DuplicateName(UniqueConstraintViolation):

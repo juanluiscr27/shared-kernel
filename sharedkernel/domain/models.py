@@ -2,8 +2,8 @@ from collections import deque
 from dataclasses import dataclass
 from uuid import UUID
 
-from sharedkernel.domain.exceptions import UnhandledEventType
 from sharedkernel.domain.events import DomainEvent
+from sharedkernel.domain.exceptions import UnhandledEventType
 
 
 @dataclass(frozen=True)
