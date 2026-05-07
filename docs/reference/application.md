@@ -25,3 +25,7 @@ This section contains the automatically generated documentation for the modules 
 ::: sharedkernel.application.errors
     options:
       show_root_heading: true
+
+::: sharedkernel.application.exceptions
+    options:
+      show_root_heading: true

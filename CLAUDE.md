@@ -37,13 +37,14 @@ uv run mypy sharedkernel/
 
 The library enforces Clean Architecture with four layers. Dependencies point inward (API → Application → Domain ← Infrastructure):
 
-- **Domain** (`sharedkernel/domain/`): Pure business logic — ValueObject, Entity, Aggregate, DomainEvent, Guard clauses, Repository interfaces, domain errors
+- **Domain** (`sharedkernel/domain/`): Pure business logic — ValueObject, Entity, Aggregate, DomainEvent, Guard clauses, Repository interfaces, domain exceptions and errors
 - **Application** (`sharedkernel/application/`): CQRS orchestration — Command/Query handlers, ServiceBus (request router), Validators, RequestContext with contextvars
 - **Infrastructure** (`sharedkernel/infrastructure/`): Technical implementations — EventBroker (in-memory pub-sub), EventDispatcher, MappingPipeline, EventStore interface, JSON encoders
 - **API** (`sharedkernel/api/`): External contracts — Pydantic-based Request/Response models, ProblemDetail error responses, AckResponse
 
 ### Key Patterns
 
+- **Exceptions vs Errors:** Exception classes (raised at runtime) live in `exceptions.py` per layer; error data classes (value objects) live in `errors.py`. Each layer has its own base exception (`DomainException`, `ApplicationException`, `InfrastructureException`, `ApiException`) inheriting from `SystemException`.
 - **Exception-based handlers:** Handlers return values directly (`Acknowledgement` or `ReadModel | ReadModelList`) and raise `DomainException` subclasses for business rule violations. The `ServiceBus` catches exceptions and converts them to `Rejection` responses.
 - **Frozen dataclasses:** ValueObjects and DomainEvents use `@dataclass(frozen=True)` for immutability.
 - **Generic handlers:** `CommandHandler[TCommand]`, `QueryHandler[TQuery]`, `Validator[TRequest]` — the ServiceBus uses type introspection on generic parameters for routing.
