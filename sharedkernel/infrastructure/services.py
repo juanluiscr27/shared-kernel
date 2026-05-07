@@ -6,6 +6,7 @@ from types import get_original_bases
 from typing import Any
 from uuid import UUID
 
+from sharedkernel.application.services import reset_request_id, set_request_id
 from sharedkernel.domain.events import DomainEvent, DomainEventHandler
 from sharedkernel.infrastructure.data import Event
 from sharedkernel.infrastructure.exceptions import MapperNotFound, UnprocessableListener, UnsupportedEventHandler
@@ -51,14 +52,17 @@ class EventBroker:
     """Mediates the communication of event messages between producers and consumers.
 
     The Event Broker acts as an in-memory pub-sub mechanism, notifying registered consumers
-    (DomainEventHandlers) when a domain event is published.
+    (DomainEventHandlers) when a domain event is published. Uses a MappingPipeline to convert
+    raw infrastructure events into domain events before dispatching.
 
     Args:
         logger: The logger instance.
+        mapper: The mapping pipeline to convert raw events to domain events.
     """
 
-    def __init__(self, logger: Logger) -> None:
+    def __init__(self, logger: Logger, mapper: MappingPipeline) -> None:
         self._logger = logger
+        self._mapper = mapper
         self._consumers: dict[str, list[DomainEventHandler[DomainEvent]]] = {}
 
     def subscribe(self, event_handler: DomainEventHandler[DomainEvent]) -> bool:
@@ -87,30 +91,41 @@ class EventBroker:
         self._logger.debug(f"{handler_type} was successfully subscribed")
         return True
 
-    def publish(self, event: DomainEvent, position: int) -> None:
-        """Publish a Domain Event to its respective Event Group.
+    def publish(self, event: Event) -> None:
+        """Publish an Event to its respective Consumer Group.
 
-        Look for the Handlers subscribed in the Domain Event Group and notify
-        them to process the Event.
+        Converts the raw infrastructure event into a domain event using the mapping pipeline
+        and notifies all subscribed handlers. Sets the request ID context variable from the
+        event's correlation ID for the duration of handler execution.
 
         Args:
-           event: Domain Event to publish.
-           position: Event position at the Stream
+           event: Infrastructure Event to publish.
 
         Returns:
            None
         """
-        event_type = type(event).__name__
+        event_type = event.event_type
 
         if event_type not in self._consumers:
             self._logger.debug(f"No handler subscribed for {event_type} event")
             return
 
+        event_data = json.loads(event.data)
+
+        domain_event = self._mapper.map(event_data, event_type)
+        if domain_event is None:
+            self._logger.warning(f"No mapper found for {event_type} event")
+            return
+
         consumer_group = self._consumers[event_type]
 
         self._logger.info(f"{event_type} event was published")
-        for consumer in consumer_group:
-            consumer.process(event, position)
+        token = set_request_id(event.correlation_id)
+        try:
+            for consumer in consumer_group:
+                consumer.process(domain_event, event.position)
+        finally:
+            reset_request_id(token)
 
 
 class EventDispatcher:
