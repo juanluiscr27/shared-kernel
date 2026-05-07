@@ -80,6 +80,27 @@ def get_request_id() -> UUID:
     return request_id_var.get(uuid.uuid4())
 
 
+def set_request_id(request_id: UUID) -> contextvars.Token[UUID]:
+    """Sets the current request ID in the context variable.
+
+    Args:
+        request_id: The UUID to set as the current request ID.
+
+    Returns:
+        A Token that can be used to reset the context variable to its previous value.
+    """
+    return request_id_var.set(request_id)
+
+
+def reset_request_id(token: contextvars.Token[UUID]) -> None:
+    """Resets the request ID context variable to its previous value.
+
+    Args:
+        token: The Token returned by a previous call to set_request_id().
+    """
+    request_id_var.reset(token)
+
+
 def error_from_exception(exception: Exception) -> Error:
     """Maps a standard exception to an Error by extracting context from the traceback.
 
