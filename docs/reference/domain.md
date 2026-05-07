@@ -25,3 +25,7 @@ This section contains the automatically generated documentation for the modules 
 ::: sharedkernel.domain.errors
     options:
       show_root_heading: true
+
+::: sharedkernel.domain.exceptions
+    options:
+      show_root_heading: true

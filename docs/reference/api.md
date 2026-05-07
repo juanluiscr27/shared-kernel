@@ -14,6 +14,6 @@ This section contains the automatically generated documentation for the modules 
     options:
       show_root_heading: true
 
-::: sharedkernel.api.errors
+::: sharedkernel.api.exceptions
     options:
       show_root_heading: true
