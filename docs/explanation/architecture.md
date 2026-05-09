@@ -44,7 +44,7 @@ Orchestrates the flow of data but contains no business logic.
 
 ### 3. Infrastructure Layer (`sharedkernel.infrastructure`)
 Provides technical implementations for domain/application requirements.
-- **Persistence**: `EventStore` interface, `Projections` for building read models.
+- **Persistence**: `EventStore` interface with unit-of-work methods (`stage` to persist without committing, `append` to persist and commit), `Projections` for building read models.
 - **Messaging**: `EventBroker` for in-memory event publishing, `EventDispatcher` for projection-based event routing.
 - **Mapping**: Converting raw data to domain objects via `MappingPipeline`.
 
@@ -61,4 +61,4 @@ The library strictly separates operations that change state (**Commands**) from 
 While optional, the library provides first-class support for **Event Sourcing** via the `Aggregate` and `EventStore` abstractions. Instead of storing the current state, you store the sequence of events that led to that state.
 
 ### Dependency Inversion
-Interfaces (like `Repository`) are defined in the Domain or Application layers, while their concrete implementations reside in the Infrastructure layer. This ensures that business logic is never dependent on database or third-party library choices.
+Interfaces (like `Repository`) are defined in the Domain or Application layers, while their concrete implementations reside in the Infrastructure layer. This ensures that business logic is never dependent on database or third-party library choices. Both `Repository` and `EventStore` expose unit-of-work persistence methods (`add`/`stage` to persist without committing, `save`/`append` to persist and commit) so that command handlers can coordinate multi-aggregate transactions when needed.
