@@ -59,7 +59,7 @@ class Order(Aggregate[OrderID]):
 When you call `_raise_event(event)`:
 1. The aggregate's `_apply(event)` method is called (ideal for event sourcing).
 2. The event is added to the `changes` collection.
-3. This collection can later be persisted to an `EventStore`.
+3. This collection can later be persisted to an `EventStore` using either `stage` (persist without committing, for unit-of-work coordination) or `append` (persist and commit in one step).
 
 ## 5. Cleaning up
 
