@@ -2,6 +2,28 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 7.0.0 (2026-05-09)
+
+### Added
+
+- `set_request_id` and `reset_request_id` helper functions for request context management.
+- `stage` method to EventStore as unit-of-work persistence pattern.
+- `add` method to Repository for unit-of-work pattern support.
+
+### Changed
+
+- Domain exceptions extracted into `domain/exceptions.py` module. **BREAKING**
+- Application exceptions extracted into `application/exceptions.py` module. **BREAKING**
+- Infrastructure exceptions moved to `infrastructure/exceptions.py` module. **BREAKING**
+- API exceptions moved to `api/exceptions.py` module. **BREAKING**
+- Imports and `__init__.py` updated across codebase to reflect new exception module paths. **BREAKING**
+- EventBroker refactored to accept `Event` and propagate correlation ID. **BREAKING**
+
+### Fixed
+
+- Entity equality comparison now checks entity type before comparing IDs.
+- Type guard split into separate `isinstance` and type checks for correctness.
+
 ## 6.1.1 (2026-03-15)
 
 ### Fixed
