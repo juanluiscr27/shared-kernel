@@ -28,6 +28,14 @@ class Repository[TEntity: Entity[Any]](ABC):
     #         entity: The entity to save.
     #     """
     #
+    # @abstractmethod
+    # def add(self, entity: TEntity) -> None:
+    #     """Store an entity and leaves the transaction open.
+    #
+    #     Args:
+    #         entity: The entity to save.
+    #     """
+    #
     # def get(self, entity_id: UUID) -> TEntity:
     #     """Gets an entity by its unique identifier.
     #
@@ -37,7 +45,7 @@ class Repository[TEntity: Entity[Any]](ABC):
     #     Returns:
     #         The found entity.
     #
-    #       Raises:
+    #     Raises:
     #         EntityNotFound: If the identifier is not associated to any Entity in the repository.
     #     """
     #
@@ -86,7 +94,7 @@ class ReadRepository(ABC):
     #     Returns:
     #         The found read model details.
     #
-    #       Raises:
+    #     Raises:
     #         EntityNotFound: If the identifier is not associated to any ReadModel in the repository.
     #     """
     #
@@ -99,7 +107,7 @@ class ReadRepository(ABC):
     #     Returns:
     #         The found read model details.
     #
-    #       Raises:
+    #     Raises:
     #         EntityNotFound: If the slug is not associated to any ReadModel in the repository.
     #     """
     #
