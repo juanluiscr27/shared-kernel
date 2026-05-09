@@ -14,6 +14,31 @@ class EventStore[E, S](ABC):
     """
 
     @abstractmethod
+    def stage(
+            self,
+            stream_id: UUID,
+            events: Sequence[DomainEvent],
+            stream_type: str,
+            stream_slug: str,
+            stream_version: int,
+            correlation_id: UUID,
+    ) -> int:
+        """Stages a sequence of events to a stream without committing the transaction.
+        Stage rollback the transaction if there is conflict.
+
+        Args:
+            stream_id: The unique identifier of the stream.
+            events: A sequence of domain events to append.
+            stream_type: The type of the stream (typically the aggregate class name).
+            stream_slug: A human-readable identifier for the stream.
+            stream_version: The version of the stream before appending.
+            correlation_id: The correlation ID for this operation.
+
+        Returns:
+            The event version in the stream, or -1 on concurrency conflict.
+        """
+
+    @abstractmethod
     def append(
             self,
             stream_id: UUID,
@@ -24,6 +49,7 @@ class EventStore[E, S](ABC):
             correlation_id: UUID,
     ) -> int:
         """Appends a sequence of events to a stream in this event store.
+        Append commits the transaction if there is no conflict.
 
         Args:
             stream_id: The unique identifier of the stream.
