@@ -18,6 +18,10 @@ This section contains the automatically generated documentation for the modules 
     options:
       show_root_heading: true
 
+::: sharedkernel.domain.specifications
+    options:
+      show_root_heading: true
+
 ::: sharedkernel.domain.data
     options:
       show_root_heading: true
