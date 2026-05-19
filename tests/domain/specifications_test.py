@@ -1,14 +1,14 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sharedkernel.domain.specifications import (
     Condition,
+    LogicalOperator,
     Pagination,
+    PredicateGroup,
+    QuerySpecification,
     SortDirection,
     SortOrder,
-    PredicateGroup,
-    LogicalOperator,
-    QuerySpecification,
 )
 
 
@@ -105,7 +105,7 @@ def test_specification_queries_with_coach_id_equal_uuid():
 
 def test_specification_queries_with_game_date_equal_datetime():
     # Arrange
-    predicate = Condition.equal(field_name='game_date', value=datetime(2024, 6, 15, 19, 0, 0, tzinfo=timezone.utc))
+    predicate = Condition.equal(field_name='game_date', value=datetime(2024, 6, 15, 19, 0, 0, tzinfo=UTC))
     pagination = Pagination()
 
     # Act
@@ -209,7 +209,9 @@ def test_specification_queries_with_capacity_greater_than_or_equal_5000():
 
 def test_specification_queries_with_game_date_greater_than_or_equal_datetime():
     # Arrange
-    predicate = Condition.greater_than_or_equal(field_name='game_date', value=datetime(2024, 6, 15, 19, 0, 0, tzinfo=timezone.utc))
+    predicate = Condition.greater_than_or_equal(
+        field_name='game_date', value=datetime(2024, 6, 15, 19, 0, 0, tzinfo=UTC),
+    )
     pagination = Pagination()
 
     # Act
@@ -289,8 +291,8 @@ def test_specification_queries_with_game_date_between_datetime_ranges():
     # Arrange
     predicate = Condition.between(
         field_name='game_date',
-        left=datetime(2024, 6, 15, 19, 0, 0, tzinfo=timezone.utc),
-        right=datetime(2024, 6, 30, 21, 0, 0, tzinfo=timezone.utc),
+        left=datetime(2024, 6, 15, 19, 0, 0, tzinfo=UTC),
+        right=datetime(2024, 6, 30, 21, 0, 0, tzinfo=UTC),
     )
     pagination = Pagination()
     expected = "WHERE game_date BETWEEN '2024-06-15T19:00:00+00:00' AND '2024-06-30T21:00:00+00:00' LIMIT 50 OFFSET 0"
