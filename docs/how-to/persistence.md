@@ -157,7 +157,18 @@ specification.to_expression()
 # "WHERE country = 'DO' ORDER BY last_name ASC LIMIT 10 OFFSET 0"
 ```
 
-Your repository implementations can accept a `QuerySpecification` and translate it into the appropriate database query.
+`QuerySpecification` implements the `Specification` interface, which `ReadRepository.find_all` accepts. Your infrastructure layer translates the specification into the appropriate database query:
+
+```python
+from sharedkernel.domain.repositories import ReadRepository
+from sharedkernel.domain.specifications import Specification
+
+class SqlAlchemyPlayerRepository(ReadRepository):
+    def find_all(self, specification: Specification) -> ReadModelList:
+        query = self._build_query(specification.to_expression())
+        # Translate and execute against your database...
+        pass
+```
 
 ---
 
