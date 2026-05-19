@@ -408,7 +408,14 @@ class Pagination:
         return f"LIMIT {self.limit} OFFSET {self.offset}"
 
 
-class QuerySpecification:
+class Specification(ABC):
+
+    @abstractmethod
+    def to_expression(self) -> str:
+        pass
+
+
+class QuerySpecification(Specification):
 
     def __init__(self, pagination: Pagination, sorting: Sequence[SortOrder] = None, predicate: Predicate = None):
         self._predicate = predicate

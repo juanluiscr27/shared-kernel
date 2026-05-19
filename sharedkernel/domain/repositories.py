@@ -111,9 +111,9 @@ class ReadRepository(ABC):
     #         EntityNotFound: If the slug is not associated to any ReadModel in the repository.
     #     """
     #
-    # def get_all(self) -> List[ReadModel]:
-    #     """Retrieves all read models handled by this repository.
+    # def find_all(self, specification: Specification) -> ReadModelList:
+    #     """Retrieves all read models that satisfy the specification.
     #
     #     Returns:
-    #         A list of read models.
+    #         A list of read models with pagination parameters.
     #     """
