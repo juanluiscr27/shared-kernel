@@ -3,24 +3,13 @@ name: Claude Code Review
 on:
   pull_request:
     types: [ opened, synchronize, ready_for_review, reopened ]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: read
       id-token: write
 
@@ -35,8 +24,30 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
-          plugins: 'code-review@claude-code-plugins'
-          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+          track_progress: true
+          prompt: |
+            Review the PR diff for ${{ github.repository }}#${{ github.event.pull_request.number }}.
+
+            Use the repository's CLAUDE.md for guidance on style and conventions.
+
+            ## What to flag
+
+            Only flag issues introduced by this PR (not pre-existing problems). Each finding must be:
+            - Discrete, actionable, and clearly a bug or meaningful correctness/security/performance issue.
+            - Something the author would fix if they knew about it.
+            - Provably impactful — do not speculate about hypothetical breakage without identifying affected code.
+
+            Do NOT flag: trivial style, formatting, typos, or intentional changes by the author.
+
+            ## How to comment
+
+            - Use inline review comments on the relevant lines.
+            - One comment per distinct issue, keeping the line range as short as possible.
+            - Be brief (one paragraph max), matter-of-fact, and specific about why the issue matters.
+            - Use ```suggestion blocks for concrete fixes (max 3 lines, preserve original whitespace).
+            - Tag each comment title with priority: [P0] blocking, [P1] urgent, [P2] normal, [P3] low.
+
+            If there are no findings worth flagging, leave a short top-level comment confirming the PR looks correct.
+
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
+          claude_args: '--model claude-sonnet-4-6 --allowed-tools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr diff:*),Bash(gh pr view:*)"'
