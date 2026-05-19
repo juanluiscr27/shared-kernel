@@ -1,0 +1,23 @@
+{
+  "instructions": [
+    "Always show a diff summary and wait for user approval before committing.",
+    "Never run git push without explicit user confirmation.",
+    "Do not auto-apply changes from minimal instructions. Propose changes and wait for confirmation.",
+    "Use plan mode for any non-trivial task. Only skip planning for single-line fixes.",
+    "Before writing any code, read 2-3 existing implementations in the same context (same layer, same module pattern). The codebase is the authoritative pattern source — match it exactly.",
+    "Before committing: run FULL test suite (cd backend && uv run coverage run -p -m pytest), then ruff check app tests, then mypy app tests. If any fail, STOP and ask the user. NEVER silently downgrade to unit-only tests.",
+    "Every feature is a complete vertical slice including schema changes. Never defer database/initdb/schema.sql or tests/resources/test_schema.sql.",
+    "When the user asks ANY question about code behavior, feasibility, or impact — invoke /code-investigation before answering. NEVER answer from assumption or partial evidence. Trace ALL consumers before claiming anything is removable/replaceable. Answer ONLY what was asked — no scope creep, no unsolicited refactoring proposals."
+  ],
+  "permissions": {
+    "deny": [
+      "Bash(git push origin main:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git rebase -i:*)",
+      "Bash(rm -rf:*)",
+      "Bash(sudo:*)"
+    ]
+  }
+}
