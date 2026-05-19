@@ -2,6 +2,14 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 7.1.0 (2026-05-18)
+
+### Added
+
+- Query specification pattern with condition filters (`Equal`, `NotEqual`, `GreaterThan`, `LessThan`, `GreaterOrEqual`, `LessOrEqual`) and predicate groups (`And`, `Or`).
+- `Specification` interface for encapsulating query criteria.
+- `find_all` method to `ReadRepository` for querying with specifications.
+
 ## 7.0.0 (2026-05-09)
 
 ### Added
