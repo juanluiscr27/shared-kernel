@@ -38,10 +38,10 @@ class Filter(Predicate):
     """Base class for field-level filter predicates."""
 
     def __init__(self, field_name: str) -> None:
-        self._field_name = field_name
+        self._field_name: LiteralString = field_name
 
     @property
-    def field_name(self) -> str:
+    def field_name(self) -> LiteralString:
         """The name of the field this filter applies to."""
         return self._field_name
 
@@ -680,6 +680,16 @@ class Specification(ABC):
     def parameters(self) -> Mapping[str, DataValue]:
         """Returns the named parameters for the parameterized SQL template."""
 
+    @property
+    @abstractmethod
+    def limit(self) -> int:
+        """The maximum number of results to return."""
+
+    @property
+    @abstractmethod
+    def offset(self) -> int:
+        """The number of results to skip."""
+
 
 class QuerySpecification(Specification):
     """A complete query specification combining predicates, sorting, and pagination."""
@@ -692,6 +702,7 @@ class QuerySpecification(Specification):
         self._predicate = predicate
         self._sorting = tuple(sorting) if sorting else ()
         self._pagination = pagination
+        self._cached_template: tuple[LiteralString, dict[str, DataValue]] | None = None
 
     @property
     def predicate(self) -> Predicate | None:
@@ -745,6 +756,9 @@ class QuerySpecification(Specification):
         return params
 
     def _build_template(self) -> tuple[LiteralString, dict[str, DataValue]]:
+        if self._cached_template is not None:
+            return self._cached_template
+
         parts: list[str] = []
         params: dict[str, DataValue] = {}
         counter = count()
@@ -759,4 +773,5 @@ class QuerySpecification(Specification):
 
         parts.append(self.pagination.to_expression())
 
-        return " ".join(parts), params
+        self._cached_template = " ".join(parts), params
+        return self._cached_template
