@@ -18,45 +18,46 @@ lint.extend-select = [
     "PL",
     "S",
     "ANN",
+    "SLF",
     "RUF",
 ]
 
 lint.ignore = [
-    "D100",   # Missing docstring in public module
-    "D104",   # Missing docstring in public package
-    "D105",   # Missing docstring in magic method
-    "D107",   # Missing docstring in __init__
-    "D200",   # One-line docstring should fit on one line
-    "D202",   # No blank lines allowed after function docstring
-    "D204",   # 1 blank line required after class docstring
-    "D205",   # 1 blank line required between summary line and description
-    "D208",   # Docstring is over-indented
-    "D212",   # Multi-line docstring summary should start at the first line
-    "D214",   # Section is over-indented
-    "D401",   # First line of docstring should be in imperative mood
-    "D413",   # Missing blank line after last section
-    "D415",   # First line should end with a period, question mark, or exclamation point
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D105", # Missing docstring in magic method
+    "D107", # Missing docstring in __init__
+    "D200", # One-line docstring should fit on one line
+    "D202", # No blank lines allowed after function docstring
+    "D204", # 1 blank line required after class docstring
+    "D205", # 1 blank line required between summary line and description
+    "D208", # Docstring is over-indented
+    "D212", # Multi-line docstring summary should start at the first line
+    "D214", # Section is over-indented
+    "D401", # First line of docstring should be in imperative mood
+    "D413", # Missing blank line after last section
+    "D415", # First line should end with a period, question mark, or exclamation point
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
     "TRY003", # Avoid specifying long messages outside the exception class
     "TRY400", # Use `logging.exception` instead of `logging.error` (intentional: error logged without traceback)
-    "N818",   # Exception name should be named with an Error suffix (public API uses Exception suffix)
-    "B024",   # Abstract base class without abstract methods (intentional facade pattern)
-    "PLR0912",# Too many branches (acceptable for Guard/Detect validation methods)
-    "PLR0913",# Too many arguments (acceptable for EventStore.append)
+    "N818", # Exception name should be named with an Error suffix (public API uses Exception suffix)
+    "B024", # Abstract base class without abstract methods (intentional facade pattern)
+    "PLR0912", # Too many branches (acceptable for Guard/Detect validation methods)
+    "PLR0913", # Too many arguments (acceptable for EventStore.append)
 ]
 
 lint.pydocstyle.convention = "google"
 
 [lint.per-file-ignores]
 "sharedkernel/domain/services.py" = [
-    "S101",   # Assert used for type narrowing on inspect.currentframe()
+    "S101", # Assert used for type narrowing on inspect.currentframe()
 ]
 "tests/**/*.py" = [
-    "S101",   # Use of assert detected
-    "D",      # Missing docstrings
-    "ANN",    # Missing type annotations
+    "S101", # Use of assert detected
+    "D", # Missing docstrings
+    "ANN", # Missing type annotations
     "ARG002", # Unused method argument (fixtures)
-    "PLR2004",# Magic value used in comparison
-    "N806",   # Variable in function should be lowercase (test fixtures using PascalCase callables)
-    "S105",   # Possible hardcoded password (test data)
+    "PLR2004", # Magic value used in comparison
+    "N806", # Variable in function should be lowercase (test fixtures using PascalCase callables)
+    "S105", # Possible hardcoded password (test data)
 ]
