@@ -2,6 +2,19 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 7.2.0 (2026-05-21)
+
+### Added
+
+- Parameterized expression output (`to_template()` method and `parameters` property) on `QuerySpecification` for SQL injection-safe query building with named placeholders.
+- LIKE filters automatically escape wildcard metacharacters (`%` and `_`) in user values.
+
+### Changed
+
+- `Filter._field_name` annotated as `LiteralString` to document the trust boundary for parameterized SQL template safety.
+- `QuerySpecification` caches template build result to avoid double predicate tree traversal.
+- `limit` and `offset` promoted to abstract properties on `Specification` base class.
+
 ## 7.1.0 (2026-05-18)
 
 ### Added
