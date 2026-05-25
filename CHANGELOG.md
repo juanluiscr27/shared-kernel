@@ -2,6 +2,25 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 8.0.0 (2026-05-25)
+
+### Added
+
+- `to_statement(alias="")` method on `QuerySpecification` returning a parameterized SQL fragment with named placeholders.
+- `to_filter(alias="")` method on `QuerySpecification` for filter-clause extraction.
+- Optional `alias` parameter on `Filter.build_template` for qualifying field names with a table alias.
+
+### Removed
+
+- `to_template()` method on `Specification`, `Predicate`, `Filter`, `Condition`, `PredicateGroup`, and `QuerySpecification`. **BREAKING** — use `QuerySpecification.to_statement()` instead.
+- `parameters` abstract property on `Specification` (and its `QuerySpecification` implementation). **BREAKING** — parameters are now returned as part of the `to_statement()` result.
+- `PredicateGroup.is_leaf_node` property. **BREAKING**
+- Internal `QuerySpecification._cached_template` (template cache removed alongside the API change).
+
+### Changed
+
+- Persistence how-to guide updated to demonstrate `to_statement()` and `to_filter()` usage.
+
 ## 7.2.0 (2026-05-21)
 
 ### Added
