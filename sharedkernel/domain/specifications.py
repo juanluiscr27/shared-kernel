@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from datetime import datetime
 from enum import StrEnum
 from itertools import count
@@ -25,11 +25,7 @@ class Predicate(ABC):
     def to_expression(self) -> str:
         """Returns the predicate as a SQL expression string."""
 
-    @abstractmethod
-    def to_template(self) -> LiteralString:
-        """Returns the predicate as a parameterized SQL template string."""
-
-    def build_template(self, _counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, _counter: count[int], _alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
         return "", {}
 
@@ -47,10 +43,6 @@ class Filter(Predicate):
 
     def to_expression(self) -> str:
         """Returns the filter as a SQL expression string."""
-        return ""
-
-    def to_template(self) -> LiteralString:
-        """Returns the filter as a parameterized SQL template string."""
         return ""
 
 
@@ -86,6 +78,18 @@ def _escape_like(value: DataValue) -> str:
     return str(value).replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
+def _clean_alias(alias: str) -> str:
+    """Strips whitespace and removes dots from a table alias."""
+    return alias.strip().replace(".", "")
+
+
+def _qualify(field_name: LiteralString, alias: str) -> str:
+    """Prepends a table alias to a field name when the alias is non-empty."""
+    if alias:
+        return f"{alias}.{field_name}"
+    return field_name
+
+
 class EqualFilter(Filter):
     """Filter for equality comparison (field = value)."""
 
@@ -103,10 +107,11 @@ class EqualFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} = {self.value}"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
         key = f"p{next(counter)}"
-        return f"{self.field_name} = %({key})s", {key: self._raw_value}
+        field = _qualify(self.field_name, alias)
+        return f"{field} = %({key})s", {key: self._raw_value}
 
 
 class NotEqualFilter(Filter):
@@ -126,10 +131,11 @@ class NotEqualFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} != {self.value}"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
         key = f"p{next(counter)}"
-        return f"{self.field_name} != %({key})s", {key: self._raw_value}
+        field = _qualify(self.field_name, alias)
+        return f"{field} != %({key})s", {key: self._raw_value}
 
 
 class LessThanFilter(Filter):
@@ -149,10 +155,11 @@ class LessThanFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} < {self.value}"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
         key = f"p{next(counter)}"
-        return f"{self.field_name} < %({key})s", {key: self._raw_value}
+        field = _qualify(self.field_name, alias)
+        return f"{field} < %({key})s", {key: self._raw_value}
 
 
 class LessThanOrEqualFilter(Filter):
@@ -172,10 +179,11 @@ class LessThanOrEqualFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} <= {self.value}"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
         key = f"p{next(counter)}"
-        return f"{self.field_name} <= %({key})s", {key: self._raw_value}
+        field = _qualify(self.field_name, alias)
+        return f"{field} <= %({key})s", {key: self._raw_value}
 
 
 class GreaterThanFilter(Filter):
@@ -195,10 +203,11 @@ class GreaterThanFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} > {self.value}"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
         key = f"p{next(counter)}"
-        return f"{self.field_name} > %({key})s", {key: self._raw_value}
+        field = _qualify(self.field_name, alias)
+        return f"{field} > %({key})s", {key: self._raw_value}
 
 
 class GreaterThanOrEqualFilter(Filter):
@@ -218,10 +227,11 @@ class GreaterThanOrEqualFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} >= {self.value}"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
         key = f"p{next(counter)}"
-        return f"{self.field_name} >= %({key})s", {key: self._raw_value}
+        field = _qualify(self.field_name, alias)
+        return f"{field} >= %({key})s", {key: self._raw_value}
 
 
 class InFilter(Filter):
@@ -241,8 +251,9 @@ class InFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} IN {self.values}"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
+        field = _qualify(self.field_name, alias)
         params: dict[str, DataValue] = {}
         placeholders: list[str] = []
         for val in self._raw_values:
@@ -250,7 +261,7 @@ class InFilter(Filter):
             params[key] = val
             placeholders.append(f"%({key})s")
         joined = ", ".join(placeholders)
-        return f"{self.field_name} IN ({joined})", params
+        return f"{field} IN ({joined})", params
 
 
 class NotInFilter(Filter):
@@ -270,8 +281,9 @@ class NotInFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} NOT IN {self.values}"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
+        field = _qualify(self.field_name, alias)
         params: dict[str, DataValue] = {}
         placeholders: list[str] = []
         for val in self._raw_values:
@@ -279,7 +291,7 @@ class NotInFilter(Filter):
             params[key] = val
             placeholders.append(f"%({key})s")
         joined = ", ".join(placeholders)
-        return f"{self.field_name} NOT IN ({joined})", params
+        return f"{field} NOT IN ({joined})", params
 
 
 class BetweenFilter(Filter):
@@ -306,12 +318,12 @@ class BetweenFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} BETWEEN {self.left} AND {self.right}"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
+        field = _qualify(self.field_name, alias)
         k1 = f"p{next(counter)}"
         k2 = f"p{next(counter)}"
-        return f"{self.field_name} BETWEEN %({k1})s AND %({k2})s", {k1: self._raw_left,
-                                                                    k2: self._raw_right}
+        return f"{field} BETWEEN %({k1})s AND %({k2})s", {k1: self._raw_left, k2: self._raw_right}
 
 
 class ContainsFilter(Filter):
@@ -319,23 +331,23 @@ class ContainsFilter(Filter):
 
     def __init__(self, field_name: str, value: DataValue) -> None:
         super().__init__(field_name)
-        self._value = format_value(value)
-        self._raw_value = value
+        self._value = value
 
     @property
-    def value(self) -> str:
-        """The formatted value to match against."""
+    def value(self) -> DataValue:
+        """The value to match against."""
         return self._value
 
     def to_expression(self) -> str:
         """Returns the filter as a SQL expression string."""
-        return f"{self.field_name} LIKE '%{self._raw_value}%'"
+        return f"{self.field_name} LIKE '%{self.value}%'"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
+        field = _qualify(self.field_name, alias)
         key = f"p{next(counter)}"
-        escaped = _escape_like(self._raw_value)
-        return f"{self.field_name} LIKE %({key})s", {key: f"%{escaped}%"}
+        escaped = _escape_like(self.value)
+        return f"{field} LIKE %({key})s", {key: f"%{escaped}%"}
 
 
 class NotContainsFilter(Filter):
@@ -343,23 +355,23 @@ class NotContainsFilter(Filter):
 
     def __init__(self, field_name: str, value: DataValue) -> None:
         super().__init__(field_name)
-        self._value = format_value(value)
-        self._raw_value = value
+        self._value = value
 
     @property
-    def value(self) -> str:
-        """The formatted value to match against."""
+    def value(self) -> DataValue:
+        """The value to match against."""
         return self._value
 
     def to_expression(self) -> str:
         """Returns the filter as a SQL expression string."""
-        return f"{self.field_name} NOT LIKE '%{self._raw_value}%'"
+        return f"{self.field_name} NOT LIKE '%{self.value}%'"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
+        field = _qualify(self.field_name, alias)
         key = f"p{next(counter)}"
-        escaped = _escape_like(self._raw_value)
-        return f"{self.field_name} NOT LIKE %({key})s", {key: f"%{escaped}%"}
+        escaped = _escape_like(self.value)
+        return f"{field} NOT LIKE %({key})s", {key: f"%{escaped}%"}
 
 
 class StartsWithFilter(Filter):
@@ -367,23 +379,23 @@ class StartsWithFilter(Filter):
 
     def __init__(self, field_name: str, value: DataValue) -> None:
         super().__init__(field_name)
-        self._value = format_value(value)
-        self._raw_value = value
+        self._value = value
 
     @property
-    def value(self) -> str:
-        """The formatted value to match against."""
+    def value(self) -> DataValue:
+        """The value to match against."""
         return self._value
 
     def to_expression(self) -> str:
         """Returns the filter as a SQL expression string."""
-        return f"{self.field_name} LIKE '{self._raw_value}%'"
+        return f"{self.field_name} LIKE '{self.value}%'"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
+        field = _qualify(self.field_name, alias)
         key = f"p{next(counter)}"
-        escaped = _escape_like(self._raw_value)
-        return f"{self.field_name} LIKE %({key})s", {key: f"{escaped}%"}
+        escaped = _escape_like(self.value)
+        return f"{field} LIKE %({key})s", {key: f"{escaped}%"}
 
 
 class EndsWithFilter(Filter):
@@ -391,23 +403,23 @@ class EndsWithFilter(Filter):
 
     def __init__(self, field_name: str, value: DataValue) -> None:
         super().__init__(field_name)
-        self._value = format_value(value)
-        self._raw_value = value
+        self._value = value
 
     @property
-    def value(self) -> str:
-        """The formatted value to match against."""
+    def value(self) -> DataValue:
+        """The value to match against."""
         return self._value
 
     def to_expression(self) -> str:
         """Returns the filter as a SQL expression string."""
-        return f"{self.field_name} LIKE '%{self._raw_value}'"
+        return f"{self.field_name} LIKE '%{self.value}'"
 
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
+        field = _qualify(self.field_name, alias)
         key = f"p{next(counter)}"
-        escaped = _escape_like(self._raw_value)
-        return f"{self.field_name} LIKE %({key})s", {key: f"%{escaped}"}
+        escaped = _escape_like(self.value)
+        return f"{field} LIKE %({key})s", {key: f"%{escaped}"}
 
 
 class IsNullFilter(Filter):
@@ -420,9 +432,10 @@ class IsNullFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} IS NULL"
 
-    def build_template(self, _counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, _counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
-        return f"{self.field_name} IS NULL", {}
+        field = _qualify(self.field_name, alias)
+        return f"{field} IS NULL", {}
 
 
 class IsNotNullFilter(Filter):
@@ -435,9 +448,10 @@ class IsNotNullFilter(Filter):
         """Returns the filter as a SQL expression string."""
         return f"{self.field_name} IS NOT NULL"
 
-    def build_template(self, _counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, _counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
-        return f"{self.field_name} IS NOT NULL", {}
+        field = _qualify(self.field_name, alias)
+        return f"{field} IS NOT NULL", {}
 
 
 class Condition(Predicate):
@@ -450,15 +464,9 @@ class Condition(Predicate):
         """Returns the condition as a SQL expression string."""
         return self._filter.to_expression()
 
-    def to_template(self) -> LiteralString:
-        """Returns the condition as a parameterized SQL template string."""
-        counter = count()
-        template, _ = self._filter.build_template(counter)
-        return template
-
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
-        return self._filter.build_template(counter)
+        return self._filter.build_template(counter, alias)
 
     @classmethod
     def equal(cls, field_name: str, value: DataValue) -> Condition:
@@ -553,11 +561,6 @@ class PredicateGroup(Predicate):
         """The predicates in this group."""
         return self._predicate
 
-    @property
-    def is_leaf_node(self) -> bool:
-        """Whether this group contains a single non-group predicate."""
-        return len(self._predicate) == 1 and not isinstance(self._predicate[0], PredicateGroup)
-
     def to_expression(self) -> str:
         """Returns the predicate group as a SQL expression string."""
         if not self.predicates:
@@ -574,13 +577,7 @@ class PredicateGroup(Predicate):
 
         return separator.join(expressions)
 
-    def to_template(self) -> LiteralString:
-        """Returns the predicate group as a parameterized SQL template string."""
-        counter = count()
-        template, _ = self.build_template(counter)
-        return template
-
-    def build_template(self, counter: count[int]) -> tuple[LiteralString, dict[str, DataValue]]:
+    def build_template(self, counter: count[int], alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
         """Builds a parameterized SQL template fragment using the shared parameter counter."""
         if not self.predicates:
             return "", {}
@@ -588,7 +585,7 @@ class PredicateGroup(Predicate):
         templates: list[str] = []
         all_params: dict[str, DataValue] = {}
         for predicate in self.predicates:
-            tmpl, params = predicate.build_template(counter)
+            tmpl, params = predicate.build_template(counter, alias)
             if isinstance(predicate, PredicateGroup):
                 tmpl = f"({tmpl})"
             templates.append(tmpl)
@@ -671,15 +668,6 @@ class Specification(ABC):
     def to_expression(self) -> str:
         """Returns the specification as a SQL expression string."""
 
-    @abstractmethod
-    def to_template(self) -> LiteralString:
-        """Returns the specification as a parameterized SQL template string."""
-
-    @property
-    @abstractmethod
-    def parameters(self) -> Mapping[str, DataValue]:
-        """Returns the named parameters for the parameterized SQL template."""
-
     @property
     @abstractmethod
     def limit(self) -> int:
@@ -702,7 +690,6 @@ class QuerySpecification(Specification):
         self._predicate = predicate
         self._sorting = tuple(sorting) if sorting else ()
         self._pagination = pagination
-        self._cached_template: tuple[LiteralString, dict[str, DataValue]] | None = None
 
     @property
     def predicate(self) -> Predicate | None:
@@ -734,7 +721,9 @@ class QuerySpecification(Specification):
         parts: list[str] = []
 
         if self.predicate:
-            parts.append(f"WHERE {self.predicate.to_expression()}")
+            expr = self.predicate.to_expression()
+            if expr:
+                parts.append(f"WHERE {expr}")
 
         if self.sorting:
             sorting_expression = ", ".join(sort.to_expression() for sort in self.sorting)
@@ -744,34 +733,36 @@ class QuerySpecification(Specification):
 
         return " ".join(parts)
 
-    def to_template(self) -> LiteralString:
-        """Returns the full query specification as a parameterized SQL template string."""
-        template, _ = self._build_template()
-        return template
-
-    @property
-    def parameters(self) -> Mapping[str, DataValue]:
-        """Returns the named parameters for the parameterized SQL template."""
-        _, params = self._build_template()
-        return params
-
-    def _build_template(self) -> tuple[LiteralString, dict[str, DataValue]]:
-        if self._cached_template is not None:
-            return self._cached_template
-
+    def to_statement(self, alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
+        """Returns the full query specification as a parameterized SQL statement."""
+        alias = _clean_alias(alias)
         parts: list[str] = []
         params: dict[str, DataValue] = {}
         counter = count()
 
         if self.predicate:
-            tmpl, params = self.predicate.build_template(counter)
-            parts.append(f"WHERE {tmpl}")
+            tmpl, params = self.predicate.build_template(counter, alias)
+            if tmpl:
+                parts.append(f"WHERE {tmpl}")
 
         if self.sorting:
-            sorting_expression = ", ".join(sort.to_expression() for sort in self.sorting)
+            sorting_expression = ", ".join(
+                f"{_qualify(sort.field_name, alias)} {sort.direction.value}" for sort in self.sorting
+            )
             parts.append(f"ORDER BY {sorting_expression}")
 
         parts.append(self.pagination.to_expression())
 
-        self._cached_template = " ".join(parts), params
-        return self._cached_template
+        return " ".join(parts), params
+
+    def to_filter(self, alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
+        """Returns the filter predicate as a parameterized SQL WHERE clause."""
+        if not self.predicate:
+            return "", {}
+
+        alias = _clean_alias(alias)
+        counter = count()
+        tmpl, params = self.predicate.build_template(counter, alias)
+        if not tmpl:
+            return "", {}
+        return f"WHERE {tmpl}", params
