@@ -123,7 +123,7 @@ class EventBroker:
         token = set_request_id(event.correlation_id)
         try:
             for consumer in consumer_group:
-                consumer.process(domain_event, event.position)
+                consumer.process(domain_event, event.position, event.stream_id)
         finally:
             reset_request_id(token)
 

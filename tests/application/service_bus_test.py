@@ -132,7 +132,7 @@ class UserRegistered(DomainEvent):
 
 class RegistrationEventHandler(DomainEventHandler[UserRegistered]):
 
-    def process(self, event: UserRegistered, position: int):
+    def process(self, event: UserRegistered, position: int, stream_id: UUID):
         pass
 
 
