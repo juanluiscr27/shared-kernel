@@ -2,6 +2,16 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 9.0.0 (2026-07-03)
+
+### Changed
+
+- `DomainEventHandler.process` now takes a third `stream_id: UUID` argument, and `EventBroker.publish` forwards the emitter `stream_id` (mirroring the projector path) so saga/inbox handlers can key their inbox on the source stream. **BREAKING** — update every `DomainEventHandler.process` override to the new signature. (#131)
+
+### Added
+
+- `to_statement(alias="")` and `to_filter(alias="")` declared as abstract methods on the `Specification` base class (already implemented by `QuerySpecification`). **BREAKING** — direct `Specification` subclasses must now implement both. (#130)
+
 ## 8.0.0 (2026-05-25)
 
 ### Added

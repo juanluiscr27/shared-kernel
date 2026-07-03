@@ -1,6 +1,6 @@
 [project]
 name = "sharedkernel"
-version = "8.0.0"
+version = "9.0.0"
 description = "Shared Kernel for clean architecture projects"
 readme = "README.md"
 authors = [
