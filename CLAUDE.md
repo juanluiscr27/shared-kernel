@@ -1,5 +1,12 @@
 # CLAUDE.md
 
+## TOP RULE — READ FIRST
+
+- When I ask a question, ONLY answer it. Do nothing else.
+- When I ask you to do something, do EXACTLY what I ask — nothing more, nothing adjacent.
+- You CANNOT write code without an agreed plan.
+- You DO NOT touch this project (edits, commands, branches, commits) without my direct and explicit consent.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
