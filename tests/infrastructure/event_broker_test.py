@@ -34,20 +34,29 @@ class UserLoggedIn(DomainEvent):
 
 class RegistrationEventHandler(DomainEventHandler[UserRegistered]):
 
-    def process(self, event: UserRegistered, position: int):
+    def process(self, event: UserRegistered, position: int, stream_id: UUID):
         print(f"{event.event_id} event processed by {type(self).__name__}")
 
 
 class EmailUserEventHandler(DomainEventHandler[UserRegistered]):
 
-    def process(self, event: UserRegistered, position: int):
+    def process(self, event: UserRegistered, position: int, stream_id: UUID):
         print(f"{event.event_id} event processed by {type(self).__name__}")
 
 
 class ContextAwareEventHandler(DomainEventHandler[UserRegistered]):
 
-    def process(self, event: UserRegistered, position: int):
+    def process(self, event: UserRegistered, position: int, stream_id: UUID):
         print(f"{event.event_id} event processed with request_id={get_request_id()}")
+
+
+class RecordingEventHandler(DomainEventHandler[UserRegistered]):
+
+    def __init__(self):
+        self.received: list[tuple[int, UUID]] = []
+
+    def process(self, event: UserRegistered, position: int, stream_id: UUID):
+        self.received.append((position, stream_id))
 
 
 class RegisterUserCommandHandler(CommandHandler[RegisterUser]):
@@ -223,6 +232,47 @@ def test_event_handler_sees_correct_request_id_when_event_is_published(fake_logg
 
     # Assert
     assert capture_stdout["console"] == console
+
+
+def test_events_from_different_streams_with_same_position_are_both_processed(fake_logger):
+    # Arrange
+    event_handler = RecordingEventHandler()
+    fake_mapper = FakeDomainEventMapper()
+    event_broker = EventBroker(fake_logger, fake_mapper)
+    event_broker.subscribe(event_handler)
+
+    first_stream_id = UUID("018f9284-769b-726d-b3bf-3885bf2ddd3c")
+    second_stream_id = UUID("018f9284-769b-726d-b3bf-3885bf2ddd3d")
+
+    first_event = Event(
+        event_id=UUID("018f55de-8321-7efd-a4e3-fcc2c5ec5eea"),
+        event_type="UserRegistered",
+        position=1,
+        data='{"event_id":"UserRegistered", "message":"User(name=\'John Doe\')"}',
+        stream_id=first_stream_id,
+        stream_type="User",
+        version=1,
+        created=datetime.fromisoformat('2024-04-28T12:30:12-04:00'),
+        correlation_id=UUID('018fa862-800b-7b6a-8690-ba0e06908c26'),
+    )
+    second_event = Event(
+        event_id=UUID("018f55de-8321-7efd-a4e3-fcc2c5ec5eeb"),
+        event_type="UserRegistered",
+        position=1,
+        data='{"event_id":"UserRegistered", "message":"User(name=\'Jane Doe\')"}',
+        stream_id=second_stream_id,
+        stream_type="User",
+        version=1,
+        created=datetime.fromisoformat('2024-04-28T12:30:12-04:00'),
+        correlation_id=UUID('018fa862-800b-7b6a-8690-ba0e06908c26'),
+    )
+
+    # Act
+    event_broker.publish(first_event)
+    event_broker.publish(second_event)
+
+    # Assert
+    assert event_handler.received == [(1, first_stream_id), (1, second_stream_id)]
 
 
 def test_request_id_is_reset_after_event_processing(fake_logger):

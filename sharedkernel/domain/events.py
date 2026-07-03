@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from uuid import UUID
 
 
 @dataclass(frozen=True)
@@ -24,12 +25,13 @@ class DomainEventHandler[TEvent: DomainEvent](ABC):
     """
 
     @abstractmethod
-    def process(self, event: TEvent, position: int) -> None:
+    def process(self, event: TEvent, position: int, stream_id: UUID) -> None:
         """Process a Domain Event.
 
         Args:
             event: Domain Event to process.
             position: Event position in the Stream
+            stream_id: Identifier of the emitter aggregate stream.
 
         Returns:
             None
