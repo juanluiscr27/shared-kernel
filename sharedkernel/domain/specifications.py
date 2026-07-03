@@ -668,6 +668,14 @@ class Specification(ABC):
     def to_expression(self) -> str:
         """Returns the specification as a SQL expression string."""
 
+    @abstractmethod
+    def to_statement(self, alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
+        """Returns the full query specification as a parameterized SQL statement."""
+
+    @abstractmethod
+    def to_filter(self, alias: str = "") -> tuple[LiteralString, dict[str, DataValue]]:
+        """Returns the filter predicate as a parameterized SQL WHERE clause."""
+
     @property
     @abstractmethod
     def limit(self) -> int:
