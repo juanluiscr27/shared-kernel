@@ -174,6 +174,8 @@ class EventDispatcher:
         """Publish a Domain Event to its respective Event Group.
 
         Look for the Handlers subscribed in the Event Group and notify them to process the Event.
+        Sets the request ID context variable from the event's correlation ID for the duration of
+        listener execution.
 
         Args:
            event: Event to dispatch.
@@ -200,5 +202,9 @@ class EventDispatcher:
         listener_group = self._listeners[event_type]
 
         self._logger.info(f"{event_type} event dispatched to all listeners")
-        for listener in listener_group:
-            listener.process(domain_event, event.position, event.stream_id)
+        token = set_request_id(event.correlation_id)
+        try:
+            for listener in listener_group:
+                listener.process(domain_event, event.position, event.stream_id)
+        finally:
+            reset_request_id(token)
