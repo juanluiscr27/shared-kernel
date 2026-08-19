@@ -2,6 +2,12 @@
 
 All notable changes to Shared Kernel will be documented in this file.
 
+## 9.0.1 (2026-08-18)
+
+### Fixed
+
+- `EventDispatcher.dispatch` now restores the request ID from the event's `correlation_id` for the duration of listener execution (and resets it in a `finally` block), mirroring `EventBroker.publish`. Projectors previously read a fabricated `uuid4()` from `get_request_id()` instead of the originating request's ID, silently breaking the correlation chain on the projection path. (#136)
+
 ## 9.0.0 (2026-07-03)
 
 ### Changed
