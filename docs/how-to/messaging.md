@@ -104,8 +104,8 @@ Both services accept raw `Event` objects and use a `MappingPipeline` to convert 
 |---|---|---|
 | **Purpose** | Execute side effects and business reactions (sagas) | Build and maintain read models (projections) |
 | **Subscribers** | `DomainEventHandler[TEvent]` | `Projector[TProjection]` |
-| **Correlation ID** | Propagates `event.correlation_id` via `set_request_id()` so downstream handlers and repositories can correlate events back to the originating request | Does not manage request context |
-| **Position tracking** | Passes `event.position` to handlers | Passes `event.position` and `event.stream_id` to projectors, enabling per-entity position tracking and idempotent replay |
+| **Correlation ID** | Propagates `event.correlation_id` via `set_request_id()` so downstream handlers and repositories can correlate events back to the originating request | Propagates `event.correlation_id` via `set_request_id()` so projectors can correlate read model updates back to the originating request |
+| **Position tracking** | Passes `event.position` and `event.stream_id` to handlers, allowing sagas to key their inbox on the emitter stream | Passes `event.position` and `event.stream_id` to projectors, enabling per-entity position tracking and idempotent replay |
 | **Mapper not found** | Logs a warning and skips | Raises `MapperNotFound` |
 
 ### When to use the Event Broker
@@ -116,6 +116,6 @@ Typical consumers: Kafka event consumers that feed saga handlers.
 
 ### When to use the Event Dispatcher
 
-Use the `EventDispatcher` when consuming events updates **read-side projections** — denormalized views optimized for queries. The dispatcher passes the `stream_id` to projectors so they can track which events have been applied per entity, enabling idempotent replay and ordered processing.
+Use the `EventDispatcher` when consuming events updates **read-side projections** — denormalized views optimized for queries. The dispatcher passes the `stream_id` to projectors so they can track which events have been applied per entity, enabling idempotent replay and ordered processing. Like the broker, it restores the event's correlation ID into the request context, so `get_request_id()` inside a projector returns the ID of the request that produced the event.
 
 Typical consumers: Event store catch-up subscriptions that feed projectors.
