@@ -5,9 +5,10 @@ from uuid import UUID
 
 import pytest
 
+from sharedkernel.application.services import get_request_id
 from sharedkernel.domain.events import DomainEvent
 from sharedkernel.infrastructure.data import DataModel, Event
-from sharedkernel.infrastructure.exceptions import MapperNotFound, UnprocessableListener
+from sharedkernel.infrastructure.exceptions import EventOutOfSequence, MapperNotFound, UnprocessableListener
 from sharedkernel.infrastructure.projections import Projection, Projector
 from sharedkernel.infrastructure.services import EventDispatcher, MappingPipeline
 
@@ -81,6 +82,23 @@ class UserListProjection(Projection[UserModel]):
     @singledispatchmethod
     def apply(self, event: DomainEvent) -> None:
         super().apply(event)
+
+
+class ContextAwareProjection(Projection[UserModel]):
+
+    def get_position(self, entity_id: UUID, event_type: str) -> int:
+        return 0
+
+    def update_position(self, entity_id: UUID, event_type: str, position: int) -> None:
+        print(f"{event_type} event projected with request_id={get_request_id()}")
+
+    @singledispatchmethod
+    def apply(self, event: DomainEvent) -> None:
+        super().apply(event)
+
+    @apply.register
+    def _when(self, event: UserRegistered) -> None:
+        pass
 
 
 class FakeDomainEventMapper(MappingPipeline):
@@ -229,3 +247,95 @@ def test_projector_with_no_event_mapper_raise_error(fake_logger):
 
     # Assert
     assert str(error.value) == "No Event Mapper was found for event UserRegistered."
+
+
+def test_request_id_is_set_during_event_projection(fake_logger, capture_stdout):
+    # Arrange
+    correlation_id = UUID('018fa862-800b-7b6a-8690-ba0e06908c26')
+
+    event = Event(
+        event_id=UUID("018f55de-8321-7efd-a4e3-fcc2c5ec5eea"),
+        event_type="UserRegistered",
+        position=1,
+        data='{"user_id":"018f9284-769b-726d-b3bf-3885bf2ddd3c",   "name":"John Doe Smith",   "slug":"john-doe-smith"}',
+        stream_id=UUID("018f9284-769b-726d-b3bf-3885bf2ddd3c"),
+        stream_type="User",
+        version=1,
+        created=datetime.fromisoformat('2024-04-28T12:30:12-04:00'),
+        correlation_id=correlation_id,
+    )
+
+    projection = ContextAwareProjection()
+    listener = Projector(fake_logger, projection)
+    fake_mapper = FakeDomainEventMapper()
+    event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
+    event_dispatcher.subscribe(listener)
+    console = f"UserRegistered event projected with request_id={correlation_id}\n"
+
+    # Act
+    event_dispatcher.dispatch(event)
+
+    # Assert
+    assert capture_stdout["console"] == console
+
+
+def test_request_id_is_reset_after_event_projection(fake_logger):
+    # Arrange
+    correlation_id = UUID('018fa862-800b-7b6a-8690-ba0e06908c26')
+
+    event = Event(
+        event_id=UUID("018f55de-8321-7efd-a4e3-fcc2c5ec5eea"),
+        event_type="UserRegistered",
+        position=1,
+        data='{"user_id":"018f9284-769b-726d-b3bf-3885bf2ddd3c",   "name":"John Doe Smith",   "slug":"john-doe-smith"}',
+        stream_id=UUID("018f9284-769b-726d-b3bf-3885bf2ddd3c"),
+        stream_type="User",
+        version=1,
+        created=datetime.fromisoformat('2024-04-28T12:30:12-04:00'),
+        correlation_id=correlation_id,
+    )
+
+    projection = ContextAwareProjection()
+    listener = Projector(fake_logger, projection)
+    fake_mapper = FakeDomainEventMapper()
+    event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
+    event_dispatcher.subscribe(listener)
+
+    # Act
+    event_dispatcher.dispatch(event)
+    result = get_request_id()
+
+    # Assert
+    assert result != correlation_id
+
+
+def test_request_id_is_reset_when_projector_raises(fake_logger):
+    # Arrange
+    correlation_id = UUID('018fa862-800b-7b6a-8690-ba0e06908c26')
+
+    event = Event(
+        event_id=UUID("018f55de-8321-7efd-a4e3-fcc2c5ec5eea"),
+        event_type="UserRegistered",
+        position=3,
+        data='{"user_id":"018f9284-769b-726d-b3bf-3885bf2ddd3c",   "name":"John Doe Smith",   "slug":"john-doe-smith"}',
+        stream_id=UUID("018f9284-769b-726d-b3bf-3885bf2ddd3c"),
+        stream_type="User",
+        version=3,
+        created=datetime.fromisoformat('2024-04-28T12:30:12-04:00'),
+        correlation_id=correlation_id,
+    )
+
+    projection = ContextAwareProjection()
+    listener = Projector(fake_logger, projection)
+    fake_mapper = FakeDomainEventMapper()
+    event_dispatcher = EventDispatcher(logger=fake_logger, mapper=fake_mapper)
+    event_dispatcher.subscribe(listener)
+
+    # Act
+    with pytest.raises(EventOutOfSequence):
+        event_dispatcher.dispatch(event)
+
+    result = get_request_id()
+
+    # Assert
+    assert result != correlation_id
